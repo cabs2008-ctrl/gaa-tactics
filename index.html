@@ -2,148 +2,148 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GAA Match Day Pro</title>
+<title>GAA Tactics Elite</title>
 
 <style>
-body {
-  margin:0;
-  font-family: Arial;
-  text-align:center;
-}
-
-h2 {
-  margin:10px;
-}
+body { margin:0; font-family:Arial; text-align:center; }
 
 .pitch {
   width:100%;
   max-width:400px;
-  height:600px;
+  height:500px;
   margin:auto;
-  border:3px solid black;
+  background:#4CAF50;
   position:relative;
-  background:#e8f5e9;
 }
 
 .player {
-  width:50px;
-  height:50px;
-  border-radius:50%;
-  background:#2e7d32;
+  width:48px;height:48px;border-radius:50%;
+  position:absolute;display:flex;align-items:center;justify-content:center;
   color:white;
-  position:absolute;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:14px;
-  cursor:grab;
 }
 
-.controls {
-  margin:10px;
-}
+.A { background:#2e7d32; }
+.B { background:#1565c0; }
 
-button {
-  padding:12px;
-  margin:5px;
-  font-size:14px;
-}
+button { margin:4px; padding:10px; }
+
+.hidden { display:none; }
+
+input { width:50px; margin:3px; }
+
 </style>
 </head>
 
 <body>
 
-<h2>GAA Match Day</h2>
+<h3>GAA Match Day</h3>
 
-<div class="pitch" id="pitch"></div>
+<!-- NAV -->
+<div>
+<button onclick="showTab('pitchTab')">Pitch</button>
+<button onclick="showTab('scoreTab')">Score</button>
+</div>
 
-<div class="controls">
-<button onclick="formation()">Formation</button>
-<button onclick="kickout()">Kickout</button>
-<button onclick="defense()">Defense</button>
-<button onclick="reset()">Reset</button>
+<!-- PITCH TAB -->
+<div id="pitchTab">
+  <div class="pitch" id="pitch"></div>
+
+  <button onclick="formation()">Formation</button>
+</div>
+
+<!-- SCORE TAB -->
+<div id="scoreTab" class="hidden">
+
+<h4>Half:
+<button onclick="setHalf(1)">1st</button>
+<button onclick="setHalf(2)">2nd</button>
+</h4>
+
+<h4>Team A</h4>
+Goals <input id="aGoals">
+Points <input id="aPoints">
+Wides <input id="aWides">
+
+<h4>Team B</h4>
+Goals <input id="bGoals">
+Points <input id="bPoints">
+Wides <input id="bWides">
+
+<br><br>
+
+<button onclick="saveScore()">Save</button>
+
+<h4 id="totalScore"></h4>
+
 </div>
 
 <script>
-const pitch = document.getElementById("pitch");
-let players = [];
+let pitch=document.getElementById("pitch");
+let currentHalf=1;
 
-function createPlayer(n,x,y){
-  let p = document.createElement("div");
-  p.className="player";
-  p.innerText=n;
-
-  p.style.left=x+"px";
-  p.style.top=y+"px";
-
-  p.draggable=true;
-
-  p.onclick = () => {
-    let name = prompt("Player:", p.innerText);
-    if(name) p.innerText = name;
-  };
-
-  p.ondragend = e => {
-    let rect = pitch.getBoundingClientRect();
-    let x = e.clientX - rect.left - 25;
-    let y = e.clientY - rect.top - 25;
-
-    x = Math.round(x/20)*20;
-    y = Math.round(y/20)*20;
-
-    p.style.left = x + "px";
-    p.style.top = y + "px";
-  };
-
-  pitch.appendChild(p);
-  players.push(p);
+function showTab(tab){
+ document.getElementById("pitchTab").classList.add("hidden");
+ document.getElementById("scoreTab").classList.add("hidden");
+ document.getElementById(tab).classList.remove("hidden");
 }
 
-function clear(){
-  pitch.innerHTML="";
-  players=[];
+/* PLAYERS */
+function create(n,x,y){
+ let p=document.createElement("div");
+ p.className="player A";
+ p.innerText=n;
+ p.style.left=x+"px";
+ p.style.top=y+"px";
+
+ p.onclick=()=>{
+  let name=prompt("Player:",p.innerText);
+  if(name) p.innerText=name;
+ };
+
+ pitch.appendChild(p);
 }
 
 function formation(){
-  clear();
-  let pos = [
-    [175,20],
-    [30,100],[120,100],[210,100],[300,100],
-    [30,200],[120,200],[210,200],[300,200],
-    [30,300],[120,300],[210,300],[300,300],
-    [100,450],[250,450]
-  ];
-  pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1]));
+ pitch.innerHTML="";
+ let pos=[
+ [170,20],
+ [30,100],[120,100],[210,100],[300,100],
+ [30,200],[120,200],[210,200],[300,200],
+ [30,300],[120,300],[210,300],[300,300],
+ [100,420],[250,420]
+ ];
+ pos.forEach((p,i)=>create(i+1,p[0],p[1]));
 }
 
-function kickout(){
-  clear();
-  let pos = [
-    [175,50],
-    [50,150],[300,150],[175,150],
-    [100,250],[250,250],
-    [175,350],
-    [50,450],[300,450],
-    [100,520],[250,520],
-    [175,580],[50,580],[300,580],[175,620]
-  ];
-  pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1]));
+/* SCORE SYSTEM */
+function setHalf(h){
+ currentHalf=h;
+ loadScore();
 }
 
-function defense(){
-  clear();
-  let pos = [
-    [175,30],
-    [30,100],[120,100],[210,100],[300,100],
-    [30,160],[120,160],[210,160],[300,160],
-    [80,220],[175,220],[260,220],
-    [120,300],[230,300],[175,360]
-  ];
-  pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1]));
+function saveScore(){
+ let data={
+  aG:aGoals.value,
+  aP:aPoints.value,
+  bG:bGoals.value,
+  bP:bPoints.value
+ };
+ localStorage.setItem("score"+currentHalf, JSON.stringify(data));
+ updateTotal();
 }
 
-function reset(){
-  clear();
+function loadScore(){
+ let data=JSON.parse(localStorage.getItem("score"+currentHalf)||"{}");
+ aGoals.value=data.aG||"";
+ aPoints.value=data.aP||"";
+ bGoals.value=data.bG||"";
+ bPoints.value=data.bP||"";
+}
+
+function updateTotal(){
+ let a=(aGoals.value*3||0)+(aPoints.value*1||0);
+ let b=(bGoals.value*3||0)+(bPoints.value*1||0);
+ document.getElementById("totalScore").innerText="Score: "+a+" - "+b;
 }
 </script>
 
