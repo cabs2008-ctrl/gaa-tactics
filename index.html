@@ -11,12 +11,8 @@ body { margin:0; font-family:Arial; text-align:center; }
 .active { display:block; }
 
 .nav { background:#333; padding:10px; }
-.nav button {
-  margin:3px; padding:8px;
-  color:white; background:#555; border:none;
-}
+.nav button { margin:3px; padding:8px; color:white; background:#555; border:none; }
 
-/* Pitch */
 .pitch {
   width:100%;
   max-width:400px;
@@ -35,14 +31,22 @@ body { margin:0; font-family:Arial; text-align:center; }
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:12px;
   touch-action:none;
 }
 
 .A { background:#1b5e20; }
 .B { background:#1565c0; }
 
-canvas { position:absolute; top:0; left:0; }
+.subs { margin:10px; }
+
+.dot {
+  width:20px; height:20px;
+  border-radius:50%;
+  background:#ccc;
+  display:inline-block;
+  margin:3px;
+}
+.used { background:red; }
 
 button { margin:4px; padding:10px; }
 </style>
@@ -51,116 +55,100 @@ button { margin:4px; padding:10px; }
 <body>
 
 <div class="nav">
-<button onclick="showTab('teamA')">Colmcille</button>
+<button onclick="showTab('teamA')">Columkill</button>
 <button onclick="showTab('teamB')">Team B</button>
-<button onclick="showTab('draw')">Draw</button>
-<button onclick="showTab('score')">Stats</button>
+<button onclick="showTab('score')">Score</button>
+<button onclick="showTab('history')">History</button>
 </div>
 
 <!-- TEAM A -->
 <div id="teamA" class="tab active">
-<h3 contenteditable="true" id="teamAName">Colmcille</h3>
+<h3>Columkill</h3>
 <div class="pitch" id="pitchA"></div>
 <button onclick="formation('A')">Formation</button>
+<div class="subs" id="subsA"></div>
 </div>
 
 <!-- TEAM B -->
 <div id="teamB" class="tab">
-<h3 contenteditable="true" id="teamBName">Team B</h3>
+<h3 id="teamBName" contenteditable="true" oninput="updateTeamB()">Team B</h3>
 <div class="pitch" id="pitchB"></div>
 <button onclick="formation('B')">Formation</button>
+<div class="subs" id="subsB"></div>
 </div>
 
-<!-- DRAW -->
-<div id="draw" class="tab">
-<h3>Draw Tactics</h3>
-<div style="position:relative; max-width:400px; margin:auto;">
-  <div class="pitch"></div>
-  <canvas id="drawCanvas" width="400" height="600"></canvas>
-</div>
-<button onclick="clearDraw()">Clear Lines</button>
-</div>
-
-<!-- STATS -->
+<!-- SCORE -->
 <div id="score" class="tab">
+<h3>Score</h3>
+<h4>Columkill vs <span id="scoreTeamB">Team B</span></h4>
 
-<h3>Match Stats</h3>
+<div id="scoreDisplay">0-00</div>
 
-<div id="statsCapture">
+<button onclick="goal()">+ Goal</button>
+<button onclick="point()">+ Point</button>
+<button onclick="wide()">+ Wide</button>
 
-<table border="1" style="width:100%; max-width:400px; margin:auto; text-align:center;">
-<tr>
-<th>Metric</th>
-<th id="teamANameDisplay">Colmcille</th>
-<th id="teamBNameDisplay">Team B</th>
-</tr>
+<p>Wides: <span id="wides">0</span></p>
 
-<tr><td>Goals</td><td id="A_goals">0</td><td id="B_goals">0</td></tr>
-<tr><td>Points</td><td id="A_points">0</td><td id="B_points">0</td></tr>
-<tr><td>Wides</td><td id="A_wides">0</td><td id="B_wides">0</td></tr>
-<tr><td>Turnovers</td><td id="A_turnovers">0</td><td id="B_turnovers">0</td></tr>
-
-<tr><td>Shots</td><td id="A_shots">0</td><td id="B_shots">0</td></tr>
-<tr><td>Scores</td><td id="A_scores">0</td><td id="B_scores">0</td></tr>
-<tr><td>Shot %</td><td id="A_percent">0%</td><td id="B_percent">0%</td></tr>
-</table>
-
+<button onclick="saveMatch()">Save Match</button>
+<button onclick="exportReport()">Export Report</button>
 </div>
 
-<br>
-
-<h4>Add Stats</h4>
-
-<button onclick="addStat('A','goal')">A Goal</button>
-<button onclick="addStat('A','point')">A Point</button>
-<button onclick="addStat('A','wide')">A Wide</button>
-<button onclick="addStat('A','turnover')">A Turnover</button>
-
-<br><br>
-
-<button onclick="addStat('B','goal')">B Goal</button>
-<button onclick="addStat('B','point')">B Point</button>
-<button onclick="addStat('B','wide')">B Wide</button>
-<button onclick="addStat('B','turnover')">B Turnover</button>
-
-<br><br>
-
-<button onclick="exportFull()">Export Match</button>
-
+<!-- HISTORY -->
+<div id="history" class="tab">
+<h3>Match History</h3>
+<div id="historyList"></div>
 </div>
-
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <script>
 
-// TABS
+// NAV
 function showTab(id){
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
  document.getElementById(id).classList.add("active");
 }
 
+// TEAM NAME
+function updateTeamB(){
+ let name=document.getElementById("teamBName").innerText;
+ document.getElementById("scoreTeamB").innerText=name;
+}
+
+// SCORE
+let goals=0, points=0, wides=0;
+
+function updateScore(){
+ document.getElementById("scoreDisplay").innerText =
+  goals + "-" + (points<10?"0":"") + points;
+ document.getElementById("wides").innerText=wides;
+}
+
+function goal(){ goals++; updateScore(); }
+function point(){ points++; updateScore(); }
+function wide(){ wides++; updateScore(); }
+
 // PLAYERS
 function createPlayer(n,x,y,team){
- let pitch = team==="A" ? document.getElementById("pitchA") : document.getElementById("pitchB");
+ let pitch = team==="A"?pitchA:pitchB;
 
  let p=document.createElement("div");
- p.className="player " + team;
+ p.className="player "+team;
  p.innerText=n;
 
  p.style.left=x+"px";
  p.style.top=y+"px";
 
- let offsetX, offsetY;
+ let ox, oy;
 
  p.addEventListener("touchstart",e=>{
-  offsetX=e.touches[0].clientX-p.offsetLeft;
-  offsetY=e.touches[0].clientY-p.offsetTop;
+  ox=e.touches[0].clientX-p.offsetLeft;
+  oy=e.touches[0].clientY-p.offsetTop;
  });
 
  p.addEventListener("touchmove",e=>{
-  let rect=pitch.getBoundingClientRect();
-  p.style.left=(e.touches[0].clientX-rect.left-offsetX)+"px";
-  p.style.top=(e.touches[0].clientY-rect.top-offsetY)+"px";
+  let r=pitch.getBoundingClientRect();
+  p.style.left=e.touches[0].clientX-r.left-ox+"px";
+  p.style.top=e.touches[0].clientY-r.top-oy+"px";
  });
 
  p.onclick=()=>{
@@ -172,7 +160,7 @@ function createPlayer(n,x,y,team){
 }
 
 function clear(team){
- let pitch = team==="A" ? document.getElementById("pitchA") : document.getElementById("pitchB");
+ let pitch = team==="A"?pitchA:pitchB;
  pitch.innerHTML="";
 }
 
@@ -191,67 +179,71 @@ function formation(team){
  pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],team));
 }
 
-// DRAW
-const canvas=document.getElementById("drawCanvas");
-const ctx=canvas.getContext("2d");
-
-canvas.addEventListener("touchstart",e=>{
- ctx.beginPath();
- ctx.moveTo(e.touches[0].clientX,e.touches[0].clientY);
-});
-
-canvas.addEventListener("touchmove",e=>{
- ctx.lineTo(e.touches[0].clientX,e.touches[0].clientY);
- ctx.stroke();
-});
-
-function clearDraw(){
- ctx.clearRect(0,0,canvas.width,canvas.height);
+// SUB DOTS
+function createSubs(id){
+ let container=document.getElementById(id);
+ container.innerHTML="";
+ for(let i=0;i<5;i++){
+  let d=document.createElement("div");
+  d.className="dot";
+  d.onclick=()=>d.classList.toggle("used");
+  container.appendChild(d);
+ }
 }
 
-// STATS
-let stats={
- A:{goals:0,points:0,wides:0,turnovers:0},
- B:{goals:0,points:0,wides:0,turnovers:0}
-};
+createSubs("subsA");
+createSubs("subsB");
 
-function addStat(team,type){
- stats[team][type+"s"]++;
- updateStats();
+// SAVE HISTORY
+function saveMatch(){
+ let history=JSON.parse(localStorage.getItem("history")||"[]");
+
+ let match={
+  teamB:document.getElementById("teamBName").innerText,
+  score:goals+"-"+points
+ };
+
+ history.push(match);
+ localStorage.setItem("history",JSON.stringify(history));
+
+ loadHistory();
+ alert("Saved");
 }
 
-function updateStats(){
- ["A","B"].forEach(t=>{
-  let s=stats[t];
-  let scores=s.goals+s.points;
-  let shots=scores+s.wides;
-  let percent=shots?Math.round((scores/shots)*100):0;
+function loadHistory(){
+ let history=JSON.parse(localStorage.getItem("history")||"[]");
+ let list=document.getElementById("historyList");
+ list.innerHTML="";
 
-  document.getElementById(t+"_goals").innerText=s.goals;
-  document.getElementById(t+"_points").innerText=s.points;
-  document.getElementById(t+"_wides").innerText=s.wides;
-  document.getElementById(t+"_turnovers").innerText=s.turnovers;
-
-  document.getElementById(t+"_scores").innerText=scores;
-  document.getElementById(t+"_shots").innerText=shots;
-  document.getElementById(t+"_percent").innerText=percent+"%";
+ history.forEach((m,i)=>{
+  let div=document.createElement("div");
+  div.innerText=`${i+1}. Columkill vs ${m.teamB} (${m.score})`;
+  list.appendChild(div);
  });
-
- document.getElementById("teamANameDisplay").innerText =
-   document.getElementById("teamAName").innerText;
-
- document.getElementById("teamBNameDisplay").innerText =
-   document.getElementById("teamBName").innerText;
 }
 
-// EXPORT
-function exportFull(){
- html2canvas(document.body).then(canvas=>{
-  let link=document.createElement("a");
-  link.download="match.png";
-  link.href=canvas.toDataURL();
-  link.click();
- });
+loadHistory();
+
+// EXPORT REPORT
+function exportReport(){
+ let teamB = document.getElementById("teamBName").innerText;
+
+ let now = new Date();
+ let date = now.toLocaleDateString();
+ let time = now.toLocaleTimeString();
+
+ let report =
+`Match Report
+Columkill vs ${teamB}
+
+Score: ${goals}-${points}
+Wides: ${wides}
+
+Date: ${date}
+Time: ${time}`;
+
+ navigator.clipboard.writeText(report);
+ alert("Report copied");
 }
 
 </script>
