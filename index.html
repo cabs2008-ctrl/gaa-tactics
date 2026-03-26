@@ -30,11 +30,18 @@ body { margin:0; font-family:Arial; text-align:center; }
   border:2px solid white;
 }
 
-.line { position:absolute; width:100%; height:2px; background:white; top:50%; }
+.line {
+  position:absolute;
+  width:100%;
+  height:2px;
+  background:white;
+  top:50%;
+}
 
 /* PLAYERS */
 .player {
-  width:48px; height:48px;
+  width:48px;
+  height:48px;
   border-radius:50%;
   color:white;
   position:absolute;
@@ -48,9 +55,9 @@ body { margin:0; font-family:Arial; text-align:center; }
 .A { background:#1b5e20; }
 .B { background:#1565c0; }
 
-canvas { position:absolute; top:0; left:0; }
+button { margin:5px; padding:10px; }
 
-button { margin:4px; padding:10px; }
+input { padding:8px; font-size:14px; }
 </style>
 </head>
 
@@ -59,55 +66,55 @@ button { margin:4px; padding:10px; }
 <div class="nav">
 <button onclick="showTab('teamA')">Columkill</button>
 <button onclick="showTab('teamB')">Team B</button>
-<button onclick="showTab('draw')">Draw</button>
 <button onclick="showTab('score')">Score</button>
 </div>
 
 <!-- TEAM A -->
 <div id="teamA" class="tab active">
-<h3>Colmcille</h3>
+<h3>Columkill</h3>
 <div class="pitch" id="pitchA">
 <div class="line"></div>
 </div>
-<button onclick="formation('A')">Formation</button>
 </div>
 
 <!-- TEAM B -->
 <div id="teamB" class="tab">
-<h3 id="teamBName" contenteditable="true" oninput="updateTeamBName()">Team B</h3>
+<h3>
+<input id="teamBInput" placeholder="Enter Team B name" oninput="updateTeamBName()">
+</h3>
 <div class="pitch" id="pitchB">
 <div class="line"></div>
 </div>
-<button onclick="formation('B')">Formation</button>
-</div>
-
-<!-- DRAW -->
-<div id="draw" class="tab">
-<h3>Draw</h3>
-<div style="position:relative; max-width:400px; margin:auto;">
-  <div class="pitch"></div>
-  <canvas id="drawCanvas" width="400" height="600"></canvas>
-</div>
-<button onclick="clearDraw()">Clear</button>
 </div>
 
 <!-- SCORE -->
 <div id="score" class="tab">
-<h3>Score</h3>
+<h2>Match Stats</h2>
 
-<h4>Columkill vs <span id="scoreTeamB">Team B</span></h4>
+<h3>Columkill vs <span id="scoreTeamB">Team B</span></h3>
 
-<h2 id="scoreDisplay">0-00</h2>
+<h1 id="scoreDisplay">0-00</h1>
 
-<button onclick="goal()">+ Goal</button>
-<button onclick="point()">+ Point</button>
-<button onclick="wide()">+ Wide</button>
+<h3>Goals</h3>
+<button onclick="goal(-1)">➖</button>
+<span id="g">0</span>
+<button onclick="goal(1)">➕</button>
 
-<p>Wides: <span id="wides">0</span></p>
+<h3>Points</h3>
+<button onclick="point(-1)">➖</button>
+<span id="p">0</span>
+<button onclick="point(1)">➕</button>
+
+<h3>Wides</h3>
+<button onclick="wide(-1)">➖</button>
+<span id="w">0</span>
+<button onclick="wide(1)">➕</button>
 
 </div>
 
 <script>
+
+// TAB SWITCH
 function showTab(id){
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
  document.getElementById(id).classList.add("active");
@@ -115,24 +122,40 @@ function showTab(id){
 
 // TEAM B NAME
 function updateTeamBName(){
- let name = document.getElementById("teamBName").innerText;
+ let name = document.getElementById("teamBInput").value || "Team B";
  document.getElementById("scoreTeamB").innerText = name;
 }
 
-// SCORE
-let goals=0, points=0, wides=0;
+// SCORE SYSTEM
+let goals = 0;
+let points = 0;
+let wides = 0;
 
 function updateScore(){
  document.getElementById("scoreDisplay").innerText =
   goals + "-" + (points<10?"0":"") + points;
- document.getElementById("wides").innerText = wides;
+
+ document.getElementById("g").innerText = goals;
+ document.getElementById("p").innerText = points;
+ document.getElementById("w").innerText = wides;
 }
 
-function goal(){ goals++; updateScore(); }
-function point(){ points++; updateScore(); }
-function wide(){ wides++; updateScore(); }
+function goal(val){
+ goals = Math.max(0, goals + val);
+ updateScore();
+}
 
-// PLAYERS
+function point(val){
+ points = Math.max(0, points + val);
+ updateScore();
+}
+
+function wide(val){
+ wides = Math.max(0, wides + val);
+ updateScore();
+}
+
+// PLAYER CREATION
 function createPlayer(n,x,y,team){
  let pitch = team==="A" ? pitchA : pitchB;
 
@@ -166,17 +189,10 @@ function createPlayer(n,x,y,team){
  pitch.appendChild(p);
 }
 
-function clear(pitch){
- pitch.innerHTML = '<div class="line"></div>';
-}
-
-// CORRECT FORMATION
-function formation(team){
- let pitch = team==="A" ? pitchA : pitchB;
- clear(pitch);
-
+// GAA FORMATION
+function loadFormation(){
  let pos=[
-  [170,20],
+  [170,20],   // GK
   [60,100],[170,100],[280,100],
   [60,180],[170,180],[280,180],
   [120,260],[220,260],
@@ -184,26 +200,13 @@ function formation(team){
   [60,440],[170,440],[280,440]
  ];
 
- pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],team));
+ pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],"A"));
+ pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],"B"));
 }
 
-// DRAW
-const canvas=document.getElementById("drawCanvas");
-const ctx=canvas.getContext("2d");
+// LOAD
+window.onload = loadFormation;
 
-canvas.addEventListener("touchstart",e=>{
- ctx.beginPath();
- ctx.moveTo(e.touches[0].clientX,e.touches[0].clientY);
-});
-
-canvas.addEventListener("touchmove",e=>{
- ctx.lineTo(e.touches[0].clientX,e.touches[0].clientY);
- ctx.stroke();
-});
-
-function clearDraw(){
- ctx.clearRect(0,0,canvas.width,canvas.height);
-}
 </script>
 
 </body>
