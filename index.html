@@ -2,246 +2,185 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GAA Match App</title>
+<title>GAA Match Tracker</title>
 
 <style>
-body { margin:0; font-family:Arial; text-align:center; }
+body { font-family:Arial; text-align:center; margin:0; }
 
 .tab { display:none; }
 .active { display:block; }
 
 .nav { background:#333; padding:10px; }
-.nav button {
-  margin:3px;
-  padding:8px;
-  color:white;
-  background:#555;
-  border:none;
-}
+.nav button { color:white; background:#555; margin:3px; padding:8px; }
 
-/* Pitch */
-.pitch {
-  width:100%;
-  max-width:400px;
-  height:600px;
+table {
   margin:auto;
-  position:relative;
-  background:#4CAF50;
-  border:2px solid white;
+  border-collapse:collapse;
 }
-
-/* Lines */
-.line { position:absolute; width:100%; height:2px; background:white; }
-.halfway { top:50%; }
-
-/* Players */
-.player {
-  width:48px; height:48px;
-  border-radius:50%;
-  color:white;
-  position:absolute;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:12px;
-  touch-action:none;
+td, th {
+  border:1px solid black;
+  padding:6px;
 }
+input { width:60px; }
 
-.A { background:#1b5e20; }
-.B { background:#1565c0; }
-
-button { margin:4px; padding:10px; }
 </style>
 </head>
 
 <body>
 
 <div class="nav">
-<button onclick="showTab('teamA')">Columkill</button>
-<button onclick="showTab('teamB')">Team B</button>
-<button onclick="showTab('score')">Score</button>
+<button onclick="showTab('stats')">Stats</button>
+<button onclick="showTab('history')">History</button>
+<button onclick="showTab('trends')">Trends</button>
 </div>
 
-<!-- TEAM A -->
-<div id="teamA" class="tab active">
-<h3>Columkill</h3>
-<div class="pitch" id="pitchA">
-<div class="line halfway"></div>
-</div>
-<button onclick="formation('A')">Formation</button>
-</div>
+<!-- STATS -->
+<div id="stats" class="tab active">
 
-<!-- TEAM B -->
-<div id="teamB" class="tab">
-<h3 id="teamBName" contenteditable="true" oninput="updateTeamBName()">Team B</h3>
-<div class="pitch" id="pitchB">
-<div class="line halfway"></div>
-</div>
-<button onclick="formation('B')">Formation</button>
-</div>
+<h3>Colmcille vs <span id="teamBName" contenteditable="true">Team B</span></h3>
 
-<!-- SCORE -->
-<div id="score" class="tab">
+<table>
+<tr><th>Home</th><th>KPI</th><th>Away</th></tr>
 
-<h3>Score</h3>
-<h4>Columkill vs <span id="scoreTeamB">Team B</span></h4>
+<tr><td><input id="h_att"></td><td>Attacks</td><td><input id="a_att"></td></tr>
+<tr><td><input id="h_shots"></td><td>Shots</td><td><input id="a_shots"></td></tr>
+<tr><td><input id="h_scores"></td><td>Scores</td><td><input id="a_scores"></td></tr>
+<tr><td><input id="h_wides"></td><td>Wides</td><td><input id="a_wides"></td></tr>
 
-<h2 id="scoreDisplay">0-00</h2>
+<tr><td id="h_pct">0%</td><td>Shot %</td><td id="a_pct">0%</td></tr>
+</table>
 
-<div>
-<button onclick="goalPlus()">+ Goal</button>
-<button onclick="goalMinus()">- Goal</button>
+<button onclick="calcStats()">Calculate %</button>
+<button onclick="saveMatch()">Save Match</button>
+<button onclick="generateSummary()">Auto Summary</button>
+
+<p id="summary"></p>
+
 </div>
 
-<div>
-<button onclick="pointPlus()">+ Point</button>
-<button onclick="pointMinus()">- Point</button>
+<!-- HISTORY -->
+<div id="history" class="tab">
+<h3>Match History</h3>
+<ul id="historyList"></ul>
 </div>
 
-<div>
-<button onclick="widePlus()">+ Wide</button>
-<button onclick="wideMinus()">- Wide</button>
-</div>
-
-<p>Wides: <span id="wides">0</span></p>
-
-<!-- TIMER -->
-<h3>Match Time</h3>
-<h2 id="timer">00:00</h2>
-
-<button onclick="startTimer()">Start</button>
-<button onclick="pauseTimer()">Pause</button>
-<button onclick="resetTimer()">Reset</button>
-
+<!-- TRENDS -->
+<div id="trends" class="tab">
+<h3>Season Trends</h3>
+<p id="trendsOutput"></p>
 </div>
 
 <script>
 
-// TABS
 function showTab(id){
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
  document.getElementById(id).classList.add("active");
 }
 
-// TEAM B NAME
-function updateTeamBName(){
- let name = document.getElementById("teamBName").innerText;
- document.getElementById("scoreTeamB").innerText = name;
- localStorage.setItem("teamB", name);
+// CALCULATE %
+function calcStats(){
+ let hs = h_scores.value, hsh = h_shots.value;
+ let as = a_scores.value, ash = a_shots.value;
+
+ h_pct.innerText = hsh ? Math.round((hs/hsh)*100)+"%" : "0%";
+ a_pct.innerText = ash ? Math.round((as/ash)*100)+"%" : "0%";
 }
 
-// LOAD TEAM NAME
-window.onload = () => {
- let saved = localStorage.getItem("teamB");
- if(saved){
-  document.getElementById("teamBName").innerText = saved;
-  document.getElementById("scoreTeamB").innerText = saved;
- }
-};
+// SAVE MATCH (MULTIPLE)
+function saveMatch(){
+ let matches = JSON.parse(localStorage.getItem("matches") || "[]");
 
-// SCORE
-let goals=0, points=0, wides=0;
-
-function updateScore(){
- document.getElementById("scoreDisplay").innerText =
-  goals + "-" + (points<10?"0":"") + points;
- document.getElementById("wides").innerText = wides;
-}
-
-function goalPlus(){ goals++; updateScore(); }
-function goalMinus(){ if(goals>0) goals--; updateScore(); }
-
-function pointPlus(){ points++; updateScore(); }
-function pointMinus(){ if(points>0) points--; updateScore(); }
-
-function widePlus(){ wides++; updateScore(); }
-function wideMinus(){ if(wides>0) wides--; updateScore(); }
-
-// PLAYERS
-function createPlayer(n,x,y,team){
- let pitch = team==="A" ? pitchA : pitchB;
-
- let p=document.createElement("div");
- p.className="player "+team;
- p.innerText=n;
-
- p.style.left=x+"px";
- p.style.top=y+"px";
-
- let offsetX, offsetY;
-
- p.addEventListener("touchstart",e=>{
-  offsetX=e.touches[0].clientX-p.offsetLeft;
-  offsetY=e.touches[0].clientY-p.offsetTop;
- });
-
- p.addEventListener("touchmove",e=>{
-  let rect=pitch.getBoundingClientRect();
-  let x=e.touches[0].clientX-rect.left-offsetX;
-  let y=e.touches[0].clientY-rect.top-offsetY;
-  p.style.left=x+"px";
-  p.style.top=y+"px";
- });
-
- p.onclick=()=>{
-  let name=prompt("Player:",p.innerText);
-  if(name) p.innerText=name;
+ let match = {
+  teamB: teamBName.innerText,
+  h_shots: h_shots.value,
+  h_scores: h_scores.value,
+  a_shots: a_shots.value,
+  a_scores: a_scores.value
  };
 
- pitch.appendChild(p);
+ matches.push(match);
+ localStorage.setItem("matches", JSON.stringify(matches));
+
+ alert("Match saved");
+ loadHistory();
 }
 
-function clear(pitch){
- pitch.innerHTML='<div class="line halfway"></div>';
+// LOAD HISTORY
+function loadHistory(){
+ let matches = JSON.parse(localStorage.getItem("matches") || "[]");
+ let list = document.getElementById("historyList");
+ list.innerHTML = "";
+
+ matches.forEach((m,i)=>{
+  let li = document.createElement("li");
+  li.innerText = "vs " + m.teamB;
+  li.onclick = ()=>loadMatch(i);
+  list.appendChild(li);
+ });
 }
 
-// GAA FORMATION
-function formation(team){
- let pitch = team==="A" ? pitchA : pitchB;
- clear(pitch);
+// LOAD ONE MATCH
+function loadMatch(i){
+ let matches = JSON.parse(localStorage.getItem("matches") || "[]");
+ let m = matches[i];
 
- let pos=[
-  [170,20],
-  [60,100],[170,100],[280,100],
-  [60,180],[170,180],[280,180],
-  [120,260],[220,260],
-  [60,340],[170,340],[280,340],
-  [60,440],[170,440],[280,440]
- ];
+ teamBName.innerText = m.teamB;
+ h_shots.value = m.h_shots;
+ h_scores.value = m.h_scores;
+ a_shots.value = m.a_shots;
+ a_scores.value = m.a_scores;
 
- pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],team));
+ showTab("stats");
 }
 
-// TIMER
-let seconds = 0;
-let timerInterval = null;
+// AUTO SUMMARY
+function generateSummary(){
+ let h_pct_val = parseInt(h_pct.innerText);
+ let a_pct_val = parseInt(a_pct.innerText);
 
-function updateTimer(){
- let mins = Math.floor(seconds/60);
- let secs = seconds%60;
+ let text = "";
 
- document.getElementById("timer").innerText =
-  (mins<10?"0":"")+mins+":"+(secs<10?"0":"")+secs;
+ if(h_pct_val > a_pct_val){
+  text += "Colmcille more efficient. ";
+ } else if(a_pct_val > h_pct_val){
+  text += "Opponent more efficient. ";
+ }
+
+ if(h_att.value > a_att.value){
+  text += "Winning possession battle.";
+ } else {
+  text += "Losing possession battle.";
+ }
+
+ document.getElementById("summary").innerText = text;
 }
 
-function startTimer(){
- if(timerInterval) return;
- timerInterval=setInterval(()=>{
-  seconds++;
-  updateTimer();
- },1000);
+// TRENDS
+function loadTrends(){
+ let matches = JSON.parse(localStorage.getItem("matches") || "[]");
+
+ if(matches.length === 0){
+  trendsOutput.innerText = "No data yet.";
+  return;
+ }
+
+ let totalShots = 0, totalScores = 0;
+
+ matches.forEach(m=>{
+  totalShots += Number(m.h_shots || 0);
+  totalScores += Number(m.h_scores || 0);
+ });
+
+ let avgShots = (totalShots / matches.length).toFixed(1);
+ let avgScores = (totalScores / matches.length).toFixed(1);
+
+ trendsOutput.innerText =
+  "Avg Shots: " + avgShots + " | Avg Scores: " + avgScores;
 }
 
-function pauseTimer(){
- clearInterval(timerInterval);
- timerInterval=null;
-}
-
-function resetTimer(){
- pauseTimer();
- seconds=0;
- updateTimer();
-}
+// INIT
+loadHistory();
+loadTrends();
 
 </script>
 
