@@ -11,8 +11,15 @@ body { margin:0; font-family:Arial; text-align:center; }
 .active { display:block; }
 
 .nav { background:#333; padding:10px; }
-.nav button { margin:3px; padding:8px; color:white; background:#555; border:none; }
+.nav button {
+  margin:3px;
+  padding:8px;
+  color:white;
+  background:#555;
+  border:none;
+}
 
+/* Pitch */
 .pitch {
   width:100%;
   max-width:400px;
@@ -23,6 +30,11 @@ body { margin:0; font-family:Arial; text-align:center; }
   border:2px solid white;
 }
 
+/* Lines */
+.line { position:absolute; width:100%; height:2px; background:white; }
+.halfway { top:50%; }
+
+/* Players */
 .player {
   width:48px; height:48px;
   border-radius:50%;
@@ -31,22 +43,12 @@ body { margin:0; font-family:Arial; text-align:center; }
   display:flex;
   align-items:center;
   justify-content:center;
+  font-size:12px;
   touch-action:none;
 }
 
 .A { background:#1b5e20; }
 .B { background:#1565c0; }
-
-.subs { margin:10px; }
-
-.dot {
-  width:20px; height:20px;
-  border-radius:50%;
-  background:#ccc;
-  display:inline-block;
-  margin:3px;
-}
-.used { background:red; }
 
 button { margin:4px; padding:10px; }
 </style>
@@ -58,61 +60,84 @@ button { margin:4px; padding:10px; }
 <button onclick="showTab('teamA')">Columkill</button>
 <button onclick="showTab('teamB')">Team B</button>
 <button onclick="showTab('score')">Score</button>
-<button onclick="showTab('history')">History</button>
 </div>
 
 <!-- TEAM A -->
 <div id="teamA" class="tab active">
 <h3>Columkill</h3>
-<div class="pitch" id="pitchA"></div>
+<div class="pitch" id="pitchA">
+<div class="line halfway"></div>
+</div>
 <button onclick="formation('A')">Formation</button>
-<div class="subs" id="subsA"></div>
 </div>
 
 <!-- TEAM B -->
 <div id="teamB" class="tab">
-<h3 id="teamBName" contenteditable="true" oninput="updateTeamB()">Team B</h3>
-<div class="pitch" id="pitchB"></div>
+<h3 id="teamBName" contenteditable="true" oninput="updateTeamBName()">Team B</h3>
+<div class="pitch" id="pitchB">
+<div class="line halfway"></div>
+</div>
 <button onclick="formation('B')">Formation</button>
-<div class="subs" id="subsB"></div>
 </div>
 
 <!-- SCORE -->
 <div id="score" class="tab">
+
 <h3>Score</h3>
 <h4>Columkill vs <span id="scoreTeamB">Team B</span></h4>
 
-<div id="scoreDisplay">0-00</div>
+<h2 id="scoreDisplay">0-00</h2>
 
-<button onclick="goal()">+ Goal</button>
-<button onclick="point()">+ Point</button>
-<button onclick="wide()">+ Wide</button>
+<div>
+<button onclick="goalPlus()">+ Goal</button>
+<button onclick="goalMinus()">- Goal</button>
+</div>
+
+<div>
+<button onclick="pointPlus()">+ Point</button>
+<button onclick="pointMinus()">- Point</button>
+</div>
+
+<div>
+<button onclick="widePlus()">+ Wide</button>
+<button onclick="wideMinus()">- Wide</button>
+</div>
 
 <p>Wides: <span id="wides">0</span></p>
 
-<button onclick="saveMatch()">Save Match</button>
-<button onclick="exportReport()">Export Report</button>
-</div>
+<!-- TIMER -->
+<h3>Match Time</h3>
+<h2 id="timer">00:00</h2>
 
-<!-- HISTORY -->
-<div id="history" class="tab">
-<h3>Match History</h3>
-<div id="historyList"></div>
+<button onclick="startTimer()">Start</button>
+<button onclick="pauseTimer()">Pause</button>
+<button onclick="resetTimer()">Reset</button>
+
 </div>
 
 <script>
 
-// NAV
+// TABS
 function showTab(id){
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
  document.getElementById(id).classList.add("active");
 }
 
-// TEAM NAME
-function updateTeamB(){
- let name=document.getElementById("teamBName").innerText;
- document.getElementById("scoreTeamB").innerText=name;
+// TEAM B NAME
+function updateTeamBName(){
+ let name = document.getElementById("teamBName").innerText;
+ document.getElementById("scoreTeamB").innerText = name;
+ localStorage.setItem("teamB", name);
 }
+
+// LOAD TEAM NAME
+window.onload = () => {
+ let saved = localStorage.getItem("teamB");
+ if(saved){
+  document.getElementById("teamBName").innerText = saved;
+  document.getElementById("scoreTeamB").innerText = saved;
+ }
+};
 
 // SCORE
 let goals=0, points=0, wides=0;
@@ -120,16 +145,21 @@ let goals=0, points=0, wides=0;
 function updateScore(){
  document.getElementById("scoreDisplay").innerText =
   goals + "-" + (points<10?"0":"") + points;
- document.getElementById("wides").innerText=wides;
+ document.getElementById("wides").innerText = wides;
 }
 
-function goal(){ goals++; updateScore(); }
-function point(){ points++; updateScore(); }
-function wide(){ wides++; updateScore(); }
+function goalPlus(){ goals++; updateScore(); }
+function goalMinus(){ if(goals>0) goals--; updateScore(); }
+
+function pointPlus(){ points++; updateScore(); }
+function pointMinus(){ if(points>0) points--; updateScore(); }
+
+function widePlus(){ wides++; updateScore(); }
+function wideMinus(){ if(wides>0) wides--; updateScore(); }
 
 // PLAYERS
 function createPlayer(n,x,y,team){
- let pitch = team==="A"?pitchA:pitchB;
+ let pitch = team==="A" ? pitchA : pitchB;
 
  let p=document.createElement("div");
  p.className="player "+team;
@@ -138,17 +168,19 @@ function createPlayer(n,x,y,team){
  p.style.left=x+"px";
  p.style.top=y+"px";
 
- let ox, oy;
+ let offsetX, offsetY;
 
  p.addEventListener("touchstart",e=>{
-  ox=e.touches[0].clientX-p.offsetLeft;
-  oy=e.touches[0].clientY-p.offsetTop;
+  offsetX=e.touches[0].clientX-p.offsetLeft;
+  offsetY=e.touches[0].clientY-p.offsetTop;
  });
 
  p.addEventListener("touchmove",e=>{
-  let r=pitch.getBoundingClientRect();
-  p.style.left=e.touches[0].clientX-r.left-ox+"px";
-  p.style.top=e.touches[0].clientY-r.top-oy+"px";
+  let rect=pitch.getBoundingClientRect();
+  let x=e.touches[0].clientX-rect.left-offsetX;
+  let y=e.touches[0].clientY-rect.top-offsetY;
+  p.style.left=x+"px";
+  p.style.top=y+"px";
  });
 
  p.onclick=()=>{
@@ -159,13 +191,14 @@ function createPlayer(n,x,y,team){
  pitch.appendChild(p);
 }
 
-function clear(team){
- let pitch = team==="A"?pitchA:pitchB;
- pitch.innerHTML="";
+function clear(pitch){
+ pitch.innerHTML='<div class="line halfway"></div>';
 }
 
+// GAA FORMATION
 function formation(team){
- clear(team);
+ let pitch = team==="A" ? pitchA : pitchB;
+ clear(pitch);
 
  let pos=[
   [170,20],
@@ -179,71 +212,35 @@ function formation(team){
  pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],team));
 }
 
-// SUB DOTS
-function createSubs(id){
- let container=document.getElementById(id);
- container.innerHTML="";
- for(let i=0;i<5;i++){
-  let d=document.createElement("div");
-  d.className="dot";
-  d.onclick=()=>d.classList.toggle("used");
-  container.appendChild(d);
- }
+// TIMER
+let seconds = 0;
+let timerInterval = null;
+
+function updateTimer(){
+ let mins = Math.floor(seconds/60);
+ let secs = seconds%60;
+
+ document.getElementById("timer").innerText =
+  (mins<10?"0":"")+mins+":"+(secs<10?"0":"")+secs;
 }
 
-createSubs("subsA");
-createSubs("subsB");
-
-// SAVE HISTORY
-function saveMatch(){
- let history=JSON.parse(localStorage.getItem("history")||"[]");
-
- let match={
-  teamB:document.getElementById("teamBName").innerText,
-  score:goals+"-"+points
- };
-
- history.push(match);
- localStorage.setItem("history",JSON.stringify(history));
-
- loadHistory();
- alert("Saved");
+function startTimer(){
+ if(timerInterval) return;
+ timerInterval=setInterval(()=>{
+  seconds++;
+  updateTimer();
+ },1000);
 }
 
-function loadHistory(){
- let history=JSON.parse(localStorage.getItem("history")||"[]");
- let list=document.getElementById("historyList");
- list.innerHTML="";
-
- history.forEach((m,i)=>{
-  let div=document.createElement("div");
-  div.innerText=`${i+1}. Columkill vs ${m.teamB} (${m.score})`;
-  list.appendChild(div);
- });
+function pauseTimer(){
+ clearInterval(timerInterval);
+ timerInterval=null;
 }
 
-loadHistory();
-
-// EXPORT REPORT
-function exportReport(){
- let teamB = document.getElementById("teamBName").innerText;
-
- let now = new Date();
- let date = now.toLocaleDateString();
- let time = now.toLocaleTimeString();
-
- let report =
-`Match Report
-Columkill vs ${teamB}
-
-Score: ${goals}-${points}
-Wides: ${wides}
-
-Date: ${date}
-Time: ${time}`;
-
- navigator.clipboard.writeText(report);
- alert("Report copied");
+function resetTimer(){
+ pauseTimer();
+ seconds=0;
+ updateTimer();
 }
 
 </script>
