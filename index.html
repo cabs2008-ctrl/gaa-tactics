@@ -2,64 +2,24 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GAA Match Pro</title>
+<title>GAA Match App</title>
 
 <style>
 body { margin:0; font-family:Arial; text-align:center; }
 
-.wrapper { position:relative; max-width:400px; margin:auto; }
+.tab { display:none; }
+.active { display:block; }
 
 .pitch {
   width:100%;
+  max-width:400px;
   height:600px;
-  background:#4CAF50;
+  margin:auto;
   position:relative;
+  background:#4CAF50;
   border:2px solid white;
 }
 
-/* Lines */
-.line { position:absolute; width:100%; height:2px; background:white; }
-
-.halfway { top:50%; }
-.line45_top { top:25%; }
-.line45_bottom { top:75%; }
-.line65_top { top:15%; }
-.line65_bottom { top:85%; }
-
-/* Boxes */
-.box {
-  position:absolute;
-  border:2px solid white;
-}
-
-.small_top { top:0; left:35%; width:30%; height:60px; }
-.small_bottom { bottom:0; left:35%; width:30%; height:60px; }
-
-.large_top { top:0; left:25%; width:50%; height:120px; }
-.large_bottom { bottom:0; left:25%; width:50%; height:120px; }
-
-/* 45m arcs */
-.arc {
-  position:absolute;
-  border:2px solid white;
-  border-radius:50%;
-  width:200px;
-  height:200px;
-  left:50%;
-  transform:translateX(-50%);
-}
-
-.arc_top {
-  top:120px;
-  clip-path: inset(0 0 50% 0);
-}
-
-.arc_bottom {
-  bottom:120px;
-  clip-path: inset(50% 0 0 0);
-}
-
-/* Players */
 .player {
   width:48px; height:48px;
   border-radius:50%;
@@ -76,42 +36,28 @@ body { margin:0; font-family:Arial; text-align:center; }
 
 canvas { position:absolute; top:0; left:0; }
 
-button { padding:10px; margin:4px; }
+button { margin:4px; padding:10px; }
 
-.scoreboard {
-  margin:10px;
+.nav {
+  background:#333;
+  color:white;
   padding:10px;
-  border:1px solid #ccc;
 }
 </style>
 </head>
 
 <body>
 
-<h2>GAA Match Pro</h2>
+<div class="nav">
+<button onclick="showTab('tactics')">Tactics</button>
+<button onclick="showTab('score')">Score</button>
+</div>
 
-<div class="wrapper" id="capture">
-  <div class="pitch" id="pitch">
+<!-- TACTICS TAB -->
+<div id="tactics" class="tab active">
 
-    <!-- Lines -->
-    <div class="line halfway"></div>
-    <div class="line line45_top"></div>
-    <div class="line line45_bottom"></div>
-    <div class="line line65_top"></div>
-    <div class="line line65_bottom"></div>
-
-    <!-- Boxes -->
-    <div class="box small_top"></div>
-    <div class="box small_bottom"></div>
-    <div class="box large_top"></div>
-    <div class="box large_bottom"></div>
-
-    <!-- Arcs -->
-    <div class="arc arc_top"></div>
-    <div class="arc arc_bottom"></div>
-
-  </div>
-
+<div style="position:relative; max-width:400px; margin:auto;">
+  <div class="pitch" id="pitch"></div>
   <canvas id="draw" width="400" height="600"></canvas>
 </div>
 
@@ -119,27 +65,32 @@ button { padding:10px; margin:4px; }
 <button onclick="formation()">Formation</button>
 <button onclick="toggleTeam()">Team</button>
 <button onclick="toggleDraw()">Draw</button>
-<button onclick="clearDraw()">Clear Lines</button>
-<button onclick="save()">Save</button>
-<button onclick="load()">Load</button>
-<button onclick="exportImg()">Export</button>
+<button onclick="clearDraw()">Clear</button>
 </div>
 
-<div class="scoreboard">
-<h3>Score</h3>
+</div>
 
-<div id="score">0-00</div>
+<!-- SCORE TAB -->
+<div id="score" class="tab">
+
+<h2>Score</h2>
+
+<div id="scoreDisplay">0-00</div>
 
 <button onclick="goal()">+ Goal</button>
 <button onclick="point()">+ Point</button>
 <button onclick="wide()">+ Wide</button>
 
 <p>Wides: <span id="wides">0</span></p>
+
 </div>
 
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
 <script>
+function showTab(id){
+ document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+}
+
 const pitch=document.getElementById("pitch");
 const canvas=document.getElementById("draw");
 const ctx=canvas.getContext("2d");
@@ -148,10 +99,11 @@ let players=[];
 let team="A";
 let drawing=false;
 
+// SCORE
 let goals=0, points=0, wides=0;
 
 function updateScore(){
- document.getElementById("score").innerText =
+ document.getElementById("scoreDisplay").innerText =
   goals + "-" + (points<10?"0":"") + points;
  document.getElementById("wides").innerText = wides;
 }
@@ -160,6 +112,7 @@ function goal(){ goals++; updateScore(); }
 function point(){ points++; updateScore(); }
 function wide(){ wides++; updateScore(); }
 
+// PLAYERS
 function createPlayer(n,x,y){
  let p=document.createElement("div");
  p.className="player "+team;
@@ -168,21 +121,40 @@ function createPlayer(n,x,y){
  p.style.left=x+"px";
  p.style.top=y+"px";
 
- let ox, oy;
+ let offsetX, offsetY;
 
+ // TOUCH DRAG
  p.addEventListener("touchstart",e=>{
-  ox=e.touches[0].clientX-p.offsetLeft;
-  oy=e.touches[0].clientY-p.offsetTop;
+  offsetX=e.touches[0].clientX-p.offsetLeft;
+  offsetY=e.touches[0].clientY-p.offsetTop;
  });
 
  p.addEventListener("touchmove",e=>{
-  let r=pitch.getBoundingClientRect();
-  let x=e.touches[0].clientX-r.left-ox;
-  let y=e.touches[0].clientY-r.top-oy;
+  let rect=pitch.getBoundingClientRect();
+  let x=e.touches[0].clientX-rect.left-offsetX;
+  let y=e.touches[0].clientY-rect.top-offsetY;
   p.style.left=x+"px";
   p.style.top=y+"px";
  });
 
+ // MOUSE DRAG
+ p.onmousedown=e=>{
+  let shiftX=e.clientX-p.offsetLeft;
+  let shiftY=e.clientY-p.offsetTop;
+
+  function move(e){
+    p.style.left=e.pageX-shiftX+"px";
+    p.style.top=e.pageY-shiftY+"px";
+  }
+
+  document.addEventListener("mousemove",move);
+
+  document.onmouseup=()=>{
+    document.removeEventListener("mousemove",move);
+  };
+ };
+
+ // TAP TO RENAME
  p.onclick=()=>{
   let name=prompt("Player:",p.innerText);
   if(name) p.innerText=name;
@@ -197,15 +169,22 @@ function clearPlayers(){
  players=[];
 }
 
+// CORRECT GAA FORMATION
 function formation(){
  clearPlayers();
+
  let pos=[
- [170,20],
- [30,100],[120,100],[210,100],[300,100],
- [30,200],[120,200],[210,200],[300,200],
- [30,300],[120,300],[210,300],[300,300],
- [100,450],[250,450]
+  [170,20], // GK
+
+  [60,100],[170,100],[280,100], // FB
+  [60,180],[170,180],[280,180], // HB
+
+  [120,260],[220,260], // MF
+
+  [60,340],[170,340],[280,340], // HF
+  [60,440],[170,440],[280,440] // FF
  ];
+
  pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1]));
 }
 
@@ -214,34 +193,7 @@ function toggleTeam(){
  alert("Team "+team);
 }
 
-function save(){
- let data={
-  players: players.map(p=>({
-    text:p.innerText,x:p.style.left,y:p.style.top,
-    team:p.classList.contains("A")?"A":"B"
-  })),
-  score:{goals,points,wides}
- };
- localStorage.setItem("gaa",JSON.stringify(data));
- alert("Saved");
-}
-
-function load(){
- let data=JSON.parse(localStorage.getItem("gaa")||"{}");
- clearPlayers();
-
- data.players?.forEach(p=>{
-  team=p.team;
-  createPlayer(p.text,parseInt(p.x),parseInt(p.y));
- });
-
- goals=data.score?.goals||0;
- points=data.score?.points||0;
- wides=data.score?.wides||0;
-
- updateScore();
-}
-
+// DRAWING
 function toggleDraw(){ drawing=!drawing; }
 
 canvas.addEventListener("touchstart",e=>{
@@ -258,15 +210,6 @@ canvas.addEventListener("touchmove",e=>{
 
 function clearDraw(){
  ctx.clearRect(0,0,canvas.width,canvas.height);
-}
-
-function exportImg(){
- html2canvas(document.getElementById("capture")).then(c=>{
-  let link=document.createElement("a");
-  link.download="match.png";
-  link.href=c.toDataURL();
-  link.click();
- });
 }
 </script>
 
