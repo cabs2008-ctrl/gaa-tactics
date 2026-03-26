@@ -2,98 +2,186 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GAA Tactics Elite</title>
+<title>GAA Match Pro</title>
 
 <style>
 body { margin:0; font-family:Arial; text-align:center; }
 
+.wrapper { position:relative; max-width:400px; margin:auto; }
+
 .pitch {
   width:100%;
-  max-width:400px;
-  height:500px;
-  margin:auto;
+  height:600px;
   background:#4CAF50;
   position:relative;
+  border:2px solid white;
 }
 
+/* Lines */
+.line { position:absolute; width:100%; height:2px; background:white; }
+
+.halfway { top:50%; }
+.line45_top { top:25%; }
+.line45_bottom { top:75%; }
+.line65_top { top:15%; }
+.line65_bottom { top:85%; }
+
+/* Boxes */
+.box {
+  position:absolute;
+  border:2px solid white;
+}
+
+.small_top { top:0; left:35%; width:30%; height:60px; }
+.small_bottom { bottom:0; left:35%; width:30%; height:60px; }
+
+.large_top { top:0; left:25%; width:50%; height:120px; }
+.large_bottom { bottom:0; left:25%; width:50%; height:120px; }
+
+/* 45m arcs */
+.arc {
+  position:absolute;
+  border:2px solid white;
+  border-radius:50%;
+  width:200px;
+  height:200px;
+  left:50%;
+  transform:translateX(-50%);
+}
+
+.arc_top {
+  top:120px;
+  clip-path: inset(0 0 50% 0);
+}
+
+.arc_bottom {
+  bottom:120px;
+  clip-path: inset(50% 0 0 0);
+}
+
+/* Players */
 .player {
-  width:48px;height:48px;border-radius:50%;
-  position:absolute;display:flex;align-items:center;justify-content:center;
+  width:48px; height:48px;
+  border-radius:50%;
   color:white;
+  position:absolute;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  touch-action:none;
 }
 
-.A { background:#2e7d32; }
+.A { background:#1b5e20; }
 .B { background:#1565c0; }
 
-button { margin:4px; padding:10px; }
+canvas { position:absolute; top:0; left:0; }
 
-.hidden { display:none; }
+button { padding:10px; margin:4px; }
 
-input { width:50px; margin:3px; }
-
+.scoreboard {
+  margin:10px;
+  padding:10px;
+  border:1px solid #ccc;
+}
 </style>
 </head>
 
 <body>
 
-<h3>GAA Match Day</h3>
+<h2>GAA Match Pro</h2>
 
-<!-- NAV -->
+<div class="wrapper" id="capture">
+  <div class="pitch" id="pitch">
+
+    <!-- Lines -->
+    <div class="line halfway"></div>
+    <div class="line line45_top"></div>
+    <div class="line line45_bottom"></div>
+    <div class="line line65_top"></div>
+    <div class="line line65_bottom"></div>
+
+    <!-- Boxes -->
+    <div class="box small_top"></div>
+    <div class="box small_bottom"></div>
+    <div class="box large_top"></div>
+    <div class="box large_bottom"></div>
+
+    <!-- Arcs -->
+    <div class="arc arc_top"></div>
+    <div class="arc arc_bottom"></div>
+
+  </div>
+
+  <canvas id="draw" width="400" height="600"></canvas>
+</div>
+
 <div>
-<button onclick="showTab('pitchTab')">Pitch</button>
-<button onclick="showTab('scoreTab')">Score</button>
+<button onclick="formation()">Formation</button>
+<button onclick="toggleTeam()">Team</button>
+<button onclick="toggleDraw()">Draw</button>
+<button onclick="clearDraw()">Clear Lines</button>
+<button onclick="save()">Save</button>
+<button onclick="load()">Load</button>
+<button onclick="exportImg()">Export</button>
 </div>
 
-<!-- PITCH TAB -->
-<div id="pitchTab">
-  <div class="pitch" id="pitch"></div>
+<div class="scoreboard">
+<h3>Score</h3>
 
-  <button onclick="formation()">Formation</button>
+<div id="score">0-00</div>
+
+<button onclick="goal()">+ Goal</button>
+<button onclick="point()">+ Point</button>
+<button onclick="wide()">+ Wide</button>
+
+<p>Wides: <span id="wides">0</span></p>
 </div>
 
-<!-- SCORE TAB -->
-<div id="scoreTab" class="hidden">
-
-<h4>Half:
-<button onclick="setHalf(1)">1st</button>
-<button onclick="setHalf(2)">2nd</button>
-</h4>
-
-<h4>Team A</h4>
-Goals <input id="aGoals">
-Points <input id="aPoints">
-Wides <input id="aWides">
-
-<h4>Team B</h4>
-Goals <input id="bGoals">
-Points <input id="bPoints">
-Wides <input id="bWides">
-
-<br><br>
-
-<button onclick="saveScore()">Save</button>
-
-<h4 id="totalScore"></h4>
-
-</div>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <script>
-let pitch=document.getElementById("pitch");
-let currentHalf=1;
+const pitch=document.getElementById("pitch");
+const canvas=document.getElementById("draw");
+const ctx=canvas.getContext("2d");
 
-function showTab(tab){
- document.getElementById("pitchTab").classList.add("hidden");
- document.getElementById("scoreTab").classList.add("hidden");
- document.getElementById(tab).classList.remove("hidden");
+let players=[];
+let team="A";
+let drawing=false;
+
+let goals=0, points=0, wides=0;
+
+function updateScore(){
+ document.getElementById("score").innerText =
+  goals + "-" + (points<10?"0":"") + points;
+ document.getElementById("wides").innerText = wides;
 }
 
-/* PLAYERS */
-function create(n,x,y){
+function goal(){ goals++; updateScore(); }
+function point(){ points++; updateScore(); }
+function wide(){ wides++; updateScore(); }
+
+function createPlayer(n,x,y){
  let p=document.createElement("div");
- p.className="player A";
+ p.className="player "+team;
  p.innerText=n;
+
  p.style.left=x+"px";
  p.style.top=y+"px";
+
+ let ox, oy;
+
+ p.addEventListener("touchstart",e=>{
+  ox=e.touches[0].clientX-p.offsetLeft;
+  oy=e.touches[0].clientY-p.offsetTop;
+ });
+
+ p.addEventListener("touchmove",e=>{
+  let r=pitch.getBoundingClientRect();
+  let x=e.touches[0].clientX-r.left-ox;
+  let y=e.touches[0].clientY-r.top-oy;
+  p.style.left=x+"px";
+  p.style.top=y+"px";
+ });
 
  p.onclick=()=>{
   let name=prompt("Player:",p.innerText);
@@ -101,49 +189,84 @@ function create(n,x,y){
  };
 
  pitch.appendChild(p);
+ players.push(p);
+}
+
+function clearPlayers(){
+ players.forEach(p=>p.remove());
+ players=[];
 }
 
 function formation(){
- pitch.innerHTML="";
+ clearPlayers();
  let pos=[
  [170,20],
  [30,100],[120,100],[210,100],[300,100],
  [30,200],[120,200],[210,200],[300,200],
  [30,300],[120,300],[210,300],[300,300],
- [100,420],[250,420]
+ [100,450],[250,450]
  ];
- pos.forEach((p,i)=>create(i+1,p[0],p[1]));
+ pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1]));
 }
 
-/* SCORE SYSTEM */
-function setHalf(h){
- currentHalf=h;
- loadScore();
+function toggleTeam(){
+ team = team==="A"?"B":"A";
+ alert("Team "+team);
 }
 
-function saveScore(){
+function save(){
  let data={
-  aG:aGoals.value,
-  aP:aPoints.value,
-  bG:bGoals.value,
-  bP:bPoints.value
+  players: players.map(p=>({
+    text:p.innerText,x:p.style.left,y:p.style.top,
+    team:p.classList.contains("A")?"A":"B"
+  })),
+  score:{goals,points,wides}
  };
- localStorage.setItem("score"+currentHalf, JSON.stringify(data));
- updateTotal();
+ localStorage.setItem("gaa",JSON.stringify(data));
+ alert("Saved");
 }
 
-function loadScore(){
- let data=JSON.parse(localStorage.getItem("score"+currentHalf)||"{}");
- aGoals.value=data.aG||"";
- aPoints.value=data.aP||"";
- bGoals.value=data.bG||"";
- bPoints.value=data.bP||"";
+function load(){
+ let data=JSON.parse(localStorage.getItem("gaa")||"{}");
+ clearPlayers();
+
+ data.players?.forEach(p=>{
+  team=p.team;
+  createPlayer(p.text,parseInt(p.x),parseInt(p.y));
+ });
+
+ goals=data.score?.goals||0;
+ points=data.score?.points||0;
+ wides=data.score?.wides||0;
+
+ updateScore();
 }
 
-function updateTotal(){
- let a=(aGoals.value*3||0)+(aPoints.value*1||0);
- let b=(bGoals.value*3||0)+(bPoints.value*1||0);
- document.getElementById("totalScore").innerText="Score: "+a+" - "+b;
+function toggleDraw(){ drawing=!drawing; }
+
+canvas.addEventListener("touchstart",e=>{
+ if(!drawing) return;
+ ctx.beginPath();
+ ctx.moveTo(e.touches[0].clientX,e.touches[0].clientY);
+});
+
+canvas.addEventListener("touchmove",e=>{
+ if(!drawing) return;
+ ctx.lineTo(e.touches[0].clientX,e.touches[0].clientY);
+ ctx.stroke();
+});
+
+function clearDraw(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function exportImg(){
+ html2canvas(document.getElementById("capture")).then(c=>{
+  let link=document.createElement("a");
+  link.download="match.png";
+  link.href=c.toDataURL();
+  link.click();
+ });
 }
 </script>
 
