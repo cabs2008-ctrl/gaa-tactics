@@ -7,17 +7,17 @@
 <style>
 body { margin:0; font-family:Arial; text-align:center; }
 
-.tab { display:none; }
-.active { display:block; }
-
 .nav { background:#333; padding:10px; }
 .nav button {
   margin:3px;
-  padding:8px;
+  padding:10px;
   color:white;
   background:#555;
   border:none;
 }
+
+.tab { display:none; }
+.active { display:block; }
 
 /* PITCH */
 .pitch {
@@ -55,23 +55,29 @@ body { margin:0; font-family:Arial; text-align:center; }
 .A { background:#1b5e20; }
 .B { background:#1565c0; }
 
-button { margin:5px; padding:10px; }
+button { margin:4px; padding:10px; }
 
-input { padding:8px; font-size:14px; }
+input {
+  padding:8px;
+  font-size:14px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="nav">
-<button onclick="showTab('teamA')">Columkill</button>
+<button onclick="showTab('teamA')">Colmcille</button>
 <button onclick="showTab('teamB')">Team B</button>
 <button onclick="showTab('score')">Score</button>
 </div>
 
 <!-- TEAM A -->
 <div id="teamA" class="tab active">
-<h3>Columkill</h3>
+<h3>
+<input id="teamAInput" value="Colmcille" oninput="updateTeamAName()">
+</h3>
+
 <div class="pitch" id="pitchA">
 <div class="line"></div>
 </div>
@@ -82,6 +88,7 @@ input { padding:8px; font-size:14px; }
 <h3>
 <input id="teamBInput" placeholder="Enter Team B name" oninput="updateTeamBName()">
 </h3>
+
 <div class="pitch" id="pitchB">
 <div class="line"></div>
 </div>
@@ -89,73 +96,139 @@ input { padding:8px; font-size:14px; }
 
 <!-- SCORE -->
 <div id="score" class="tab">
+
 <h2>Match Stats</h2>
 
-<h3>Columkill vs <span id="scoreTeamB">Team B</span></h3>
+<h3>
+<span id="teamALabel">Colmcille</span> vs 
+<span id="teamBLabel">Team B</span>
+</h3>
 
-<h1 id="scoreDisplay">0-00</h1>
+<h1 id="scoreDisplay">
+0-00 | 0-00
+</h1>
 
-<h3>Goals</h3>
-<button onclick="goal(-1)">➖</button>
-<span id="g">0</span>
-<button onclick="goal(1)">➕</button>
+<hr>
 
-<h3>Points</h3>
-<button onclick="point(-1)">➖</button>
-<span id="p">0</span>
-<button onclick="point(1)">➕</button>
+<!-- TEAM A -->
+<h3 id="teamALabel2">Colmcille</h3>
 
-<h3>Wides</h3>
-<button onclick="wide(-1)">➖</button>
-<span id="w">0</span>
-<button onclick="wide(1)">➕</button>
+Goals  
+<button onclick="goalA(-1)">➖</button>
+<span id="gA">0</span>
+<button onclick="goalA(1)">➕</button>
+
+Points  
+<button onclick="pointA(-1)">➖</button>
+<span id="pA">0</span>
+<button onclick="pointA(1)">➕</button>
+
+Wides  
+<button onclick="wideA(-1)">➖</button>
+<span id="wA">0</span>
+<button onclick="wideA(1)">➕</button>
+
+Turnovers  
+<button onclick="turnoverA(-1)">➖</button>
+<span id="tA">0</span>
+<button onclick="turnoverA(1)">➕</button>
+
+Fouls  
+<button onclick="foulA(-1)">➖</button>
+<span id="fA">0</span>
+<button onclick="foulA(1)">➕</button>
+
+<hr>
+
+<!-- TEAM B -->
+<h3 id="teamBLabel2">Team B</h3>
+
+Goals  
+<button onclick="goalB(-1)">➖</button>
+<span id="gB">0</span>
+<button onclick="goalB(1)">➕</button>
+
+Points  
+<button onclick="pointB(-1)">➖</button>
+<span id="pB">0</span>
+<button onclick="pointB(1)">➕</button>
+
+Wides  
+<button onclick="wideB(-1)">➖</button>
+<span id="wB">0</span>
+<button onclick="wideB(1)">➕</button>
+
+Turnovers  
+<button onclick="turnoverB(-1)">➖</button>
+<span id="tB">0</span>
+<button onclick="turnoverB(1)">➕</button>
+
+Fouls  
+<button onclick="foulB(-1)">➖</button>
+<span id="fB">0</span>
+<button onclick="foulB(1)">➕</button>
 
 </div>
 
 <script>
 
-// TAB SWITCH
+/* TABS */
 function showTab(id){
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
  document.getElementById(id).classList.add("active");
 }
 
-// TEAM B NAME
+/* TEAM NAMES */
+function updateTeamAName(){
+ let name = document.getElementById("teamAInput").value || "Colmcille";
+ document.getElementById("teamALabel").innerText = name;
+ document.getElementById("teamALabel2").innerText = name;
+}
+
 function updateTeamBName(){
  let name = document.getElementById("teamBInput").value || "Team B";
- document.getElementById("scoreTeamB").innerText = name;
+ document.getElementById("teamBLabel").innerText = name;
+ document.getElementById("teamBLabel2").innerText = name;
 }
 
-// SCORE SYSTEM
-let goals = 0;
-let points = 0;
-let wides = 0;
+/* SCORE */
+let gA=0,pA=0,wA=0,tA=0,fA=0;
+let gB=0,pB=0,wB=0,tB=0,fB=0;
 
 function updateScore(){
+
  document.getElementById("scoreDisplay").innerText =
-  goals + "-" + (points<10?"0":"") + points;
+  gA+"-"+(pA<10?"0":"")+pA + " | " +
+  gB+"-"+(pB<10?"0":"")+pB;
 
- document.getElementById("g").innerText = goals;
- document.getElementById("p").innerText = points;
- document.getElementById("w").innerText = wides;
+ document.getElementById("gA").innerText=gA;
+ document.getElementById("pA").innerText=pA;
+ document.getElementById("wA").innerText=wA;
+ document.getElementById("tA").innerText=tA;
+ document.getElementById("fA").innerText=fA;
+
+ document.getElementById("gB").innerText=gB;
+ document.getElementById("pB").innerText=pB;
+ document.getElementById("wB").innerText=wB;
+ document.getElementById("tB").innerText=tB;
+ document.getElementById("fB").innerText=fB;
 }
 
-function goal(val){
- goals = Math.max(0, goals + val);
- updateScore();
-}
+/* TEAM A */
+function goalA(v){ gA=Math.max(0,gA+v); updateScore(); }
+function pointA(v){ pA=Math.max(0,pA+v); updateScore(); }
+function wideA(v){ wA=Math.max(0,wA+v); updateScore(); }
+function turnoverA(v){ tA=Math.max(0,tA+v); updateScore(); }
+function foulA(v){ fA=Math.max(0,fA+v); updateScore(); }
 
-function point(val){
- points = Math.max(0, points + val);
- updateScore();
-}
+/* TEAM B */
+function goalB(v){ gB=Math.max(0,gB+v); updateScore(); }
+function pointB(v){ pB=Math.max(0,pB+v); updateScore(); }
+function wideB(v){ wB=Math.max(0,wB+v); updateScore(); }
+function turnoverB(v){ tB=Math.max(0,tB+v); updateScore(); }
+function foulB(v){ fB=Math.max(0,fB+v); updateScore(); }
 
-function wide(val){
- wides = Math.max(0, wides + val);
- updateScore();
-}
-
-// PLAYER CREATION
+/* PLAYERS */
 function createPlayer(n,x,y,team){
  let pitch = team==="A" ? pitchA : pitchB;
 
@@ -189,10 +262,10 @@ function createPlayer(n,x,y,team){
  pitch.appendChild(p);
 }
 
-// GAA FORMATION
+/* FORMATION */
 function loadFormation(){
  let pos=[
-  [170,20],   // GK
+  [170,20],
   [60,100],[170,100],[280,100],
   [60,180],[170,180],[280,180],
   [120,260],[220,260],
@@ -204,7 +277,6 @@ function loadFormation(){
  pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],"B"));
 }
 
-// LOAD
 window.onload = loadFormation;
 
 </script>
