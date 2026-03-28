@@ -37,7 +37,6 @@ body { margin:0; font-family:Arial; text-align:center; }
   top:50%;
 }
 
-/* PLAYERS */
 .player {
   width:45px;
   height:45px;
@@ -50,8 +49,8 @@ body { margin:0; font-family:Arial; text-align:center; }
   touch-action:none;
 }
 
-.teamA { background:#1b5e20; } /* green */
-.teamB { background:#1565c0; } /* blue */
+.teamA { background:#1b5e20; }
+.teamB { background:#1565c0; }
 
 button { padding:8px; margin:3px; }
 </style>
@@ -93,27 +92,93 @@ button { padding:8px; margin:3px; }
 
 <h3>Colmcille</h3>
 
-Goals <button onclick="gA(-1)">➖</button> <span id="gA">0</span> <button onclick="gA(1)">➕</button><br><br>
-Points <button onclick="pA(-1)">➖</button> <span id="pA">0</span> <button onclick="pA(1)">➕</button><br><br>
-Wides <button onclick="wA(-1)">➖</button> <span id="wA">0</span> <button onclick="wA(1)">➕</button><br><br>
-Fouls <button onclick="fA(-1)">➖</button> <span id="fA">0</span> <button onclick="fA(1)">➕</button><br><br>
-Passes <button onclick="paA(-1)">➖</button> <span id="paA">0</span> <button onclick="paA(1)">➕</button>
+<div>
+Goals 
+<button onclick="gA(-1)">➖</button> 
+<span id="gA">0</span> 
+<button onclick="gA(1)">➕</button>
+
+&nbsp;&nbsp;&nbsp;
+
+Points 
+<button onclick="pA(-1)">➖</button> 
+<span id="pA">0</span> 
+<button onclick="pA(1)">➕</button>
+</div>
+
+<br>
+
+<div>
+Wides 
+<button onclick="wA(-1)">➖</button> 
+<span id="wA">0</span> 
+<button onclick="wA(1)">➕</button>
+
+&nbsp;&nbsp;&nbsp;
+
+Fouls 
+<button onclick="fA(-1)">➖</button> 
+<span id="fA">0</span> 
+<button onclick="fA(1)">➕</button>
+</div>
+
+<br>
+
+<div>
+Passes 
+<button onclick="paA(-1)">➖</button> 
+<span id="paA">0</span> 
+<button onclick="paA(1)">➕</button>
+</div>
 
 <hr>
 
 <h3>Team B</h3>
 
-Goals <button onclick="gB(-1)">➖</button> <span id="gB">0</span> <button onclick="gB(1)">➕</button><br><br>
-Points <button onclick="pB(-1)">➖</button> <span id="pB">0</span> <button onclick="pB(1)">➕</button><br><br>
-Wides <button onclick="wB(-1)">➖</button> <span id="wB">0</span> <button onclick="wB(1)">➕</button><br><br>
-Fouls <button onclick="fB(-1)">➖</button> <span id="fB">0</span> <button onclick="fB(1)">➕</button><br><br>
-Passes <button onclick="paB(-1)">➖</button> <span id="paB">0</span> <button onclick="paB(1)">➕</button>
+<div>
+Goals 
+<button onclick="gB(-1)">➖</button> 
+<span id="gB">0</span> 
+<button onclick="gB(1)">➕</button>
+
+&nbsp;&nbsp;&nbsp;
+
+Points 
+<button onclick="pB(-1)">➖</button> 
+<span id="pB">0</span> 
+<button onclick="pB(1)">➕</button>
+</div>
+
+<br>
+
+<div>
+Wides 
+<button onclick="wB(-1)">➖</button> 
+<span id="wB">0</span> 
+<button onclick="wB(1)">➕</button>
+
+&nbsp;&nbsp;&nbsp;
+
+Fouls 
+<button onclick="fB(-1)">➖</button> 
+<span id="fB">0</span> 
+<button onclick="fB(1)">➕</button>
+</div>
+
+<br>
+
+<div>
+Passes 
+<button onclick="paB(-1)">➖</button> 
+<span id="paB">0</span> 
+<button onclick="paB(1)">➕</button>
+</div>
 
 </div>
 
 <script>
 
-/* TAB SWITCH */
+/* TABS */
 function showTab(id){
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
  document.getElementById(id).classList.add("active");
