@@ -7,17 +7,17 @@
 <style>
 body { margin:0; font-family:Arial; text-align:center; }
 
+.tab { display:none; }
+.active { display:block; }
+
 .nav { background:#333; padding:10px; }
 .nav button {
   margin:3px;
-  padding:10px;
+  padding:8px;
   color:white;
   background:#555;
   border:none;
 }
-
-.tab { display:none; }
-.active { display:block; }
 
 /* PITCH */
 .pitch {
@@ -30,18 +30,11 @@ body { margin:0; font-family:Arial; text-align:center; }
   border:2px solid white;
 }
 
-.line {
-  position:absolute;
-  width:100%;
-  height:2px;
-  background:white;
-  top:50%;
-}
+.line { position:absolute; width:100%; height:2px; background:white; top:50%; }
 
 /* PLAYERS */
 .player {
-  width:48px;
-  height:48px;
+  width:48px; height:48px;
   border-radius:50%;
   color:white;
   position:absolute;
@@ -60,6 +53,7 @@ button { margin:4px; padding:10px; }
 input {
   padding:8px;
   font-size:14px;
+  text-align:center;
 }
 </style>
 </head>
@@ -77,7 +71,6 @@ input {
 <h3>
 <input id="teamAInput" value="Colmcille" oninput="updateTeamAName()">
 </h3>
-
 <div class="pitch" id="pitchA">
 <div class="line"></div>
 </div>
@@ -86,9 +79,8 @@ input {
 <!-- TEAM B -->
 <div id="teamB" class="tab">
 <h3>
-<input id="teamBInput" placeholder="Enter Team B name" oninput="updateTeamBName()">
+<input id="teamBInput" placeholder="Enter Team B" oninput="updateTeamBName()">
 </h3>
-
 <div class="pitch" id="pitchB">
 <div class="line"></div>
 </div>
@@ -101,12 +93,10 @@ input {
 
 <h3>
 <span id="teamALabel">Colmcille</span> vs 
-<span id="teamBLabel">Team B</span>
+<span id="scoreTeamB">Team B</span>
 </h3>
 
-<h1 id="scoreDisplay">
-0-00 | 0-00
-</h1>
+<h1 id="scoreDisplay">0-00 | 0-00</h1>
 
 <hr>
 
@@ -138,10 +128,15 @@ Fouls
 <span id="fA">0</span>
 <button onclick="foulA(1)">➕</button>
 
+Passes  
+<button onclick="passA(-1)">➖</button>
+<span id="passA">0</span>
+<button onclick="passA(1)">➕</button>
+
 <hr>
 
 <!-- TEAM B -->
-<h3 id="teamBLabel2">Team B</h3>
+<h3 id="teamBLabel">Team B</h3>
 
 Goals  
 <button onclick="goalB(-1)">➖</button>
@@ -168,6 +163,11 @@ Fouls
 <span id="fB">0</span>
 <button onclick="foulB(1)">➕</button>
 
+Passes  
+<button onclick="passB(-1)">➖</button>
+<span id="passB">0</span>
+<button onclick="passB(1)">➕</button>
+
 </div>
 
 <script>
@@ -187,16 +187,15 @@ function updateTeamAName(){
 
 function updateTeamBName(){
  let name = document.getElementById("teamBInput").value || "Team B";
+ document.getElementById("scoreTeamB").innerText = name;
  document.getElementById("teamBLabel").innerText = name;
- document.getElementById("teamBLabel2").innerText = name;
 }
 
-/* SCORE */
-let gA=0,pA=0,wA=0,tA=0,fA=0;
-let gB=0,pB=0,wB=0,tB=0,fB=0;
+/* SCORE DATA */
+let gA=0,pA=0,wA=0,tA=0,fA=0,passA=0;
+let gB=0,pB=0,wB=0,tB=0,fB=0,passB=0;
 
 function updateScore(){
-
  document.getElementById("scoreDisplay").innerText =
   gA+"-"+(pA<10?"0":"")+pA + " | " +
   gB+"-"+(pB<10?"0":"")+pB;
@@ -206,12 +205,14 @@ function updateScore(){
  document.getElementById("wA").innerText=wA;
  document.getElementById("tA").innerText=tA;
  document.getElementById("fA").innerText=fA;
+ document.getElementById("passA").innerText=passA;
 
  document.getElementById("gB").innerText=gB;
  document.getElementById("pB").innerText=pB;
  document.getElementById("wB").innerText=wB;
  document.getElementById("tB").innerText=tB;
  document.getElementById("fB").innerText=fB;
+ document.getElementById("passB").innerText=passB;
 }
 
 /* TEAM A */
@@ -220,6 +221,7 @@ function pointA(v){ pA=Math.max(0,pA+v); updateScore(); }
 function wideA(v){ wA=Math.max(0,wA+v); updateScore(); }
 function turnoverA(v){ tA=Math.max(0,tA+v); updateScore(); }
 function foulA(v){ fA=Math.max(0,fA+v); updateScore(); }
+function passA(v){ passA=Math.max(0,passA+v); updateScore(); }
 
 /* TEAM B */
 function goalB(v){ gB=Math.max(0,gB+v); updateScore(); }
@@ -227,6 +229,7 @@ function pointB(v){ pB=Math.max(0,pB+v); updateScore(); }
 function wideB(v){ wB=Math.max(0,wB+v); updateScore(); }
 function turnoverB(v){ tB=Math.max(0,tB+v); updateScore(); }
 function foulB(v){ fB=Math.max(0,fB+v); updateScore(); }
+function passB(v){ passB=Math.max(0,passB+v); updateScore(); }
 
 /* PLAYERS */
 function createPlayer(n,x,y,team){
