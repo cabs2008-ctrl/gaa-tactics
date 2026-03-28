@@ -7,7 +7,6 @@
 <style>
 body { margin:0; font-family:Arial; }
 
-/* NAV */
 .nav { background:#333; padding:10px; text-align:center; }
 .nav button {
   margin:3px;
@@ -17,7 +16,6 @@ body { margin:0; font-family:Arial; }
   border:none;
 }
 
-/* MOBILE (default) */
 .tab { display:none; text-align:center; }
 .active { display:block; }
 
@@ -51,37 +49,6 @@ body { margin:0; font-family:Arial; }
 button { margin:4px; padding:10px; }
 
 input { padding:8px; text-align:center; }
-
-/* DESKTOP VIEW */
-@media (min-width: 900px){
-
-  .tab { display:block !important; }
-
-  .container {
-    display:flex;
-    height:100vh;
-  }
-
-  .left {
-    width:60%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-  }
-
-  .right {
-    width:40%;
-    overflow:auto;
-    padding:20px;
-  }
-
-  .nav { display:none; }
-
-  .pitch {
-    max-width:600px;
-    height:800px;
-  }
-}
 </style>
 </head>
 
@@ -93,29 +60,25 @@ input { padding:8px; text-align:center; }
 <button onclick="showTab('score')">Score</button>
 </div>
 
-<div class="container">
-
-<!-- LEFT (PITCH) -->
-<div class="left">
-
+<!-- TEAM A -->
 <div id="teamA" class="tab active">
 <h3><input id="teamAInput" value="Colmcille" oninput="updateTeamAName()"></h3>
 <div class="pitch" id="pitchA"><div class="line"></div></div>
 </div>
 
+<!-- TEAM B -->
 <div id="teamB" class="tab">
 <h3><input id="teamBInput" placeholder="Team B" oninput="updateTeamBName()"></h3>
 <div class="pitch" id="pitchB"><div class="line"></div></div>
 </div>
 
-</div>
-
-<!-- RIGHT (STATS) -->
-<div class="right">
-
-<div id="score" class="tab active">
+<!-- SCORE -->
+<div id="score" class="tab">
 
 <h2>Match Stats</h2>
+
+<button onclick="loadFormation()">Load Formation</button>
+<button onclick="clearPlayers()">Clear Players</button>
 
 <h3>
 <span id="teamALabel">Colmcille</span> vs 
@@ -145,10 +108,6 @@ Wides <button onclick="wideB(-1)">➖</button><span id="wB">0</span><button oncl
 Turnovers <button onclick="turnoverB(-1)">➖</button><span id="tB">0</span><button onclick="turnoverB(1)">➕</button><br>
 Fouls <button onclick="foulB(-1)">➖</button><span id="fB">0</span><button onclick="foulB(1)">➕</button><br>
 Passes <button onclick="passB(-1)">➖</button><span id="passB">0</span><button onclick="passB(1)">➕</button>
-
-</div>
-
-</div>
 
 </div>
 
@@ -197,7 +156,7 @@ function updateScore(){
  document.getElementById("passB").innerText=passB;
 }
 
-/* FUNCTIONS */
+/* TEAM A */
 function goalA(v){ gA=Math.max(0,gA+v); updateScore(); }
 function pointA(v){ pA=Math.max(0,pA+v); updateScore(); }
 function wideA(v){ wA=Math.max(0,wA+v); updateScore(); }
@@ -205,6 +164,7 @@ function turnoverA(v){ tA=Math.max(0,tA+v); updateScore(); }
 function foulA(v){ fA=Math.max(0,fA+v); updateScore(); }
 function passA(v){ passA=Math.max(0,passA+v); updateScore(); }
 
+/* TEAM B */
 function goalB(v){ gB=Math.max(0,gB+v); updateScore(); }
 function pointB(v){ pB=Math.max(0,pB+v); updateScore(); }
 function wideB(v){ wB=Math.max(0,wB+v); updateScore(); }
@@ -238,27 +198,25 @@ function createPlayer(n,x,y,team){
   p.style.top=y+"px";
  });
 
- p.onmousedown=e=>{
-  let shiftX=e.clientX-p.offsetLeft;
-  let shiftY=e.clientY-p.offsetTop;
-
-  function move(e){
-    p.style.left=e.pageX-shiftX+"px";
-    p.style.top=e.pageY-shiftY+"px";
-  }
-
-  document.addEventListener("mousemove",move);
-
-  document.onmouseup=()=>{
-    document.removeEventListener("mousemove",move);
-  };
+ p.onclick=()=>{
+  let name=prompt("Player:",p.innerText);
+  if(name) p.innerText=name;
  };
 
  pitch.appendChild(p);
 }
 
-/* FORMATION */
+/* CLEAR */
+function clearPlayers(){
+ pitchA.innerHTML = '<div class="line"></div>';
+ pitchB.innerHTML = '<div class="line"></div>';
+}
+
+/* FORMATION (manual) */
 function loadFormation(){
+
+ clearPlayers();
+
  let pos=[
   [170,20],
   [60,100],[170,100],[280,100],
@@ -271,8 +229,6 @@ function loadFormation(){
  pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],"A"));
  pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],"B"));
 }
-
-window.onload = loadFormation;
 
 </script>
 
