@@ -37,6 +37,7 @@ body { margin:0; font-family:Arial; text-align:center; }
   top:50%;
 }
 
+/* PLAYERS */
 .player {
   width:45px;
   height:45px;
@@ -46,9 +47,11 @@ body { margin:0; font-family:Arial; text-align:center; }
   align-items:center;
   justify-content:center;
   color:white;
-  background:#1b5e20;
   touch-action:none;
 }
+
+.teamA { background:#1b5e20; } /* green */
+.teamB { background:#1565c0; } /* blue */
 
 button { padding:8px; margin:3px; }
 </style>
@@ -110,7 +113,7 @@ Passes <button onclick="paB(-1)">➖</button> <span id="paB">0</span> <button on
 
 <script>
 
-/* TABS */
+/* TAB SWITCH */
 function showTab(id){
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
  document.getElementById(id).classList.add("active");
@@ -129,17 +132,8 @@ function update(){
   GA+"-"+(PA<10?"0":"")+PA + " | " +
   GB+"-"+(PB<10?"0":"")+PB;
 
- document.getElementById("gA").innerText=GA;
- document.getElementById("pA").innerText=PA;
- document.getElementById("wA").innerText=WA;
- document.getElementById("fA").innerText=FA;
- document.getElementById("paA").innerText=PSA;
-
- document.getElementById("gB").innerText=GB;
- document.getElementById("pB").innerText=PB;
- document.getElementById("wB").innerText=WB;
- document.getElementById("fB").innerText=FB;
- document.getElementById("paB").innerText=PSB;
+ gA.innerText=GA; pA.innerText=PA; wA.innerText=WA; fA.innerText=FA; paA.innerText=PSA;
+ gB.innerText=GB; pB.innerText=PB; wB.innerText=WB; fB.innerText=FB; paB.innerText=PSB;
 }
 
 /* FUNCTIONS */
@@ -158,7 +152,9 @@ function paB(v){ PSB=Math.max(0,PSB+v); update(); }
 /* PLAYERS */
 function addPlayer(n,x,y,pitch){
  let p=document.createElement("div");
- p.className="player";
+
+ p.className = "player " + (pitch.id === "pitchA" ? "teamA" : "teamB");
+
  p.innerText=n;
  p.style.left=x+"px";
  p.style.top=y+"px";
