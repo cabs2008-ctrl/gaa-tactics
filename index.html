@@ -2,21 +2,21 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GAA Match App</title>
+<title>GAA App</title>
 
 <style>
-body { margin:0; font-family:Arial; }
+body { margin:0; font-family:Arial; text-align:center; }
 
-.nav { background:#333; padding:10px; text-align:center; }
+.nav { background:#333; padding:10px; }
 .nav button {
-  margin:3px;
-  padding:8px;
+  margin:5px;
+  padding:10px;
   color:white;
   background:#555;
   border:none;
 }
 
-.tab { display:none; text-align:center; }
+.tab { display:none; }
 .active { display:block; }
 
 .pitch {
@@ -29,25 +29,31 @@ body { margin:0; font-family:Arial; }
   border:2px solid white;
 }
 
-.line { position:absolute; width:100%; height:2px; background:white; top:50%; }
+.line {
+  position:absolute;
+  width:100%;
+  height:2px;
+  background:white;
+  top:50%;
+}
 
 .player {
-  width:48px; height:48px;
+  width:45px;
+  height:45px;
   border-radius:50%;
-  color:white;
   position:absolute;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:12px;
+  color:white;
+  font-size:14px;
   touch-action:none;
 }
 
-.A { background:#1b5e20; }
-.B { background:#1565c0; }
+.teamA { background:#1b5e20; }
+.teamB { background:#1565c0; }
 
-button { margin:4px; padding:10px; }
-
+button { padding:8px; margin:3px; }
 input { padding:8px; text-align:center; }
 </style>
 </head>
@@ -62,52 +68,36 @@ input { padding:8px; text-align:center; }
 
 <!-- TEAM A -->
 <div id="teamA" class="tab active">
-<h3><input id="teamAInput" value="Colmcille" oninput="updateTeamAName()"></h3>
+<h3><input id="teamAInput" value="Colmcille" oninput="updateNames()"></h3>
 <div class="pitch" id="pitchA"><div class="line"></div></div>
 </div>
 
 <!-- TEAM B -->
 <div id="teamB" class="tab">
-<h3><input id="teamBInput" placeholder="Team B" oninput="updateTeamBName()"></h3>
+<h3><input id="teamBInput" placeholder="Team B" oninput="updateNames()"></h3>
 <div class="pitch" id="pitchB"><div class="line"></div></div>
 </div>
 
 <!-- SCORE -->
 <div id="score" class="tab">
-
-<h2>Match Stats</h2>
-
-<button onclick="loadFormation()">Load Formation</button>
-<button onclick="clearPlayers()">Clear Players</button>
+<h2>Match</h2>
 
 <h3>
-<span id="teamALabel">Colmcille</span> vs 
-<span id="scoreTeamB">Team B</span>
+<span id="nameA">Colmcille</span> vs 
+<span id="nameB">Team B</span>
 </h3>
 
 <h1 id="scoreDisplay">0-00 | 0-00</h1>
 
-<hr>
+<h3>Colmcille</h3>
+Goals <button onclick="goalA(-1)">➖</button> <span id="gA">0</span> <button onclick="goalA(1)">➕</button><br>
+Points <button onclick="pointA(-1)">➖</button> <span id="pA">0</span> <button onclick="pointA(1)">➕</button><br>
+Wides <button onclick="wideA(-1)">➖</button> <span id="wA">0</span> <button onclick="wideA(1)">➕</button>
 
-<h3 id="teamALabel2">Colmcille</h3>
-
-Goals <button onclick="goalA(-1)">➖</button><span id="gA">0</span><button onclick="goalA(1)">➕</button><br>
-Points <button onclick="pointA(-1)">➖</button><span id="pA">0</span><button onclick="pointA(1)">➕</button><br>
-Wides <button onclick="wideA(-1)">➖</button><span id="wA">0</span><button onclick="wideA(1)">➕</button><br>
-Turnovers <button onclick="turnoverA(-1)">➖</button><span id="tA">0</span><button onclick="turnoverA(1)">➕</button><br>
-Fouls <button onclick="foulA(-1)">➖</button><span id="fA">0</span><button onclick="foulA(1)">➕</button><br>
-Passes <button onclick="passA(-1)">➖</button><span id="passA">0</span><button onclick="passA(1)">➕</button>
-
-<hr>
-
-<h3 id="teamBLabel">Team B</h3>
-
-Goals <button onclick="goalB(-1)">➖</button><span id="gB">0</span><button onclick="goalB(1)">➕</button><br>
-Points <button onclick="pointB(-1)">➖</button><span id="pB">0</span><button onclick="pointB(1)">➕</button><br>
-Wides <button onclick="wideB(-1)">➖</button><span id="wB">0</span><button onclick="wideB(1)">➕</button><br>
-Turnovers <button onclick="turnoverB(-1)">➖</button><span id="tB">0</span><button onclick="turnoverB(1)">➕</button><br>
-Fouls <button onclick="foulB(-1)">➖</button><span id="fB">0</span><button onclick="foulB(1)">➕</button><br>
-Passes <button onclick="passB(-1)">➖</button><span id="passB">0</span><button onclick="passB(1)">➕</button>
+<h3>Team B</h3>
+Goals <button onclick="goalB(-1)">➖</button> <span id="gB">0</span> <button onclick="goalB(1)">➕</button><br>
+Points <button onclick="pointB(-1)">➖</button> <span id="pB">0</span> <button onclick="pointB(1)">➕</button><br>
+Wides <button onclick="wideB(-1)">➖</button> <span id="wB">0</span> <button onclick="wideB(1)">➕</button>
 
 </div>
 
@@ -120,62 +110,41 @@ function showTab(id){
 }
 
 /* TEAM NAMES */
-function updateTeamAName(){
- let name = document.getElementById("teamAInput").value || "Colmcille";
- document.getElementById("teamALabel").innerText = name;
- document.getElementById("teamALabel2").innerText = name;
-}
-
-function updateTeamBName(){
- let name = document.getElementById("teamBInput").value || "Team B";
- document.getElementById("scoreTeamB").innerText = name;
- document.getElementById("teamBLabel").innerText = name;
+function updateNames(){
+ let a=document.getElementById("teamAInput").value || "Colmcille";
+ let b=document.getElementById("teamBInput").value || "Team B";
+ document.getElementById("nameA").innerText=a;
+ document.getElementById("nameB").innerText=b;
 }
 
 /* SCORE */
-let gA=0,pA=0,wA=0,tA=0,fA=0,passA=0;
-let gB=0,pB=0,wB=0,tB=0,fB=0,passB=0;
+let gA=0,pA=0,wA=0;
+let gB=0,pB=0,wB=0;
 
 function updateScore(){
  document.getElementById("scoreDisplay").innerText =
-  gA+"-"+(pA<10?"0":"")+pA + " | " +
+  gA+"-"+(pA<10?"0":"")+pA+" | "+
   gB+"-"+(pB<10?"0":"")+pB;
 
  document.getElementById("gA").innerText=gA;
  document.getElementById("pA").innerText=pA;
  document.getElementById("wA").innerText=wA;
- document.getElementById("tA").innerText=tA;
- document.getElementById("fA").innerText=fA;
- document.getElementById("passA").innerText=passA;
 
  document.getElementById("gB").innerText=gB;
  document.getElementById("pB").innerText=pB;
  document.getElementById("wB").innerText=wB;
- document.getElementById("tB").innerText=tB;
- document.getElementById("fB").innerText=fB;
- document.getElementById("passB").innerText=passB;
 }
 
-/* TEAM A */
 function goalA(v){ gA=Math.max(0,gA+v); updateScore(); }
 function pointA(v){ pA=Math.max(0,pA+v); updateScore(); }
 function wideA(v){ wA=Math.max(0,wA+v); updateScore(); }
-function turnoverA(v){ tA=Math.max(0,tA+v); updateScore(); }
-function foulA(v){ fA=Math.max(0,fA+v); updateScore(); }
-function passA(v){ passA=Math.max(0,passA+v); updateScore(); }
 
-/* TEAM B */
 function goalB(v){ gB=Math.max(0,gB+v); updateScore(); }
 function pointB(v){ pB=Math.max(0,pB+v); updateScore(); }
 function wideB(v){ wB=Math.max(0,wB+v); updateScore(); }
-function turnoverB(v){ tB=Math.max(0,tB+v); updateScore(); }
-function foulB(v){ fB=Math.max(0,fB+v); updateScore(); }
-function passB(v){ passB=Math.max(0,passB+v); updateScore(); }
 
 /* PLAYERS */
-function createPlayer(n,x,y,team){
- let pitch = team==="A" ? pitchA : pitchB;
-
+function createPlayer(n,x,y,pitch,team){
  let p=document.createElement("div");
  p.className="player "+team;
  p.innerText=n;
@@ -192,31 +161,15 @@ function createPlayer(n,x,y,team){
 
  p.addEventListener("touchmove",e=>{
   let rect=pitch.getBoundingClientRect();
-  let x=e.touches[0].clientX-rect.left-offsetX;
-  let y=e.touches[0].clientY-rect.top-offsetY;
-  p.style.left=x+"px";
-  p.style.top=y+"px";
+  p.style.left=(e.touches[0].clientX-rect.left-offsetX)+"px";
+  p.style.top=(e.touches[0].clientY-rect.top-offsetY)+"px";
  });
-
- p.onclick=()=>{
-  let name=prompt("Player:",p.innerText);
-  if(name) p.innerText=name;
- };
 
  pitch.appendChild(p);
 }
 
-/* CLEAR */
-function clearPlayers(){
- pitchA.innerHTML = '<div class="line"></div>';
- pitchB.innerHTML = '<div class="line"></div>';
-}
-
-/* FORMATION (manual) */
-function loadFormation(){
-
- clearPlayers();
-
+/* FORMATION */
+function load(){
  let pos=[
   [170,20],
   [60,100],[170,100],[280,100],
@@ -226,9 +179,11 @@ function loadFormation(){
   [60,440],[170,440],[280,440]
  ];
 
- pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],"A"));
- pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],"B"));
+ pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],pitchA,"teamA"));
+ pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],pitchB,"teamB"));
 }
+
+window.onload=load;
 
 </script>
 
