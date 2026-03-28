@@ -93,42 +93,23 @@ button { padding:8px; margin:3px; }
 <h3>Colmcille</h3>
 
 <div>
-Goals 
-<button onclick="gA(-1)">➖</button> 
-<span id="gA">0</span> 
-<button onclick="gA(1)">➕</button>
-
+Goals <button onclick="gA(-1)">➖</button> <span id="gA">0</span> <button onclick="gA(1)">➕</button>
 &nbsp;&nbsp;&nbsp;
-
-Points 
-<button onclick="pA(-1)">➖</button> 
-<span id="pA">0</span> 
-<button onclick="pA(1)">➕</button>
+Points <button onclick="pA(-1)">➖</button> <span id="pA">0</span> <button onclick="pA(1)">➕</button>
 </div>
 
 <br>
 
 <div>
-Wides 
-<button onclick="wA(-1)">➖</button> 
-<span id="wA">0</span> 
-<button onclick="wA(1)">➕</button>
-
+Wides <button onclick="wA(-1)">➖</button> <span id="wA">0</span> <button onclick="wA(1)">➕</button>
 &nbsp;&nbsp;&nbsp;
-
-Fouls 
-<button onclick="fA(-1)">➖</button> 
-<span id="fA">0</span> 
-<button onclick="fA(1)">➕</button>
+Fouls <button onclick="fA(-1)">➖</button> <span id="fA">0</span> <button onclick="fA(1)">➕</button>
 </div>
 
 <br>
 
 <div>
-Passes 
-<button onclick="paA(-1)">➖</button> 
-<span id="paA">0</span> 
-<button onclick="paA(1)">➕</button>
+Passes <button onclick="paA(-1)">➖</button> <span id="paA">0</span> <button onclick="paA(1)">➕</button>
 </div>
 
 <hr>
@@ -136,42 +117,23 @@ Passes
 <h3>Team B</h3>
 
 <div>
-Goals 
-<button onclick="gB(-1)">➖</button> 
-<span id="gB">0</span> 
-<button onclick="gB(1)">➕</button>
-
+Goals <button onclick="gB(-1)">➖</button> <span id="gB">0</span> <button onclick="gB(1)">➕</button>
 &nbsp;&nbsp;&nbsp;
-
-Points 
-<button onclick="pB(-1)">➖</button> 
-<span id="pB">0</span> 
-<button onclick="pB(1)">➕</button>
+Points <button onclick="pB(-1)">➖</button> <span id="pB">0</span> <button onclick="pB(1)">➕</button>
 </div>
 
 <br>
 
 <div>
-Wides 
-<button onclick="wB(-1)">➖</button> 
-<span id="wB">0</span> 
-<button onclick="wB(1)">➕</button>
-
+Wides <button onclick="wB(-1)">➖</button> <span id="wB">0</span> <button onclick="wB(1)">➕</button>
 &nbsp;&nbsp;&nbsp;
-
-Fouls 
-<button onclick="fB(-1)">➖</button> 
-<span id="fB">0</span> 
-<button onclick="fB(1)">➕</button>
+Fouls <button onclick="fB(-1)">➖</button> <span id="fB">0</span> <button onclick="fB(1)">➕</button>
 </div>
 
 <br>
 
 <div>
-Passes 
-<button onclick="paB(-1)">➖</button> 
-<span id="paB">0</span> 
-<button onclick="paB(1)">➕</button>
+Passes <button onclick="paB(-1)">➖</button> <span id="paB">0</span> <button onclick="paB(1)">➕</button>
 </div>
 
 </div>
@@ -223,6 +185,14 @@ function addPlayer(n,x,y,pitch){
  p.innerText=n;
  p.style.left=x+"px";
  p.style.top=y+"px";
+
+ /* 👉 EDIT PLAYER ON TAP */
+ p.onclick = function(){
+  let name = prompt("Enter player name/number:", p.innerText);
+  if(name !== null && name !== ""){
+    p.innerText = name;
+  }
+ };
 
  let ox, oy;
 
