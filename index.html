@@ -5,12 +5,10 @@
 <title>GAA Match App</title>
 
 <style>
-body { margin:0; font-family:Arial; text-align:center; }
+body { margin:0; font-family:Arial; }
 
-.tab { display:none; }
-.active { display:block; }
-
-.nav { background:#333; padding:10px; }
+/* NAV */
+.nav { background:#333; padding:10px; text-align:center; }
 .nav button {
   margin:3px;
   padding:8px;
@@ -18,6 +16,10 @@ body { margin:0; font-family:Arial; text-align:center; }
   background:#555;
   border:none;
 }
+
+/* MOBILE (default) */
+.tab { display:none; text-align:center; }
+.active { display:block; }
 
 .pitch {
   width:100%;
@@ -48,10 +50,37 @@ body { margin:0; font-family:Arial; text-align:center; }
 
 button { margin:4px; padding:10px; }
 
-input {
-  padding:8px;
-  font-size:14px;
-  text-align:center;
+input { padding:8px; text-align:center; }
+
+/* DESKTOP VIEW */
+@media (min-width: 900px){
+
+  .tab { display:block !important; }
+
+  .container {
+    display:flex;
+    height:100vh;
+  }
+
+  .left {
+    width:60%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .right {
+    width:40%;
+    overflow:auto;
+    padding:20px;
+  }
+
+  .nav { display:none; }
+
+  .pitch {
+    max-width:600px;
+    height:800px;
+  }
 }
 </style>
 </head>
@@ -64,28 +93,27 @@ input {
 <button onclick="showTab('score')">Score</button>
 </div>
 
-<!-- TEAM A -->
+<div class="container">
+
+<!-- LEFT (PITCH) -->
+<div class="left">
+
 <div id="teamA" class="tab active">
-<h3>
-<input id="teamAInput" value="Colmcille" oninput="updateTeamAName()">
-</h3>
-<div class="pitch" id="pitchA">
-<div class="line"></div>
-</div>
+<h3><input id="teamAInput" value="Colmcille" oninput="updateTeamAName()"></h3>
+<div class="pitch" id="pitchA"><div class="line"></div></div>
 </div>
 
-<!-- TEAM B -->
 <div id="teamB" class="tab">
-<h3>
-<input id="teamBInput" placeholder="Enter Team B" oninput="updateTeamBName()">
-</h3>
-<div class="pitch" id="pitchB">
-<div class="line"></div>
-</div>
+<h3><input id="teamBInput" placeholder="Team B" oninput="updateTeamBName()"></h3>
+<div class="pitch" id="pitchB"><div class="line"></div></div>
 </div>
 
-<!-- SCORE -->
-<div id="score" class="tab">
+</div>
+
+<!-- RIGHT (STATS) -->
+<div class="right">
+
+<div id="score" class="tab active">
 
 <h2>Match Stats</h2>
 
@@ -100,69 +128,27 @@ input {
 
 <h3 id="teamALabel2">Colmcille</h3>
 
-Goals  
-<button onclick="goalA(-1)">➖</button>
-<span id="gA">0</span>
-<button onclick="goalA(1)">➕</button>
-
-Points  
-<button onclick="pointA(-1)">➖</button>
-<span id="pA">0</span>
-<button onclick="pointA(1)">➕</button>
-
-Wides  
-<button onclick="wideA(-1)">➖</button>
-<span id="wA">0</span>
-<button onclick="wideA(1)">➕</button>
-
-Turnovers  
-<button onclick="turnoverA(-1)">➖</button>
-<span id="tA">0</span>
-<button onclick="turnoverA(1)">➕</button>
-
-Fouls  
-<button onclick="foulA(-1)">➖</button>
-<span id="fA">0</span>
-<button onclick="foulA(1)">➕</button>
-
-Passes  
-<button onclick="addPassA(-1)">➖</button>
-<span id="passA">0</span>
-<button onclick="addPassA(1)">➕</button>
+Goals <button onclick="goalA(-1)">➖</button><span id="gA">0</span><button onclick="goalA(1)">➕</button><br>
+Points <button onclick="pointA(-1)">➖</button><span id="pA">0</span><button onclick="pointA(1)">➕</button><br>
+Wides <button onclick="wideA(-1)">➖</button><span id="wA">0</span><button onclick="wideA(1)">➕</button><br>
+Turnovers <button onclick="turnoverA(-1)">➖</button><span id="tA">0</span><button onclick="turnoverA(1)">➕</button><br>
+Fouls <button onclick="foulA(-1)">➖</button><span id="fA">0</span><button onclick="foulA(1)">➕</button><br>
+Passes <button onclick="passA(-1)">➖</button><span id="passA">0</span><button onclick="passA(1)">➕</button>
 
 <hr>
 
 <h3 id="teamBLabel">Team B</h3>
 
-Goals  
-<button onclick="goalB(-1)">➖</button>
-<span id="gB">0</span>
-<button onclick="goalB(1)">➕</button>
+Goals <button onclick="goalB(-1)">➖</button><span id="gB">0</span><button onclick="goalB(1)">➕</button><br>
+Points <button onclick="pointB(-1)">➖</button><span id="pB">0</span><button onclick="pointB(1)">➕</button><br>
+Wides <button onclick="wideB(-1)">➖</button><span id="wB">0</span><button onclick="wideB(1)">➕</button><br>
+Turnovers <button onclick="turnoverB(-1)">➖</button><span id="tB">0</span><button onclick="turnoverB(1)">➕</button><br>
+Fouls <button onclick="foulB(-1)">➖</button><span id="fB">0</span><button onclick="foulB(1)">➕</button><br>
+Passes <button onclick="passB(-1)">➖</button><span id="passB">0</span><button onclick="passB(1)">➕</button>
 
-Points  
-<button onclick="pointB(-1)">➖</button>
-<span id="pB">0</span>
-<button onclick="pointB(1)">➕</button>
+</div>
 
-Wides  
-<button onclick="wideB(-1)">➖</button>
-<span id="wB">0</span>
-<button onclick="wideB(1)">➕</button>
-
-Turnovers  
-<button onclick="turnoverB(-1)">➖</button>
-<span id="tB">0</span>
-<button onclick="turnoverB(1)">➕</button>
-
-Fouls  
-<button onclick="foulB(-1)">➖</button>
-<span id="fB">0</span>
-<button onclick="foulB(1)">➕</button>
-
-Passes  
-<button onclick="addPassB(-1)">➖</button>
-<span id="passB">0</span>
-<button onclick="addPassB(1)">➕</button>
+</div>
 
 </div>
 
@@ -187,12 +173,11 @@ function updateTeamBName(){
  document.getElementById("teamBLabel").innerText = name;
 }
 
-/* DATA */
-let gA=0,pA=0,wA=0,tA=0,fA=0,passAVal=0;
-let gB=0,pB=0,wB=0,tB=0,fB=0,passBVal=0;
+/* SCORE */
+let gA=0,pA=0,wA=0,tA=0,fA=0,passA=0;
+let gB=0,pB=0,wB=0,tB=0,fB=0,passB=0;
 
 function updateScore(){
-
  document.getElementById("scoreDisplay").innerText =
   gA+"-"+(pA<10?"0":"")+pA + " | " +
   gB+"-"+(pB<10?"0":"")+pB;
@@ -202,31 +187,30 @@ function updateScore(){
  document.getElementById("wA").innerText=wA;
  document.getElementById("tA").innerText=tA;
  document.getElementById("fA").innerText=fA;
- document.getElementById("passA").innerText=passAVal;
+ document.getElementById("passA").innerText=passA;
 
  document.getElementById("gB").innerText=gB;
  document.getElementById("pB").innerText=pB;
  document.getElementById("wB").innerText=wB;
  document.getElementById("tB").innerText=tB;
  document.getElementById("fB").innerText=fB;
- document.getElementById("passB").innerText=passBVal;
+ document.getElementById("passB").innerText=passB;
 }
 
-/* TEAM A */
+/* FUNCTIONS */
 function goalA(v){ gA=Math.max(0,gA+v); updateScore(); }
 function pointA(v){ pA=Math.max(0,pA+v); updateScore(); }
 function wideA(v){ wA=Math.max(0,wA+v); updateScore(); }
 function turnoverA(v){ tA=Math.max(0,tA+v); updateScore(); }
 function foulA(v){ fA=Math.max(0,fA+v); updateScore(); }
-function addPassA(v){ passAVal=Math.max(0,passAVal+v); updateScore(); }
+function passA(v){ passA=Math.max(0,passA+v); updateScore(); }
 
-/* TEAM B */
 function goalB(v){ gB=Math.max(0,gB+v); updateScore(); }
 function pointB(v){ pB=Math.max(0,pB+v); updateScore(); }
 function wideB(v){ wB=Math.max(0,wB+v); updateScore(); }
 function turnoverB(v){ tB=Math.max(0,tB+v); updateScore(); }
 function foulB(v){ fB=Math.max(0,fB+v); updateScore(); }
-function addPassB(v){ passBVal=Math.max(0,passBVal+v); updateScore(); }
+function passB(v){ passB=Math.max(0,passB+v); updateScore(); }
 
 /* PLAYERS */
 function createPlayer(n,x,y,team){
@@ -254,9 +238,20 @@ function createPlayer(n,x,y,team){
   p.style.top=y+"px";
  });
 
- p.onclick=()=>{
-  let name=prompt("Player:",p.innerText);
-  if(name) p.innerText=name;
+ p.onmousedown=e=>{
+  let shiftX=e.clientX-p.offsetLeft;
+  let shiftY=e.clientY-p.offsetTop;
+
+  function move(e){
+    p.style.left=e.pageX-shiftX+"px";
+    p.style.top=e.pageY-shiftY+"px";
+  }
+
+  document.addEventListener("mousemove",move);
+
+  document.onmouseup=()=>{
+    document.removeEventListener("mousemove",move);
+  };
  };
 
  pitch.appendChild(p);
