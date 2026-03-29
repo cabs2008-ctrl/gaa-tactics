@@ -67,8 +67,6 @@ body { margin:0; font-family:Arial; text-align:center; }
   gap:5px;
 }
 
-input { padding:8px; margin:5px; width:80%; }
-
 button { padding:8px; font-size:16px; }
 
 .ai-box {
@@ -78,7 +76,9 @@ button { padding:8px; font-size:16px; }
   border-radius:8px;
 }
 
-.history { max-width:400px; margin:auto; text-align:left; }
+.select-mode {
+  outline:3px solid yellow;
+}
 </style>
 </head>
 
@@ -124,7 +124,7 @@ button { padding:8px; font-size:16px; }
 
 <h1 id="score">0-00 | 0-00</h1>
 
-<button onclick="confirmReset()" style="background:#c62828;color:white;">Reset Match</button>
+<button onclick="confirmReset()" style="background:#c62828;color:white;">Reset</button>
 <button onclick="saveMatch()" style="background:#2e7d32;color:white;">Save</button>
 
 <hr>
@@ -132,17 +132,13 @@ button { padding:8px; font-size:16px; }
 <h3>Colmcille</h3>
 
 <div class="stat-row">
-<div class="stat-block">Goals <button onclick="gA(-1)">➖</button><span id="gA">0</span><button onclick="gA(1)">➕</button></div>
-<div class="stat-block">Points <button onclick="pA(-1)">➖</button><span id="pA">0</span><button onclick="pA(1)">➕</button></div>
+<div class="stat-block">Goals <button onclick="startSelect('A','goal')">➕</button></div>
+<div class="stat-block">Points <button onclick="startSelect('A','point')">➕</button></div>
 </div>
 
 <div class="stat-row">
-<div class="stat-block">Wides <button onclick="wA(-1)">➖</button><span id="wA">0</span><button onclick="wA(1)">➕</button></div>
-<div class="stat-block">Fouls <button onclick="fA(-1)">➖</button><span id="fA">0</span><button onclick="fA(1)">➕</button></div>
-</div>
-
-<div class="stat-row">
-<div class="stat-block">Passes <button onclick="paA(-1)">➖</button><span id="paA">0</span><button onclick="paA(1)">➕</button></div>
+<div class="stat-block">Wides <button onclick="wA(1)">➕</button></div>
+<div class="stat-block">Fouls <button onclick="fA(1)">➕</button></div>
 </div>
 
 <hr>
@@ -150,36 +146,22 @@ button { padding:8px; font-size:16px; }
 <h3>Team B</h3>
 
 <div class="stat-row">
-<div class="stat-block">Goals <button onclick="gB(-1)">➖</button><span id="gB">0</span><button onclick="gB(1)">➕</button></div>
-<div class="stat-block">Points <button onclick="pB(-1)">➖</button><span id="pB">0</span><button onclick="pB(1)">➕</button></div>
+<div class="stat-block">Goals <button onclick="startSelect('B','goal')">➕</button></div>
+<div class="stat-block">Points <button onclick="startSelect('B','point')">➕</button></div>
 </div>
 
 <div class="stat-row">
-<div class="stat-block">Wides <button onclick="wB(-1)">➖</button><span id="wB">0</span><button onclick="wB(1)">➕</button></div>
-<div class="stat-block">Fouls <button onclick="fB(-1)">➖</button><span id="fB">0</span><button onclick="fB(1)">➕</button></div>
-</div>
-
-<div class="stat-row">
-<div class="stat-block">Passes <button onclick="paB(-1)">➖</button><span id="paB">0</span><button onclick="paB(1)">➕</button></div>
+<div class="stat-block">Wides <button onclick="wB(1)">➕</button></div>
+<div class="stat-block">Fouls <button onclick="fB(1)">➕</button></div>
 </div>
 
 </div>
 
 <!-- SUMMARY -->
 <div id="summary" class="tab">
-
 <h2>AI Match Insights</h2>
-
-<div class="ai-box">
-<h3>Colmcille</h3>
-<p id="aiA"></p>
-</div>
-
-<div class="ai-box">
-<h3>Team B</h3>
-<p id="aiB"></p>
-</div>
-
+<div class="ai-box"><p id="aiA"></p></div>
+<div class="ai-box"><p id="aiB"></p></div>
 </div>
 
 <!-- HISTORY -->
@@ -190,34 +172,71 @@ button { padding:8px; font-size:16px; }
 
 <script>
 
-/* LOAD */
-window.onload = function(){
- loadPlayers();
- loadHistory();
- update();
-};
+let selectMode=null;
+let selectTeam=null;
 
-/* TABS */
-function showTab(id){
- document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
- document.getElementById(id).classList.add('active');
+/* START SELECT */
+function startSelect(team,type){
+ selectMode=type;
+ selectTeam=team;
+ showTab(team==="A"?"teamA":"teamB");
 }
 
-/* TEAM NAMES */
-teamAInput.oninput=()=>nameA.innerText=teamAInput.value;
-teamBInput.oninput=()=>nameB.innerText=teamBInput.value;
+/* PLAYERS */
+function addPlayer(n,x,y,pitch){
+ let p=document.createElement("div");
+ p.className="player "+(pitch.id==="pitchA"?"teamA":"teamB");
+ p.innerText=n;
+ p.style.left=x+"px";
+ p.style.top=y+"px";
+
+ p.onclick=()=>{
+  if(selectMode){
+    if(selectTeam==="A"){
+      if(selectMode==="goal") GA++;
+      if(selectMode==="point") PA++;
+    }else{
+      if(selectMode==="goal") GB++;
+      if(selectMode==="point") PB++;
+    }
+    selectMode=null;
+    update();
+    return;
+  }
+
+  let name=prompt("Player:",p.innerText);
+  if(name) p.innerText=name;
+ };
+
+ let ox,oy;
+ p.addEventListener("touchstart",e=>{
+  ox=e.touches[0].clientX-p.offsetLeft;
+  oy=e.touches[0].clientY-p.offsetTop;
+ });
+
+ p.addEventListener("touchmove",e=>{
+  let r=pitch.getBoundingClientRect();
+  p.style.left=(e.touches[0].clientX-r.left-ox)+"px";
+  p.style.top=(e.touches[0].clientY-r.top-oy)+"px";
+ });
+
+ pitch.appendChild(p);
+}
+
+function loadPlayers(){
+ let pos=[[170,20],[60,100],[170,100],[280,100],[60,180],[170,180],[280,180],[120,260],[220,260],[60,340],[170,340],[280,340],[60,440],[170,440],[280,440]];
+ pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],pitchA));
+ pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],pitchB));
+}
 
 /* STATS */
-let GA=0,PA=0,WA=0,FA=0,PSA=0;
-let GB=0,PB=0,WB=0,FB=0,PSB=0;
+let GA=0,PA=0,WA=0,FA=0;
+let GB=0,PB=0,WB=0,FB=0;
 
 function update(){
  score.innerText =
   GA+"-"+(PA<10?"0":"")+PA+" | "+
   GB+"-"+(PB<10?"0":"")+PB;
-
- gA.innerText=GA; pA.innerText=PA; wA.innerText=WA; fA.innerText=FA; paA.innerText=PSA;
- gB.innerText=GB; pB.innerText=PB; wB.innerText=WB; fB.innerText=FB; paB.innerText=PSB;
 
  updateAI();
 }
@@ -227,48 +246,32 @@ function updateAI(){
  let attA=GA+PA+WA, scA=GA+PA;
  let attB=GB+PB+WB, scB=GB+PB;
 
- let effA=attA?Math.round((scA/attA)*100):0;
- let effB=attB?Math.round((scB/attB)*100):0;
-
- aiA.innerHTML=`Shooting %: ${effA}%<br>Scores/Wides: ${scA}/${WA}<br>Attempts: ${attA}`;
- aiB.innerHTML=`Shooting %: ${effB}%<br>Scores/Wides: ${scB}/${WB}<br>Attempts: ${attB}`;
+ aiA.innerHTML=`A Shooting %: ${attA?Math.round(scA/attA*100):0}%`;
+ aiB.innerHTML=`B Shooting %: ${attB?Math.round(scB/attB*100):0}%`;
 }
 
-/* FUNCTIONS */
-function gA(v){GA=Math.max(0,GA+v);update();}
-function pA(v){PA=Math.max(0,PA+v);update();}
-function wA(v){WA=Math.max(0,WA+v);update();}
-function fA(v){FA=Math.max(0,FA+v);update();}
-function paA(v){PSA=Math.max(0,PSA+v);update();}
-
-function gB(v){GB=Math.max(0,GB+v);update();}
-function pB(v){PB=Math.max(0,PB+v);update();}
-function wB(v){WB=Math.max(0,WB+v);update();}
-function fB(v){FB=Math.max(0,FB+v);update();}
-function paB(v){PSB=Math.max(0,PSB+v);update();}
+/* SIMPLE */
+function wA(){WA++;update();}
+function fA(){FA++;update();}
+function wB(){WB++;update();}
+function fB(){FB++;update();}
 
 /* RESET */
 function confirmReset(){
- if(confirm("Reset match?")) resetMatch();
-}
-function resetMatch(){
- GA=PA=WA=FA=PSA=0;
- GB=PB=WB=FB=PSB=0;
- update();
+ if(confirm("Reset?")){GA=PA=WA=FA=GB=PB=WB=FB=0;update();}
 }
 
 /* HISTORY */
 function saveMatch(){
  let h=JSON.parse(localStorage.getItem("gaaHistory")||"[]");
- h.unshift({teamA:teamAInput.value,teamB:teamBInput.value,score:score.innerText,date:new Date().toLocaleString()});
+ h.unshift({score:score.innerText,date:new Date().toLocaleString()});
  localStorage.setItem("gaaHistory",JSON.stringify(h));
  loadHistory();
- alert("Saved!");
 }
 
 function loadHistory(){
  let h=JSON.parse(localStorage.getItem("gaaHistory")||"[]");
- historyList.innerHTML=h.map(m=>`<div><b>${m.teamA} vs ${m.teamB}</b><br>${m.score}<br><small>${m.date}</small><hr></div>`).join("");
+ historyList.innerHTML=h.map(m=>`<div>${m.score}<br>${m.date}<hr></div>`).join("");
 }
 
 /* SHARE */
@@ -277,46 +280,23 @@ function shareTeam(id){
   c.toBlob(b=>{
    let f=new File([b],"team.png",{type:"image/png"});
    if(navigator.share){
-    navigator.share({files:[f],title:"Team Sheet"});
-   }else alert("Sharing not supported");
+    navigator.share({files:[f]});
+   }
   });
  });
 }
 
-/* PLAYERS */
-function addPlayer(n,x,y,p){
- let d=document.createElement("div");
- d.className="player "+(p.id==="pitchA"?"teamA":"teamB");
- d.innerText=n;
- d.style.left=x+"px";
- d.style.top=y+"px";
-
- d.onclick=()=>{
-  let name=prompt("Player:",d.innerText);
-  if(name)d.innerText=name;
- };
-
- let ox,oy;
-
- d.addEventListener("touchstart",e=>{
-  ox=e.touches[0].clientX-d.offsetLeft;
-  oy=e.touches[0].clientY-d.offsetTop;
- });
-
- d.addEventListener("touchmove",e=>{
-  let r=p.getBoundingClientRect();
-  d.style.left=(e.touches[0].clientX-r.left-ox)+"px";
-  d.style.top=(e.touches[0].clientY-r.top-oy)+"px";
- });
-
- p.appendChild(d);
+/* TABS */
+function showTab(id){
+ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
 }
 
-function loadPlayers(){
- let pos=[[170,20],[60,100],[170,100],[280,100],[60,180],[170,180],[280,180],[120,260],[220,260],[60,340],[170,340],[280,340],[60,440],[170,440],[280,440]];
- pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],pitchA));
- pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],pitchB));
-}
+window.onload=function(){
+ loadPlayers();
+ loadHistory();
+ update();
+};
 
 </script>
 
