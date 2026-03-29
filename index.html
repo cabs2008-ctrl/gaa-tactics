@@ -52,7 +52,7 @@ body { margin:0; font-family:Arial; text-align:center; }
 .teamA { background:#1b5e20; }
 .teamB { background:#1565c0; }
 
-button { padding:8px; margin:3px; }
+button { padding:10px; margin:5px; font-size:16px; }
 </style>
 </head>
 
@@ -98,15 +98,11 @@ Goals <button onclick="gA(-1)">➖</button> <span id="gA">0</span> <button oncli
 Points <button onclick="pA(-1)">➖</button> <span id="pA">0</span> <button onclick="pA(1)">➕</button>
 </div>
 
-<br>
-
 <div>
 Wides <button onclick="wA(-1)">➖</button> <span id="wA">0</span> <button onclick="wA(1)">➕</button>
 &nbsp;&nbsp;&nbsp;
 Fouls <button onclick="fA(-1)">➖</button> <span id="fA">0</span> <button onclick="fA(1)">➕</button>
 </div>
-
-<br>
 
 <div>
 Passes <button onclick="paA(-1)">➖</button> <span id="paA">0</span> <button onclick="paA(1)">➕</button>
@@ -122,15 +118,11 @@ Goals <button onclick="gB(-1)">➖</button> <span id="gB">0</span> <button oncli
 Points <button onclick="pB(-1)">➖</button> <span id="pB">0</span> <button onclick="pB(1)">➕</button>
 </div>
 
-<br>
-
 <div>
 Wides <button onclick="wB(-1)">➖</button> <span id="wB">0</span> <button onclick="wB(1)">➕</button>
 &nbsp;&nbsp;&nbsp;
 Fouls <button onclick="fB(-1)">➖</button> <span id="fB">0</span> <button onclick="fB(1)">➕</button>
 </div>
-
-<br>
 
 <div>
 Passes <button onclick="paB(-1)">➖</button> <span id="paB">0</span> <button onclick="paB(1)">➕</button>
@@ -155,12 +147,22 @@ let GA=0, PA=0, WA=0, FA=0, PSA=0;
 let GB=0, PB=0, WB=0, FB=0, PSB=0;
 
 function update(){
- score.innerText =
+
+ document.getElementById("score").innerText =
   GA+"-"+(PA<10?"0":"")+PA + " | " +
   GB+"-"+(PB<10?"0":"")+PB;
 
- gA.innerText=GA; pA.innerText=PA; wA.innerText=WA; fA.innerText=FA; paA.innerText=PSA;
- gB.innerText=GB; pB.innerText=PB; wB.innerText=WB; fB.innerText=FB; paB.innerText=PSB;
+ document.getElementById("gA").innerText=GA;
+ document.getElementById("pA").innerText=PA;
+ document.getElementById("wA").innerText=WA;
+ document.getElementById("fA").innerText=FA;
+ document.getElementById("paA").innerText=PSA;
+
+ document.getElementById("gB").innerText=GB;
+ document.getElementById("pB").innerText=PB;
+ document.getElementById("wB").innerText=WB;
+ document.getElementById("fB").innerText=FB;
+ document.getElementById("paB").innerText=PSB;
 }
 
 /* FUNCTIONS */
@@ -186,12 +188,10 @@ function addPlayer(n,x,y,pitch){
  p.style.left=x+"px";
  p.style.top=y+"px";
 
- /* 👉 EDIT PLAYER ON TAP */
+ /* EDIT PLAYER */
  p.onclick = function(){
   let name = prompt("Enter player name/number:", p.innerText);
-  if(name !== null && name !== ""){
-    p.innerText = name;
-  }
+  if(name){ p.innerText = name; }
  };
 
  let ox, oy;
