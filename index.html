@@ -114,31 +114,31 @@ button { padding:8px; font-size:16px; }
 <div class="stat-row">
 <div class="stat-block">Goals 
 <button onclick="gA(-1)">➖</button> 
-<span id="gA">0</span> 
+<span id="gA_val">0</span> 
 <button onclick="gA(1)">➕</button></div>
 
 <div class="stat-block">Points 
 <button onclick="pA(-1)">➖</button> 
-<span id="pA">0</span> 
+<span id="pA_val">0</span> 
 <button onclick="pA(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
 <div class="stat-block">Wides 
 <button onclick="wA(-1)">➖</button> 
-<span id="wA">0</span> 
+<span id="wA_val">0</span> 
 <button onclick="wA(1)">➕</button></div>
 
 <div class="stat-block">Fouls 
 <button onclick="fA(-1)">➖</button> 
-<span id="fA">0</span> 
+<span id="fA_val">0</span> 
 <button onclick="fA(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
 <div class="stat-block">Passes 
 <button onclick="paA(-1)">➖</button> 
-<span id="paA">0</span> 
+<span id="paA_val">0</span> 
 <button onclick="paA(1)">➕</button></div>
 </div>
 
@@ -149,31 +149,31 @@ button { padding:8px; font-size:16px; }
 <div class="stat-row">
 <div class="stat-block">Goals 
 <button onclick="gB(-1)">➖</button> 
-<span id="gB">0</span> 
+<span id="gB_val">0</span> 
 <button onclick="gB(1)">➕</button></div>
 
 <div class="stat-block">Points 
 <button onclick="pB(-1)">➖</button> 
-<span id="pB">0</span> 
+<span id="pB_val">0</span> 
 <button onclick="pB(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
 <div class="stat-block">Wides 
 <button onclick="wB(-1)">➖</button> 
-<span id="wB">0</span> 
+<span id="wB_val">0</span> 
 <button onclick="wB(1)">➕</button></div>
 
 <div class="stat-block">Fouls 
 <button onclick="fB(-1)">➖</button> 
-<span id="fB">0</span> 
+<span id="fB_val">0</span> 
 <button onclick="fB(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
 <div class="stat-block">Passes 
 <button onclick="paB(-1)">➖</button> 
-<span id="paB">0</span> 
+<span id="paB_val">0</span> 
 <button onclick="paB(1)">➕</button></div>
 </div>
 
@@ -187,23 +187,20 @@ button { padding:8px; font-size:16px; }
 
 <script>
 
-/* LOAD */
 window.onload = function(){
  loadPlayers();
  loadHistory();
 };
 
-/* TABS */
 function showTab(id){
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
  document.getElementById(id).classList.add("active");
 }
 
-/* TEAM NAMES */
 teamAInput.oninput = ()=> nameA.innerText = teamAInput.value;
 teamBInput.oninput = ()=> nameB.innerText = teamBInput.value;
 
-/* STATS */
+/* DATA */
 let GA=0,PA=0,WA=0,FA=0,PSA=0;
 let GB=0,PB=0,WB=0,FB=0,PSB=0;
 
@@ -212,8 +209,17 @@ function update(){
   GA+"-"+(PA<10?"0":"")+PA + " | " +
   GB+"-"+(PB<10?"0":"")+PB;
 
- gA.innerText=GA; pA.innerText=PA; wA.innerText=WA; fA.innerText=FA; paA.innerText=PSA;
- gB.innerText=GB; pB.innerText=PB; wB.innerText=WB; fB.innerText=FB; paB.innerText=PSB;
+ gA_val.innerText=GA;
+ pA_val.innerText=PA;
+ wA_val.innerText=WA;
+ fA_val.innerText=FA;
+ paA_val.innerText=PSA;
+
+ gB_val.innerText=GB;
+ pB_val.innerText=PB;
+ wB_val.innerText=WB;
+ fB_val.innerText=FB;
+ paB_val.innerText=PSB;
 }
 
 /* FUNCTIONS */
