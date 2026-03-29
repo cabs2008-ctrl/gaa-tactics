@@ -54,10 +54,22 @@ body { margin:0; font-family:Arial; text-align:center; }
 .teamA { background:#1b5e20; }
 .teamB { background:#1565c0; }
 
+.bench {
+  margin-top:10px;
+}
+
+.bench-player {
+  display:inline-block;
+  padding:8px;
+  margin:5px;
+  background:#999;
+  color:white;
+}
+
 .stat-row {
   display:flex;
   justify-content:center;
-  gap:10px;
+  gap:20px;
   margin:10px 0;
 }
 
@@ -67,18 +79,8 @@ body { margin:0; font-family:Arial; text-align:center; }
   gap:5px;
 }
 
-button { padding:8px; font-size:16px; }
-
-.ai-box {
-  background:#eee;
-  padding:10px;
-  margin:10px;
-  border-radius:8px;
-}
-
-.select-mode {
-  outline:3px solid yellow;
-}
+button { padding:8px; }
+input { padding:8px; margin:5px; width:80%; }
 </style>
 </head>
 
@@ -95,26 +97,33 @@ button { padding:8px; font-size:16px; }
 <!-- TEAM A -->
 <div id="teamA" class="tab active">
 <h3>
-<input id="teamAInput" value="Colmcille">
-<br>
+<input id="teamAInput" value="Colmcille"><br>
 <button onclick="shareTeam('pitchA')">Share Team</button>
 </h3>
+
 <div class="pitch" id="pitchA"><div class="line"></div></div>
+
+<h4>Bench</h4>
+<div id="benchA" class="bench"></div>
+
 </div>
 
 <!-- TEAM B -->
 <div id="teamB" class="tab">
 <h3>
-<input id="teamBInput" placeholder="Team B">
-<br>
+<input id="teamBInput" placeholder="Team B"><br>
 <button onclick="shareTeam('pitchB')">Share Team</button>
 </h3>
+
 <div class="pitch" id="pitchB"><div class="line"></div></div>
+
+<h4>Bench</h4>
+<div id="benchB" class="bench"></div>
+
 </div>
 
 <!-- STATS -->
 <div id="stats" class="tab">
-
 <h2>Match Stats</h2>
 
 <h3>
@@ -124,66 +133,136 @@ button { padding:8px; font-size:16px; }
 
 <h1 id="score">0-00 | 0-00</h1>
 
-<button onclick="confirmReset()" style="background:#c62828;color:white;">Reset</button>
-<button onclick="saveMatch()" style="background:#2e7d32;color:white;">Save</button>
+<button onclick="confirmReset()">Reset</button>
+<button onclick="saveMatch()">Save</button>
 
 <hr>
 
 <h3>Colmcille</h3>
 
 <div class="stat-row">
-<div class="stat-block">Goals <button onclick="startSelect('A','goal')">➕</button></div>
-<div class="stat-block">Points <button onclick="startSelect('A','point')">➕</button></div>
+<div>Goals <button onclick="gA(-1)">➖</button> <span id="gA">0</span> <button onclick="gA(1)">➕</button></div>
+<div>Points <button onclick="pA(-1)">➖</button> <span id="pA">0</span> <button onclick="pA(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
-<div class="stat-block">Wides <button onclick="wA(1)">➕</button></div>
-<div class="stat-block">Fouls <button onclick="fA(1)">➕</button></div>
+<div>Wides <button onclick="wA(-1)">➖</button> <span id="wA">0</span> <button onclick="wA(1)">➕</button></div>
+<div>Fouls <button onclick="fA(-1)">➖</button> <span id="fA">0</span> <button onclick="fA(1)">➕</button></div>
 </div>
+
+<div>Passes <button onclick="paA(-1)">➖</button> <span id="paA">0</span> <button onclick="paA(1)">➕</button></div>
 
 <hr>
 
 <h3>Team B</h3>
 
 <div class="stat-row">
-<div class="stat-block">Goals <button onclick="startSelect('B','goal')">➕</button></div>
-<div class="stat-block">Points <button onclick="startSelect('B','point')">➕</button></div>
+<div>Goals <button onclick="gB(-1)">➖</button> <span id="gB">0</span> <button onclick="gB(1)">➕</button></div>
+<div>Points <button onclick="pB(-1)">➖</button> <span id="pB">0</span> <button onclick="pB(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
-<div class="stat-block">Wides <button onclick="wB(1)">➕</button></div>
-<div class="stat-block">Fouls <button onclick="fB(1)">➕</button></div>
+<div>Wides <button onclick="wB(-1)">➖</button> <span id="wB">0</span> <button onclick="wB(1)">➕</button></div>
+<div>Fouls <button onclick="fB(-1)">➖</button> <span id="fB">0</span> <button onclick="fB(1)">➕</button></div>
 </div>
+
+<div>Passes <button onclick="paB(-1)">➖</button> <span id="paB">0</span> <button onclick="paB(1)">➕</button></div>
 
 </div>
 
 <!-- SUMMARY -->
 <div id="summary" class="tab">
-<h2>AI Match Insights</h2>
-<div class="ai-box"><p id="aiA"></p></div>
-<div class="ai-box"><p id="aiB"></p></div>
+<h2>End of Match Stats</h2>
+
+<h3>Colmcille</h3>
+<input placeholder="Shooting Efficiency">
+<input placeholder="Scores vs Wides">
+
+<h3>Team B</h3>
+<input placeholder="Shooting Efficiency">
+<input placeholder="Scores vs Wides">
 </div>
 
 <!-- HISTORY -->
 <div id="history" class="tab">
-<h2>Match History</h2>
+<h2>History</h2>
 <div id="historyList"></div>
 </div>
 
 <script>
 
-let selectMode=null;
-let selectTeam=null;
-
-/* START SELECT */
-function startSelect(team,type){
- selectMode=type;
- selectTeam=team;
- showTab(team==="A"?"teamA":"teamB");
+/* TABS */
+function showTab(id){
+ document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
 }
 
-/* PLAYERS */
-function addPlayer(n,x,y,pitch){
+/* TEAM NAMES */
+teamAInput.oninput = ()=> nameA.innerText = teamAInput.value;
+teamBInput.oninput = ()=> nameB.innerText = teamBInput.value;
+
+/* STATS */
+let GA=0,PA=0,WA=0,FA=0,PSA=0;
+let GB=0,PB=0,WB=0,FB=0,PSB=0;
+
+function update(){
+ score.innerText =
+  GA+"-"+(PA<10?"0":"")+PA + " | " +
+  GB+"-"+(PB<10?"0":"")+PB;
+
+ gA.innerText=GA; pA.innerText=PA; wA.innerText=WA; fA.innerText=FA; paA.innerText=PSA;
+ gB.innerText=GB; pB.innerText=PB; wB.innerText=WB; fB.innerText=FB; paB.innerText=PSB;
+}
+
+function gA(v){ GA=Math.max(0,GA+v); update(); }
+function pA(v){ PA=Math.max(0,PA+v); update(); }
+function wA(v){ WA=Math.max(0,WA+v); update(); }
+function fA(v){ FA=Math.max(0,FA+v); update(); }
+function paA(v){ PSA=Math.max(0,PSA+v); update(); }
+
+function gB(v){ GB=Math.max(0,GB+v); update(); }
+function pB(v){ PB=Math.max(0,PB+v); update(); }
+function wB(v){ WB=Math.max(0,WB+v); update(); }
+function fB(v){ FB=Math.max(0,FB+v); update(); }
+function paB(v){ PSB=Math.max(0,PSB+v); update(); }
+
+/* RESET */
+function confirmReset(){
+ if(confirm("Reset match?")) resetMatch();
+}
+function resetMatch(){
+ GA=PA=WA=FA=PSA=0;
+ GB=PB=WB=FB=PSB=0;
+ update();
+}
+
+/* SAVE */
+function saveMatch(){
+ let history = JSON.parse(localStorage.getItem("gaaHistory")||"[]");
+ history.unshift({score: score.innerText});
+ localStorage.setItem("gaaHistory", JSON.stringify(history));
+ loadHistory();
+}
+
+function loadHistory(){
+ let history = JSON.parse(localStorage.getItem("gaaHistory")||"[]");
+ historyList.innerHTML = history.map(h=>"<div>"+h.score+"</div>").join("");
+}
+
+/* SHARE */
+function shareTeam(pitchId){
+ html2canvas(document.getElementById(pitchId)).then(canvas=>{
+  canvas.toBlob(blob=>{
+   let file=new File([blob],"team.png",{type:"image/png"});
+   navigator.share && navigator.share({files:[file]});
+  });
+ });
+}
+
+/* PLAYERS + BENCH */
+let selectedSub=null;
+
+function createPlayer(n,x,y,pitch){
  let p=document.createElement("div");
  p.className="player "+(pitch.id==="pitchA"?"teamA":"teamB");
  p.innerText=n;
@@ -191,111 +270,53 @@ function addPlayer(n,x,y,pitch){
  p.style.top=y+"px";
 
  p.onclick=()=>{
-  if(selectMode){
-    if(selectTeam==="A"){
-      if(selectMode==="goal") GA++;
-      if(selectMode==="point") PA++;
-    }else{
-      if(selectMode==="goal") GB++;
-      if(selectMode==="point") PB++;
-    }
-    selectMode=null;
-    update();
-    return;
+  if(selectedSub){
+   let temp=p.innerText;
+   p.innerText=selectedSub.innerText;
+   selectedSub.innerText=temp;
+   selectedSub=null;
+  } else {
+   let name=prompt("Player:",p.innerText);
+   if(name) p.innerText=name;
   }
-
-  let name=prompt("Player:",p.innerText);
-  if(name) p.innerText=name;
  };
-
- let ox,oy;
- p.addEventListener("touchstart",e=>{
-  ox=e.touches[0].clientX-p.offsetLeft;
-  oy=e.touches[0].clientY-p.offsetTop;
- });
-
- p.addEventListener("touchmove",e=>{
-  let r=pitch.getBoundingClientRect();
-  p.style.left=(e.touches[0].clientX-r.left-ox)+"px";
-  p.style.top=(e.touches[0].clientY-r.top-oy)+"px";
- });
 
  pitch.appendChild(p);
 }
 
+function createBench(id){
+ let container=document.getElementById(id);
+ for(let i=16;i<=20;i++){
+  let b=document.createElement("div");
+  b.className="bench-player";
+  b.innerText=i;
+
+  b.onclick=()=>{
+   if(selectedSub===b){
+    selectedSub=null;
+    b.style.background="#999";
+   } else {
+    selectedSub=b;
+    document.querySelectorAll(".bench-player").forEach(x=>x.style.background="#999");
+    b.style.background="orange";
+   }
+  };
+
+  container.appendChild(b);
+ }
+}
+
 function loadPlayers(){
  let pos=[[170,20],[60,100],[170,100],[280,100],[60,180],[170,180],[280,180],[120,260],[220,260],[60,340],[170,340],[280,340],[60,440],[170,440],[280,440]];
- pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],pitchA));
- pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],pitchB));
-}
-
-/* STATS */
-let GA=0,PA=0,WA=0,FA=0;
-let GB=0,PB=0,WB=0,FB=0;
-
-function update(){
- score.innerText =
-  GA+"-"+(PA<10?"0":"")+PA+" | "+
-  GB+"-"+(PB<10?"0":"")+PB;
-
- updateAI();
-}
-
-/* AI */
-function updateAI(){
- let attA=GA+PA+WA, scA=GA+PA;
- let attB=GB+PB+WB, scB=GB+PB;
-
- aiA.innerHTML=`A Shooting %: ${attA?Math.round(scA/attA*100):0}%`;
- aiB.innerHTML=`B Shooting %: ${attB?Math.round(scB/attB*100):0}%`;
-}
-
-/* SIMPLE */
-function wA(){WA++;update();}
-function fA(){FA++;update();}
-function wB(){WB++;update();}
-function fB(){FB++;update();}
-
-/* RESET */
-function confirmReset(){
- if(confirm("Reset?")){GA=PA=WA=FA=GB=PB=WB=FB=0;update();}
-}
-
-/* HISTORY */
-function saveMatch(){
- let h=JSON.parse(localStorage.getItem("gaaHistory")||"[]");
- h.unshift({score:score.innerText,date:new Date().toLocaleString()});
- localStorage.setItem("gaaHistory",JSON.stringify(h));
- loadHistory();
-}
-
-function loadHistory(){
- let h=JSON.parse(localStorage.getItem("gaaHistory")||"[]");
- historyList.innerHTML=h.map(m=>`<div>${m.score}<br>${m.date}<hr></div>`).join("");
-}
-
-/* SHARE */
-function shareTeam(id){
- html2canvas(document.getElementById(id)).then(c=>{
-  c.toBlob(b=>{
-   let f=new File([b],"team.png",{type:"image/png"});
-   if(navigator.share){
-    navigator.share({files:[f]});
-   }
-  });
- });
-}
-
-/* TABS */
-function showTab(id){
- document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
- document.getElementById(id).classList.add('active');
+ pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],pitchA));
+ pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],pitchB));
+ createBench("benchA");
+ createBench("benchB");
 }
 
 window.onload=function(){
  loadPlayers();
  loadHistory();
- update();
 };
 
 </script>
