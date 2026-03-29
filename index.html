@@ -5,7 +5,7 @@
 <title>GAA Match App</title>
 
 <!-- SHARE LIBRARY -->
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
 body { margin:0; font-family:Arial; text-align:center; }
@@ -89,13 +89,21 @@ button { padding:8px; font-size:16px; }
 
 <!-- TEAM A -->
 <div id="teamA" class="tab active">
-<h3><input id="teamAInput" value="Colmcille"></h3>
+<h3>
+<input id="teamAInput" value="Colmcille">
+<br>
+<button onclick="shareTeam('pitchA')">Share Team</button>
+</h3>
 <div class="pitch" id="pitchA"><div class="line"></div></div>
 </div>
 
 <!-- TEAM B -->
 <div id="teamB" class="tab">
-<h3><input id="teamBInput" placeholder="Team B"></h3>
+<h3>
+<input id="teamBInput" placeholder="Team B">
+<br>
+<button onclick="shareTeam('pitchB')">Share Team</button>
+</h3>
 <div class="pitch" id="pitchB"><div class="line"></div></div>
 </div>
 
@@ -113,7 +121,6 @@ button { padding:8px; font-size:16px; }
 
 <button onclick="confirmReset()" style="background:#c62828; color:white;">Reset Match</button>
 <button onclick="saveMatch()" style="background:#2e7d32; color:white;">Save</button>
-<button onclick="shareStats()" style="background:#1565c0; color:white;">Share</button>
 
 <hr>
 
@@ -174,10 +181,12 @@ button { padding:8px; font-size:16px; }
 <h3>Colmcille</h3>
 <input placeholder="Shooting Efficiency">
 <input placeholder="Scores vs Wides">
+<input placeholder="Notes">
 
 <h3>Team B</h3>
 <input placeholder="Shooting Efficiency">
 <input placeholder="Scores vs Wides">
+<input placeholder="Notes">
 </div>
 
 <!-- HISTORY -->
@@ -265,29 +274,24 @@ function loadHistory(){
  document.getElementById("historyList").innerHTML=html;
 }
 
-/* SHARE (FIXED) */
-function shareStats(){
-  let element = document.getElementById("stats");
+/* SHARE TEAM */
+function shareTeam(pitchId){
+ let pitch = document.getElementById(pitchId);
 
-  html2canvas(element).then(canvas => {
-    canvas.toBlob(function(blob){
+ html2canvas(pitch).then(canvas => {
+  canvas.toBlob(function(blob) {
+    let file = new File([blob], "team.png", { type: "image/png" });
 
-      if (navigator.share) {
-        let file = new File([blob], "match-stats.png", { type: "image/png" });
-
-        navigator.share({
-          title: "Match Stats",
-          files: [file]
-        }).catch(()=>{});
-      } else {
-        let link = document.createElement("a");
-        link.download = "match-stats.png";
-        link.href = URL.createObjectURL(blob);
-        link.click();
-      }
-
-    });
+    if (navigator.share) {
+      navigator.share({
+        files: [file],
+        title: "Team Sheet"
+      });
+    } else {
+      alert("Sharing not supported");
+    }
   });
+ });
 }
 
 /* PLAYERS */
