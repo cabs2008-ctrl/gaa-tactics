@@ -57,7 +57,6 @@ body { margin:0; font-family:Arial; text-align:center; }
 .stat-row {
   display:flex;
   justify-content:center;
-  align-items:center;
   gap:10px;
   margin:10px 0;
 }
@@ -72,14 +71,14 @@ input { padding:8px; margin:5px; width:80%; }
 
 button { padding:8px; font-size:16px; }
 
-.history { max-width:400px; margin:auto; text-align:left; }
-
 .ai-box {
   background:#eee;
   padding:10px;
   margin:10px;
   border-radius:8px;
 }
+
+.history { max-width:400px; margin:auto; text-align:left; }
 </style>
 </head>
 
@@ -125,32 +124,25 @@ button { padding:8px; font-size:16px; }
 
 <h1 id="score">0-00 | 0-00</h1>
 
-<button onclick="confirmReset()" style="background:#c62828; color:white;">Reset Match</button>
-<button onclick="saveMatch()" style="background:#2e7d32; color:white;">Save</button>
+<button onclick="confirmReset()" style="background:#c62828;color:white;">Reset Match</button>
+<button onclick="saveMatch()" style="background:#2e7d32;color:white;">Save</button>
 
 <hr>
 
 <h3>Colmcille</h3>
 
 <div class="stat-row">
-<div class="stat-block">Goals 
-<button onclick="gA(-1)">➖</button> <span id="gA">0</span> <button onclick="gA(1)">➕</button></div>
-
-<div class="stat-block">Points 
-<button onclick="pA(-1)">➖</button> <span id="pA">0</span> <button onclick="pA(1)">➕</button></div>
+<div class="stat-block">Goals <button onclick="gA(-1)">➖</button><span id="gA">0</span><button onclick="gA(1)">➕</button></div>
+<div class="stat-block">Points <button onclick="pA(-1)">➖</button><span id="pA">0</span><button onclick="pA(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
-<div class="stat-block">Wides 
-<button onclick="wA(-1)">➖</button> <span id="wA">0</span> <button onclick="wA(1)">➕</button></div>
-
-<div class="stat-block">Fouls 
-<button onclick="fA(-1)">➖</button> <span id="fA">0</span> <button onclick="fA(1)">➕</button></div>
+<div class="stat-block">Wides <button onclick="wA(-1)">➖</button><span id="wA">0</span><button onclick="wA(1)">➕</button></div>
+<div class="stat-block">Fouls <button onclick="fA(-1)">➖</button><span id="fA">0</span><button onclick="fA(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
-<div class="stat-block">Passes 
-<button onclick="paA(-1)">➖</button> <span id="paA">0</span> <button onclick="paA(1)">➕</button></div>
+<div class="stat-block">Passes <button onclick="paA(-1)">➖</button><span id="paA">0</span><button onclick="paA(1)">➕</button></div>
 </div>
 
 <hr>
@@ -158,24 +150,17 @@ button { padding:8px; font-size:16px; }
 <h3>Team B</h3>
 
 <div class="stat-row">
-<div class="stat-block">Goals 
-<button onclick="gB(-1)">➖</button> <span id="gB">0</span> <button onclick="gB(1)">➕</button></div>
-
-<div class="stat-block">Points 
-<button onclick="pB(-1)">➖</button> <span id="pB">0</span> <button onclick="pB(1)">➕</button></div>
+<div class="stat-block">Goals <button onclick="gB(-1)">➖</button><span id="gB">0</span><button onclick="gB(1)">➕</button></div>
+<div class="stat-block">Points <button onclick="pB(-1)">➖</button><span id="pB">0</span><button onclick="pB(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
-<div class="stat-block">Wides 
-<button onclick="wB(-1)">➖</button> <span id="wB">0</span> <button onclick="wB(1)">➕</button></div>
-
-<div class="stat-block">Fouls 
-<button onclick="fB(-1)">➖</button> <span id="fB">0</span> <button onclick="fB(1)">➕</button></div>
+<div class="stat-block">Wides <button onclick="wB(-1)">➖</button><span id="wB">0</span><button onclick="wB(1)">➕</button></div>
+<div class="stat-block">Fouls <button onclick="fB(-1)">➖</button><span id="fB">0</span><button onclick="fB(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
-<div class="stat-block">Passes 
-<button onclick="paB(-1)">➖</button> <span id="paB">0</span> <button onclick="paB(1)">➕</button></div>
+<div class="stat-block">Passes <button onclick="paB(-1)">➖</button><span id="paB">0</span><button onclick="paB(1)">➕</button></div>
 </div>
 
 </div>
@@ -200,11 +185,12 @@ button { padding:8px; font-size:16px; }
 <!-- HISTORY -->
 <div id="history" class="tab">
 <h2>Match History</h2>
-<div id="historyList" class="history"></div>
+<div id="historyList"></div>
 </div>
 
 <script>
 
+/* LOAD */
 window.onload = function(){
  loadPlayers();
  loadHistory();
@@ -213,22 +199,21 @@ window.onload = function(){
 
 /* TABS */
 function showTab(id){
- document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
- document.getElementById(id).classList.add("active");
+ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
 }
 
 /* TEAM NAMES */
-teamAInput.oninput = ()=> nameA.innerText = teamAInput.value;
-teamBInput.oninput = ()=> nameB.innerText = teamBInput.value;
+teamAInput.oninput=()=>nameA.innerText=teamAInput.value;
+teamBInput.oninput=()=>nameB.innerText=teamBInput.value;
 
 /* STATS */
 let GA=0,PA=0,WA=0,FA=0,PSA=0;
 let GB=0,PB=0,WB=0,FB=0,PSB=0;
 
 function update(){
-
  score.innerText =
-  GA+"-"+(PA<10?"0":"")+PA + " | " +
+  GA+"-"+(PA<10?"0":"")+PA+" | "+
   GB+"-"+(PB<10?"0":"")+PB;
 
  gA.innerText=GA; pA.innerText=PA; wA.innerText=WA; fA.innerText=FA; paA.innerText=PSA;
@@ -237,41 +222,30 @@ function update(){
  updateAI();
 }
 
-/* AI INSIGHTS */
+/* AI */
 function updateAI(){
+ let attA=GA+PA+WA, scA=GA+PA;
+ let attB=GB+PB+WB, scB=GB+PB;
 
- let attemptsA = GA + PA + WA;
- let scoresA = GA + PA;
+ let effA=attA?Math.round((scA/attA)*100):0;
+ let effB=attB?Math.round((scB/attB)*100):0;
 
- let attemptsB = GB + PB + WB;
- let scoresB = GB + PB;
-
- let effA = attemptsA ? Math.round((scoresA/attemptsA)*100) : 0;
- let effB = attemptsB ? Math.round((scoresB/attemptsB)*100) : 0;
-
- document.getElementById("aiA").innerHTML =
-  "Shooting %: " + effA + "%<br>" +
-  "Scores/Wides: " + scoresA + "/" + WA + "<br>" +
-  "Total Attempts: " + attemptsA;
-
- document.getElementById("aiB").innerHTML =
-  "Shooting %: " + effB + "%<br>" +
-  "Scores/Wides: " + scoresB + "/" + WB + "<br>" +
-  "Total Attempts: " + attemptsB;
+ aiA.innerHTML=`Shooting %: ${effA}%<br>Scores/Wides: ${scA}/${WA}<br>Attempts: ${attA}`;
+ aiB.innerHTML=`Shooting %: ${effB}%<br>Scores/Wides: ${scB}/${WB}<br>Attempts: ${attB}`;
 }
 
 /* FUNCTIONS */
-function gA(v){ GA=Math.max(0,GA+v); update(); }
-function pA(v){ PA=Math.max(0,PA+v); update(); }
-function wA(v){ WA=Math.max(0,WA+v); update(); }
-function fA(v){ FA=Math.max(0,FA+v); update(); }
-function paA(v){ PSA=Math.max(0,PSA+v); update(); }
+function gA(v){GA=Math.max(0,GA+v);update();}
+function pA(v){PA=Math.max(0,PA+v);update();}
+function wA(v){WA=Math.max(0,WA+v);update();}
+function fA(v){FA=Math.max(0,FA+v);update();}
+function paA(v){PSA=Math.max(0,PSA+v);update();}
 
-function gB(v){ GB=Math.max(0,GB+v); update(); }
-function pB(v){ PB=Math.max(0,PB+v); update(); }
-function wB(v){ WB=Math.max(0,WB+v); update(); }
-function fB(v){ FB=Math.max(0,FB+v); update(); }
-function paB(v){ PSB=Math.max(0,PSB+v); update(); }
+function gB(v){GB=Math.max(0,GB+v);update();}
+function pB(v){PB=Math.max(0,PB+v);update();}
+function wB(v){WB=Math.max(0,WB+v);update();}
+function fB(v){FB=Math.max(0,FB+v);update();}
+function paB(v){PSB=Math.max(0,PSB+v);update();}
 
 /* RESET */
 function confirmReset(){
@@ -283,85 +257,65 @@ function resetMatch(){
  update();
 }
 
-/* SAVE */
+/* HISTORY */
 function saveMatch(){
- let history = JSON.parse(localStorage.getItem("gaaHistory")||"[]");
-
- history.unshift({
-  teamA: teamAInput.value,
-  teamB: teamBInput.value,
-  score: score.innerText,
-  date: new Date().toLocaleString()
- });
-
- localStorage.setItem("gaaHistory", JSON.stringify(history));
+ let h=JSON.parse(localStorage.getItem("gaaHistory")||"[]");
+ h.unshift({teamA:teamAInput.value,teamB:teamBInput.value,score:score.innerText,date:new Date().toLocaleString()});
+ localStorage.setItem("gaaHistory",JSON.stringify(h));
  loadHistory();
  alert("Saved!");
 }
 
 function loadHistory(){
- let history = JSON.parse(localStorage.getItem("gaaHistory")||"[]");
- let html="";
- history.forEach(m=>{
-  html += `<div><b>${m.teamA} vs ${m.teamB}</b><br>${m.score}<br><small>${m.date}</small><hr></div>`;
- });
- document.getElementById("historyList").innerHTML=html;
+ let h=JSON.parse(localStorage.getItem("gaaHistory")||"[]");
+ historyList.innerHTML=h.map(m=>`<div><b>${m.teamA} vs ${m.teamB}</b><br>${m.score}<br><small>${m.date}</small><hr></div>`).join("");
 }
 
 /* SHARE */
-function shareTeam(pitchId){
- let pitch = document.getElementById(pitchId);
-
- html2canvas(pitch).then(canvas => {
-  canvas.toBlob(function(blob) {
-    let file = new File([blob], "team.png", { type: "image/png" });
-
-    if (navigator.share) {
-      navigator.share({
-        files: [file],
-        title: "Team Sheet"
-      });
-    } else {
-      alert("Sharing not supported");
-    }
+function shareTeam(id){
+ html2canvas(document.getElementById(id)).then(c=>{
+  c.toBlob(b=>{
+   let f=new File([b],"team.png",{type:"image/png"});
+   if(navigator.share){
+    navigator.share({files:[f],title:"Team Sheet"});
+   }else alert("Sharing not supported");
   });
  });
 }
 
 /* PLAYERS */
-function addPlayer(n,x,y,pitch){
- let p=document.createElement("div");
- p.className="player "+(pitch.id==="pitchA"?"teamA":"teamB");
- p.innerText=n;
- p.style.left=x+"px;
- p.style.top=y+"px";
+function addPlayer(n,x,y,p){
+ let d=document.createElement("div");
+ d.className="player "+(p.id==="pitchA"?"teamA":"teamB");
+ d.innerText=n;
+ d.style.left=x+"px";
+ d.style.top=y+"px";
 
- p.onclick=()=>{
-  let name=prompt("Player:",p.innerText);
-  if(name) p.innerText=name;
+ d.onclick=()=>{
+  let name=prompt("Player:",d.innerText);
+  if(name)d.innerText=name;
  };
 
  let ox,oy;
 
- p.addEventListener("touchstart",e=>{
-  ox=e.touches[0].clientX-p.offsetLeft;
-  oy=e.touches[0].clientY-p.offsetTop;
+ d.addEventListener("touchstart",e=>{
+  ox=e.touches[0].clientX-d.offsetLeft;
+  oy=e.touches[0].clientY-d.offsetTop;
  });
 
- p.addEventListener("touchmove",e=>{
-  let r=pitch.getBoundingClientRect();
-  p.style.left=(e.touches[0].clientX-r.left-ox)+"px";
-  p.style.top=(e.touches[0].clientY-r.top-oy)+"px";
+ d.addEventListener("touchmove",e=>{
+  let r=p.getBoundingClientRect();
+  d.style.left=(e.touches[0].clientX-r.left-ox)+"px";
+  d.style.top=(e.touches[0].clientY-r.top-oy)+"px";
  });
 
- pitch.appendChild(p);
+ p.appendChild(d);
 }
 
 function loadPlayers(){
  let pos=[[170,20],[60,100],[170,100],[280,100],[60,180],[170,180],[280,180],[120,260],[220,260],[60,340],[170,340],[280,340],[60,440],[170,440],[280,440]];
-
- pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],document.getElementById("pitchA")));
- pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],document.getElementById("pitchB")));
+ pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],pitchA));
+ pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],pitchB));
 }
 
 </script>
