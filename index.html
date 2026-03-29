@@ -66,7 +66,9 @@ body { margin:0; font-family:Arial; text-align:center; }
   gap:5px;
 }
 
-button { padding:8px; font-size:16px; }
+button { padding:8px; font-size:16px; margin:5px; }
+.timer { font-size:28px; margin:10px; }
+
 .history { max-width:400px; margin:auto; text-align:left; }
 </style>
 </head>
@@ -102,9 +104,15 @@ button { padding:8px; font-size:16px; }
 <span id="nameB">Team B</span>
 </h3>
 
+<!-- TIMER -->
+<div class="timer" id="timer">00:00</div>
+<button onclick="startTimer()">Start</button>
+<button onclick="pauseTimer()">Pause</button>
+<button onclick="resetTimer()">Reset</button>
+
 <h1 id="score">0-00 | 0-00</h1>
 
-<button onclick="confirmReset()" style="background:#c62828; color:white;">Reset</button>
+<button onclick="confirmReset()" style="background:#c62828; color:white;">Reset Match</button>
 <button onclick="saveMatch()" style="background:#2e7d32; color:white;">Save</button>
 
 <hr>
@@ -187,20 +195,54 @@ button { padding:8px; font-size:16px; }
 
 <script>
 
+/* TIMER */
+let time = 0;
+let timerInterval;
+
+function updateTimer(){
+ let mins = Math.floor(time / 60);
+ let secs = time % 60;
+ document.getElementById("timer").innerText =
+  (mins<10?"0":"")+mins + ":" + (secs<10?"0":"")+secs;
+}
+
+function startTimer(){
+ if(timerInterval) return;
+ timerInterval = setInterval(()=>{
+  time++;
+  updateTimer();
+ },1000);
+}
+
+function pauseTimer(){
+ clearInterval(timerInterval);
+ timerInterval = null;
+}
+
+function resetTimer(){
+ pauseTimer();
+ time = 0;
+ updateTimer();
+}
+
+/* LOAD */
 window.onload = function(){
  loadPlayers();
  loadHistory();
+ updateTimer();
 };
 
+/* TABS */
 function showTab(id){
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
  document.getElementById(id).classList.add("active");
 }
 
+/* TEAM NAMES */
 teamAInput.oninput = ()=> nameA.innerText = teamAInput.value;
 teamBInput.oninput = ()=> nameB.innerText = teamBInput.value;
 
-/* DATA */
+/* STATS */
 let GA=0,PA=0,WA=0,FA=0,PSA=0;
 let GB=0,PB=0,WB=0,FB=0,PSB=0;
 
