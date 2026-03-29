@@ -4,7 +4,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GAA Match App</title>
 
-<!-- SHARE LIBRARY -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
@@ -74,6 +73,13 @@ input { padding:8px; margin:5px; width:80%; }
 button { padding:8px; font-size:16px; }
 
 .history { max-width:400px; margin:auto; text-align:left; }
+
+.ai-box {
+  background:#eee;
+  padding:10px;
+  margin:10px;
+  border-radius:8px;
+}
 </style>
 </head>
 
@@ -176,17 +182,19 @@ button { padding:8px; font-size:16px; }
 
 <!-- SUMMARY -->
 <div id="summary" class="tab">
-<h2>End of Match Stats</h2>
 
+<h2>AI Match Insights</h2>
+
+<div class="ai-box">
 <h3>Colmcille</h3>
-<input placeholder="Shooting Efficiency">
-<input placeholder="Scores vs Wides">
-<input placeholder="Notes">
+<p id="aiA"></p>
+</div>
 
+<div class="ai-box">
 <h3>Team B</h3>
-<input placeholder="Shooting Efficiency">
-<input placeholder="Scores vs Wides">
-<input placeholder="Notes">
+<p id="aiB"></p>
+</div>
+
 </div>
 
 <!-- HISTORY -->
@@ -197,10 +205,10 @@ button { padding:8px; font-size:16px; }
 
 <script>
 
-/* LOAD */
 window.onload = function(){
  loadPlayers();
  loadHistory();
+ update();
 };
 
 /* TABS */
@@ -218,12 +226,38 @@ let GA=0,PA=0,WA=0,FA=0,PSA=0;
 let GB=0,PB=0,WB=0,FB=0,PSB=0;
 
 function update(){
+
  score.innerText =
   GA+"-"+(PA<10?"0":"")+PA + " | " +
   GB+"-"+(PB<10?"0":"")+PB;
 
  gA.innerText=GA; pA.innerText=PA; wA.innerText=WA; fA.innerText=FA; paA.innerText=PSA;
  gB.innerText=GB; pB.innerText=PB; wB.innerText=WB; fB.innerText=FB; paB.innerText=PSB;
+
+ updateAI();
+}
+
+/* AI INSIGHTS */
+function updateAI(){
+
+ let attemptsA = GA + PA + WA;
+ let scoresA = GA + PA;
+
+ let attemptsB = GB + PB + WB;
+ let scoresB = GB + PB;
+
+ let effA = attemptsA ? Math.round((scoresA/attemptsA)*100) : 0;
+ let effB = attemptsB ? Math.round((scoresB/attemptsB)*100) : 0;
+
+ document.getElementById("aiA").innerHTML =
+  "Shooting %: " + effA + "%<br>" +
+  "Scores/Wides: " + scoresA + "/" + WA + "<br>" +
+  "Total Attempts: " + attemptsA;
+
+ document.getElementById("aiB").innerHTML =
+  "Shooting %: " + effB + "%<br>" +
+  "Scores/Wides: " + scoresB + "/" + WB + "<br>" +
+  "Total Attempts: " + attemptsB;
 }
 
 /* FUNCTIONS */
@@ -274,7 +308,7 @@ function loadHistory(){
  document.getElementById("historyList").innerHTML=html;
 }
 
-/* SHARE TEAM */
+/* SHARE */
 function shareTeam(pitchId){
  let pitch = document.getElementById(pitchId);
 
@@ -299,7 +333,7 @@ function addPlayer(n,x,y,pitch){
  let p=document.createElement("div");
  p.className="player "+(pitch.id==="pitchA"?"teamA":"teamB");
  p.innerText=n;
- p.style.left=x+"px";
+ p.style.left=x+"px;
  p.style.top=y+"px";
 
  p.onclick=()=>{
