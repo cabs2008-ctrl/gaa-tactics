@@ -54,10 +54,6 @@ body { margin:0; font-family:Arial; text-align:center; }
 .teamA { background:#1b5e20; }
 .teamB { background:#1565c0; }
 
-.bench {
-  margin-top:10px;
-}
-
 .bench-player {
   display:inline-block;
   padding:8px;
@@ -81,6 +77,8 @@ body { margin:0; font-family:Arial; text-align:center; }
 
 button { padding:8px; }
 input { padding:8px; margin:5px; width:80%; }
+
+.history { max-width:400px; margin:auto; text-align:left; }
 </style>
 </head>
 
@@ -104,8 +102,7 @@ input { padding:8px; margin:5px; width:80%; }
 <div class="pitch" id="pitchA"><div class="line"></div></div>
 
 <h4>Bench</h4>
-<div id="benchA" class="bench"></div>
-
+<div id="benchA"></div>
 </div>
 
 <!-- TEAM B -->
@@ -118,12 +115,12 @@ input { padding:8px; margin:5px; width:80%; }
 <div class="pitch" id="pitchB"><div class="line"></div></div>
 
 <h4>Bench</h4>
-<div id="benchB" class="bench"></div>
-
+<div id="benchB"></div>
 </div>
 
 <!-- STATS -->
 <div id="stats" class="tab">
+
 <h2>Match Stats</h2>
 
 <h3>
@@ -135,19 +132,20 @@ input { padding:8px; margin:5px; width:80%; }
 
 <button onclick="confirmReset()">Reset</button>
 <button onclick="saveMatch()">Save</button>
+<button onclick="shareStats()">Share Stats</button>
 
 <hr>
 
 <h3>Colmcille</h3>
 
 <div class="stat-row">
-<div>Goals <button onclick="gA(-1)">➖</button> <span id="gA">0</span> <button onclick="gA(1)">➕</button></div>
-<div>Points <button onclick="pA(-1)">➖</button> <span id="pA">0</span> <button onclick="pA(1)">➕</button></div>
+<div class="stat-block">Goals <button onclick="gA(-1)">➖</button> <span id="gA">0</span> <button onclick="gA(1)">➕</button></div>
+<div class="stat-block">Points <button onclick="pA(-1)">➖</button> <span id="pA">0</span> <button onclick="pA(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
-<div>Wides <button onclick="wA(-1)">➖</button> <span id="wA">0</span> <button onclick="wA(1)">➕</button></div>
-<div>Fouls <button onclick="fA(-1)">➖</button> <span id="fA">0</span> <button onclick="fA(1)">➕</button></div>
+<div class="stat-block">Wides <button onclick="wA(-1)">➖</button> <span id="wA">0</span> <button onclick="wA(1)">➕</button></div>
+<div class="stat-block">Fouls <button onclick="fA(-1)">➖</button> <span id="fA">0</span> <button onclick="fA(1)">➕</button></div>
 </div>
 
 <div>Passes <button onclick="paA(-1)">➖</button> <span id="paA">0</span> <button onclick="paA(1)">➕</button></div>
@@ -157,13 +155,13 @@ input { padding:8px; margin:5px; width:80%; }
 <h3>Team B</h3>
 
 <div class="stat-row">
-<div>Goals <button onclick="gB(-1)">➖</button> <span id="gB">0</span> <button onclick="gB(1)">➕</button></div>
-<div>Points <button onclick="pB(-1)">➖</button> <span id="pB">0</span> <button onclick="pB(1)">➕</button></div>
+<div class="stat-block">Goals <button onclick="gB(-1)">➖</button> <span id="gB">0</span> <button onclick="gB(1)">➕</button></div>
+<div class="stat-block">Points <button onclick="pB(-1)">➖</button> <span id="pB">0</span> <button onclick="pB(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
-<div>Wides <button onclick="wB(-1)">➖</button> <span id="wB">0</span> <button onclick="wB(1)">➕</button></div>
-<div>Fouls <button onclick="fB(-1)">➖</button> <span id="fB">0</span> <button onclick="fB(1)">➕</button></div>
+<div class="stat-block">Wides <button onclick="wB(-1)">➖</button> <span id="wB">0</span> <button onclick="wB(1)">➕</button></div>
+<div class="stat-block">Fouls <button onclick="fB(-1)">➖</button> <span id="fB">0</span> <button onclick="fB(1)">➕</button></div>
 </div>
 
 <div>Passes <button onclick="paB(-1)">➖</button> <span id="paB">0</span> <button onclick="paB(1)">➕</button></div>
@@ -185,7 +183,7 @@ input { padding:8px; margin:5px; width:80%; }
 
 <!-- HISTORY -->
 <div id="history" class="tab">
-<h2>History</h2>
+<h2>Match History</h2>
 <div id="historyList"></div>
 </div>
 
@@ -210,10 +208,20 @@ function update(){
   GA+"-"+(PA<10?"0":"")+PA + " | " +
   GB+"-"+(PB<10?"0":"")+PB;
 
- gA.innerText=GA; pA.innerText=PA; wA.innerText=WA; fA.innerText=FA; paA.innerText=PSA;
- gB.innerText=GB; pB.innerText=PB; wB.innerText=WB; fB.innerText=FB; paB.innerText=PSB;
+ document.getElementById("gA").innerText=GA;
+ document.getElementById("pA").innerText=PA;
+ document.getElementById("wA").innerText=WA;
+ document.getElementById("fA").innerText=FA;
+ document.getElementById("paA").innerText=PSA;
+
+ document.getElementById("gB").innerText=GB;
+ document.getElementById("pB").innerText=PB;
+ document.getElementById("wB").innerText=WB;
+ document.getElementById("fB").innerText=FB;
+ document.getElementById("paB").innerText=PSB;
 }
 
+/* FUNCTIONS */
 function gA(v){ GA=Math.max(0,GA+v); update(); }
 function pA(v){ PA=Math.max(0,PA+v); update(); }
 function wA(v){ WA=Math.max(0,WA+v); update(); }
@@ -249,7 +257,17 @@ function loadHistory(){
  historyList.innerHTML = history.map(h=>"<div>"+h.score+"</div>").join("");
 }
 
-/* SHARE */
+/* SHARE STATS */
+function shareStats(){
+ html2canvas(document.getElementById("stats")).then(canvas=>{
+  canvas.toBlob(blob=>{
+   let file=new File([blob],"stats.png",{type:"image/png"});
+   navigator.share && navigator.share({files:[file]});
+  });
+ });
+}
+
+/* SHARE TEAM */
 function shareTeam(pitchId){
  html2canvas(document.getElementById(pitchId)).then(canvas=>{
   canvas.toBlob(blob=>{
@@ -259,9 +277,27 @@ function shareTeam(pitchId){
  });
 }
 
-/* PLAYERS + BENCH */
+/* SUBS SYSTEM */
 let selectedSub=null;
 
+function createBench(id){
+ let container=document.getElementById(id);
+ for(let i=16;i<=20;i++){
+  let b=document.createElement("div");
+  b.className="bench-player";
+  b.innerText=i;
+
+  b.onclick=()=>{
+   selectedSub=b;
+   document.querySelectorAll(".bench-player").forEach(x=>x.style.background="#999");
+   b.style.background="orange";
+  };
+
+  container.appendChild(b);
+ }
+}
+
+/* PLAYERS */
 function createPlayer(n,x,y,pitch){
  let p=document.createElement("div");
  p.className="player "+(pitch.id==="pitchA"?"teamA":"teamB");
@@ -274,6 +310,7 @@ function createPlayer(n,x,y,pitch){
    let temp=p.innerText;
    p.innerText=selectedSub.innerText;
    selectedSub.innerText=temp;
+   selectedSub.style.background="#999";
    selectedSub=null;
   } else {
    let name=prompt("Player:",p.innerText);
@@ -284,32 +321,12 @@ function createPlayer(n,x,y,pitch){
  pitch.appendChild(p);
 }
 
-function createBench(id){
- let container=document.getElementById(id);
- for(let i=16;i<=20;i++){
-  let b=document.createElement("div");
-  b.className="bench-player";
-  b.innerText=i;
-
-  b.onclick=()=>{
-   if(selectedSub===b){
-    selectedSub=null;
-    b.style.background="#999";
-   } else {
-    selectedSub=b;
-    document.querySelectorAll(".bench-player").forEach(x=>x.style.background="#999");
-    b.style.background="orange";
-   }
-  };
-
-  container.appendChild(b);
- }
-}
-
 function loadPlayers(){
  let pos=[[170,20],[60,100],[170,100],[280,100],[60,180],[170,180],[280,180],[120,260],[220,260],[60,340],[170,340],[280,340],[60,440],[170,440],[280,440]];
+
  pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],pitchA));
  pos.forEach((p,i)=>createPlayer(i+1,p[0],p[1],pitchB));
+
  createBench("benchA");
  createBench("benchB");
 }
