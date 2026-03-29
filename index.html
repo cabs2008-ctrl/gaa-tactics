@@ -53,6 +53,12 @@ body { margin:0; font-family:Arial; text-align:center; }
 .teamB { background:#1565c0; }
 
 button { padding:10px; margin:5px; font-size:16px; }
+
+.history {
+  max-width:400px;
+  margin:auto;
+  text-align:left;
+}
 </style>
 </head>
 
@@ -62,6 +68,7 @@ button { padding:10px; margin:5px; font-size:16px; }
 <button onclick="showTab('teamA')">Colmcille</button>
 <button onclick="showTab('teamB')">Team B</button>
 <button onclick="showTab('stats')">Stats</button>
+<button onclick="showTab('history')">History</button>
 </div>
 
 <!-- TEAM A -->
@@ -88,10 +95,8 @@ button { padding:10px; margin:5px; font-size:16px; }
 
 <h1 id="score">0-00 | 0-00</h1>
 
-<br>
-<button onclick="confirmReset()" style="background:#c62828; color:white;">
-Reset Match
-</button>
+<button onclick="confirmReset()" style="background:#c62828; color:white;">Reset Match</button>
+<button onclick="saveMatch()" style="background:#2e7d32; color:white;">Save Match</button>
 
 <hr>
 
@@ -135,6 +140,12 @@ Passes <button onclick="paB(-1)">➖</button> <span id="paB">0</span> <button on
 
 </div>
 
+<!-- HISTORY -->
+<div id="history" class="tab">
+<h2>Match History</h2>
+<div id="historyList" class="history"></div>
+</div>
+
 <script>
 
 /* TABS */
@@ -152,22 +163,12 @@ let GA=0, PA=0, WA=0, FA=0, PSA=0;
 let GB=0, PB=0, WB=0, FB=0, PSB=0;
 
 function update(){
-
- document.getElementById("score").innerText =
+ score.innerText =
   GA+"-"+(PA<10?"0":"")+PA + " | " +
   GB+"-"+(PB<10?"0":"")+PB;
 
- document.getElementById("gA").innerText=GA;
- document.getElementById("pA").innerText=PA;
- document.getElementById("wA").innerText=WA;
- document.getElementById("fA").innerText=FA;
- document.getElementById("paA").innerText=PSA;
-
- document.getElementById("gB").innerText=GB;
- document.getElementById("pB").innerText=PB;
- document.getElementById("wB").innerText=WB;
- document.getElementById("fB").innerText=FB;
- document.getElementById("paB").innerText=PSB;
+ gA.innerText=GA; pA.innerText=PA; wA.innerText=WA; fA.innerText=FA; paA.innerText=PSA;
+ gB.innerText=GB; pB.innerText=PB; wB.innerText=WB; fB.innerText=FB; paB.innerText=PSB;
 }
 
 /* FUNCTIONS */
@@ -183,32 +184,59 @@ function wB(v){ WB=Math.max(0,WB+v); update(); }
 function fB(v){ FB=Math.max(0,FB+v); update(); }
 function paB(v){ PSB=Math.max(0,PSB+v); update(); }
 
-/* RESET WITH CONFIRM */
+/* RESET */
 function confirmReset(){
- if(confirm("Are you sure you want to reset the match?")){
-  resetMatch();
- }
+ if(confirm("Reset match?")) resetMatch();
+}
+function resetMatch(){
+ GA=PA=WA=FA=PSA=0;
+ GB=PB=WB=FB=PSB=0;
+ update();
 }
 
-function resetMatch(){
- GA=0; PA=0; WA=0; FA=0; PSA=0;
- GB=0; PB=0; WB=0; FB=0; PSB=0;
- update();
+/* SAVE MATCH */
+function saveMatch(){
+ let match = {
+  teamA: teamAInput.value || "Colmcille",
+  teamB: teamBInput.value || "Team B",
+  score: score.innerText,
+  date: new Date().toLocaleString()
+ };
+
+ let history = JSON.parse(localStorage.getItem("gaaHistory") || "[]");
+ history.unshift(match);
+ localStorage.setItem("gaaHistory", JSON.stringify(history));
+
+ loadHistory();
+ alert("Match saved!");
+}
+
+/* LOAD HISTORY */
+function loadHistory(){
+ let history = JSON.parse(localStorage.getItem("gaaHistory") || "[]");
+ let html = "";
+
+ history.forEach(m=>{
+  html += `<div>
+  <b>${m.teamA} vs ${m.teamB}</b><br>
+  ${m.score}<br>
+  <small>${m.date}</small>
+  <hr>
+  </div>`;
+ });
+
+ document.getElementById("historyList").innerHTML = html;
 }
 
 /* PLAYERS */
 function addPlayer(n,x,y,pitch){
  let p=document.createElement("div");
-
  p.className = "player " + (pitch.id === "pitchA" ? "teamA" : "teamB");
-
  p.innerText=n;
- p.style.left=x+"px";
- p.style.top=y+"px";
 
- p.onclick = function(){
-  let name = prompt("Enter player name/number:", p.innerText);
-  if(name){ p.innerText = name; }
+ p.onclick = ()=> {
+  let name = prompt("Player:", p.innerText);
+  if(name) p.innerText=name;
  };
 
  let ox, oy;
@@ -229,17 +257,10 @@ function addPlayer(n,x,y,pitch){
 
 /* FORMATION */
 function load(){
- let pos=[
-  [170,20],
-  [60,100],[170,100],[280,100],
-  [60,180],[170,180],[280,180],
-  [120,260],[220,260],
-  [60,340],[170,340],[280,340],
-  [60,440],[170,440],[280,440]
- ];
-
+ let pos=[[170,20],[60,100],[170,100],[280,100],[60,180],[170,180],[280,180],[120,260],[220,260],[60,340],[170,340],[280,340],[60,440],[170,440],[280,440]];
  pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],pitchA));
  pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],pitchB));
+ loadHistory();
 }
 
 window.onload=load;
