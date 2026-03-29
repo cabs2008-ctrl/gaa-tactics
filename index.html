@@ -54,11 +54,7 @@ body { margin:0; font-family:Arial; text-align:center; }
 
 button { padding:10px; margin:5px; font-size:16px; }
 
-.history {
-  max-width:400px;
-  margin:auto;
-  text-align:left;
-}
+.history { max-width:400px; margin:auto; text-align:left; }
 </style>
 </head>
 
@@ -95,8 +91,8 @@ button { padding:10px; margin:5px; font-size:16px; }
 
 <h1 id="score">0-00 | 0-00</h1>
 
-<button onclick="confirmReset()" style="background:#c62828; color:white;">Reset Match</button>
-<button onclick="saveMatch()" style="background:#2e7d32; color:white;">Save Match</button>
+<button onclick="confirmReset()" style="background:#c62828; color:white;">Reset</button>
+<button onclick="saveMatch()" style="background:#2e7d32; color:white;">Save</button>
 
 <hr>
 
@@ -148,6 +144,12 @@ Passes <button onclick="paB(-1)">➖</button> <span id="paB">0</span> <button on
 
 <script>
 
+/* SAFE LOAD */
+window.onload = function(){
+ loadPlayers();
+ loadHistory();
+};
+
 /* TABS */
 function showTab(id){
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
@@ -159,8 +161,8 @@ teamAInput.oninput = ()=> nameA.innerText = teamAInput.value;
 teamBInput.oninput = ()=> nameB.innerText = teamBInput.value;
 
 /* STATS */
-let GA=0, PA=0, WA=0, FA=0, PSA=0;
-let GB=0, PB=0, WB=0, FB=0, PSB=0;
+let GA=0,PA=0,WA=0,FA=0,PSA=0;
+let GB=0,PB=0,WB=0,FB=0,PSB=0;
 
 function update(){
  score.innerText =
@@ -194,52 +196,45 @@ function resetMatch(){
  update();
 }
 
-/* SAVE MATCH */
+/* SAVE */
 function saveMatch(){
- let match = {
-  teamA: teamAInput.value || "Colmcille",
-  teamB: teamBInput.value || "Team B",
+ let history = JSON.parse(localStorage.getItem("gaaHistory")||"[]");
+
+ history.unshift({
+  teamA: teamAInput.value,
+  teamB: teamBInput.value,
   score: score.innerText,
   date: new Date().toLocaleString()
- };
-
- let history = JSON.parse(localStorage.getItem("gaaHistory") || "[]");
- history.unshift(match);
- localStorage.setItem("gaaHistory", JSON.stringify(history));
-
- loadHistory();
- alert("Match saved!");
-}
-
-/* LOAD HISTORY */
-function loadHistory(){
- let history = JSON.parse(localStorage.getItem("gaaHistory") || "[]");
- let html = "";
-
- history.forEach(m=>{
-  html += `<div>
-  <b>${m.teamA} vs ${m.teamB}</b><br>
-  ${m.score}<br>
-  <small>${m.date}</small>
-  <hr>
-  </div>`;
  });
 
- document.getElementById("historyList").innerHTML = html;
+ localStorage.setItem("gaaHistory", JSON.stringify(history));
+ loadHistory();
+ alert("Saved!");
+}
+
+function loadHistory(){
+ let history = JSON.parse(localStorage.getItem("gaaHistory")||"[]");
+ let html="";
+ history.forEach(m=>{
+  html += `<div><b>${m.teamA} vs ${m.teamB}</b><br>${m.score}<br><small>${m.date}</small><hr></div>`;
+ });
+ document.getElementById("historyList").innerHTML=html;
 }
 
 /* PLAYERS */
 function addPlayer(n,x,y,pitch){
  let p=document.createElement("div");
- p.className = "player " + (pitch.id === "pitchA" ? "teamA" : "teamB");
+ p.className="player "+(pitch.id==="pitchA"?"teamA":"teamB");
  p.innerText=n;
+ p.style.left=x+"px";
+ p.style.top=y+"px";
 
- p.onclick = ()=> {
-  let name = prompt("Player:", p.innerText);
+ p.onclick=()=>{
+  let name=prompt("Player:",p.innerText);
   if(name) p.innerText=name;
  };
 
- let ox, oy;
+ let ox,oy;
 
  p.addEventListener("touchstart",e=>{
   ox=e.touches[0].clientX-p.offsetLeft;
@@ -255,15 +250,12 @@ function addPlayer(n,x,y,pitch){
  pitch.appendChild(p);
 }
 
-/* FORMATION */
-function load(){
+function loadPlayers(){
  let pos=[[170,20],[60,100],[170,100],[280,100],[60,180],[170,180],[280,180],[120,260],[220,260],[60,340],[170,340],[280,340],[60,440],[170,440],[280,440]];
- pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],pitchA));
- pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],pitchB));
- loadHistory();
-}
 
-window.onload=load;
+ pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],document.getElementById("pitchA")));
+ pos.forEach((p,i)=>addPlayer(i+1,p[0],p[1],document.getElementById("pitchB")));
+}
 
 </script>
 
