@@ -66,8 +66,9 @@ body { margin:0; font-family:Arial; text-align:center; }
   gap:5px;
 }
 
-button { padding:8px; font-size:16px; margin:5px; }
-.timer { font-size:28px; margin:10px; }
+input { padding:8px; margin:5px; width:80%; }
+
+button { padding:8px; font-size:16px; }
 
 .history { max-width:400px; margin:auto; text-align:left; }
 </style>
@@ -79,6 +80,7 @@ button { padding:8px; font-size:16px; margin:5px; }
 <button onclick="showTab('teamA')">Colmcille</button>
 <button onclick="showTab('teamB')">Team B</button>
 <button onclick="showTab('stats')">Stats</button>
+<button onclick="showTab('summary')">Summary</button>
 <button onclick="showTab('history')">History</button>
 </div>
 
@@ -104,12 +106,6 @@ button { padding:8px; font-size:16px; margin:5px; }
 <span id="nameB">Team B</span>
 </h3>
 
-<!-- TIMER -->
-<div class="timer" id="timer">00:00</div>
-<button onclick="startTimer()">Start</button>
-<button onclick="pauseTimer()">Pause</button>
-<button onclick="resetTimer()">Reset</button>
-
 <h1 id="score">0-00 | 0-00</h1>
 
 <button onclick="confirmReset()" style="background:#c62828; color:white;">Reset Match</button>
@@ -121,33 +117,23 @@ button { padding:8px; font-size:16px; margin:5px; }
 
 <div class="stat-row">
 <div class="stat-block">Goals 
-<button onclick="gA(-1)">➖</button> 
-<span id="gA_val">0</span> 
-<button onclick="gA(1)">➕</button></div>
+<button onclick="gA(-1)">➖</button> <span id="gA">0</span> <button onclick="gA(1)">➕</button></div>
 
 <div class="stat-block">Points 
-<button onclick="pA(-1)">➖</button> 
-<span id="pA_val">0</span> 
-<button onclick="pA(1)">➕</button></div>
+<button onclick="pA(-1)">➖</button> <span id="pA">0</span> <button onclick="pA(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
 <div class="stat-block">Wides 
-<button onclick="wA(-1)">➖</button> 
-<span id="wA_val">0</span> 
-<button onclick="wA(1)">➕</button></div>
+<button onclick="wA(-1)">➖</button> <span id="wA">0</span> <button onclick="wA(1)">➕</button></div>
 
 <div class="stat-block">Fouls 
-<button onclick="fA(-1)">➖</button> 
-<span id="fA_val">0</span> 
-<button onclick="fA(1)">➕</button></div>
+<button onclick="fA(-1)">➖</button> <span id="fA">0</span> <button onclick="fA(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
 <div class="stat-block">Passes 
-<button onclick="paA(-1)">➖</button> 
-<span id="paA_val">0</span> 
-<button onclick="paA(1)">➕</button></div>
+<button onclick="paA(-1)">➖</button> <span id="paA">0</span> <button onclick="paA(1)">➕</button></div>
 </div>
 
 <hr>
@@ -156,34 +142,41 @@ button { padding:8px; font-size:16px; margin:5px; }
 
 <div class="stat-row">
 <div class="stat-block">Goals 
-<button onclick="gB(-1)">➖</button> 
-<span id="gB_val">0</span> 
-<button onclick="gB(1)">➕</button></div>
+<button onclick="gB(-1)">➖</button> <span id="gB">0</span> <button onclick="gB(1)">➕</button></div>
 
 <div class="stat-block">Points 
-<button onclick="pB(-1)">➖</button> 
-<span id="pB_val">0</span> 
-<button onclick="pB(1)">➕</button></div>
+<button onclick="pB(-1)">➖</button> <span id="pB">0</span> <button onclick="pB(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
 <div class="stat-block">Wides 
-<button onclick="wB(-1)">➖</button> 
-<span id="wB_val">0</span> 
-<button onclick="wB(1)">➕</button></div>
+<button onclick="wB(-1)">➖</button> <span id="wB">0</span> <button onclick="wB(1)">➕</button></div>
 
 <div class="stat-block">Fouls 
-<button onclick="fB(-1)">➖</button> 
-<span id="fB_val">0</span> 
-<button onclick="fB(1)">➕</button></div>
+<button onclick="fB(-1)">➖</button> <span id="fB">0</span> <button onclick="fB(1)">➕</button></div>
 </div>
 
 <div class="stat-row">
 <div class="stat-block">Passes 
-<button onclick="paB(-1)">➖</button> 
-<span id="paB_val">0</span> 
-<button onclick="paB(1)">➕</button></div>
+<button onclick="paB(-1)">➖</button> <span id="paB">0</span> <button onclick="paB(1)">➕</button></div>
 </div>
+
+</div>
+
+<!-- SUMMARY TAB -->
+<div id="summary" class="tab">
+
+<h2>End of Match Stats</h2>
+
+<h3>Colmcille</h3>
+<input placeholder="Shooting Efficiency (e.g. 70%)">
+<input placeholder="Scores vs Wides (e.g. 10/15)">
+<input placeholder="Notes">
+
+<h3>Team B</h3>
+<input placeholder="Shooting Efficiency">
+<input placeholder="Scores vs Wides">
+<input placeholder="Notes">
 
 </div>
 
@@ -195,41 +188,10 @@ button { padding:8px; font-size:16px; margin:5px; }
 
 <script>
 
-/* TIMER */
-let time = 0;
-let timerInterval;
-
-function updateTimer(){
- let mins = Math.floor(time / 60);
- let secs = time % 60;
- document.getElementById("timer").innerText =
-  (mins<10?"0":"")+mins + ":" + (secs<10?"0":"")+secs;
-}
-
-function startTimer(){
- if(timerInterval) return;
- timerInterval = setInterval(()=>{
-  time++;
-  updateTimer();
- },1000);
-}
-
-function pauseTimer(){
- clearInterval(timerInterval);
- timerInterval = null;
-}
-
-function resetTimer(){
- pauseTimer();
- time = 0;
- updateTimer();
-}
-
 /* LOAD */
 window.onload = function(){
  loadPlayers();
  loadHistory();
- updateTimer();
 };
 
 /* TABS */
@@ -251,17 +213,8 @@ function update(){
   GA+"-"+(PA<10?"0":"")+PA + " | " +
   GB+"-"+(PB<10?"0":"")+PB;
 
- gA_val.innerText=GA;
- pA_val.innerText=PA;
- wA_val.innerText=WA;
- fA_val.innerText=FA;
- paA_val.innerText=PSA;
-
- gB_val.innerText=GB;
- pB_val.innerText=PB;
- wB_val.innerText=WB;
- fB_val.innerText=FB;
- paB_val.innerText=PSB;
+ gA.innerText=GA; pA.innerText=PA; wA.innerText=WA; fA.innerText=FA; paA.innerText=PSA;
+ gB.innerText=GB; pB.innerText=PB; wB.innerText=WB; fB.innerText=FB; paB.innerText=PSB;
 }
 
 /* FUNCTIONS */
