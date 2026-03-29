@@ -4,6 +4,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GAA Match App</title>
 
+<!-- SHARE LIBRARY -->
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
 <style>
 body { margin:0; font-family:Arial; text-align:center; }
 
@@ -110,6 +113,7 @@ button { padding:8px; font-size:16px; }
 
 <button onclick="confirmReset()" style="background:#c62828; color:white;">Reset Match</button>
 <button onclick="saveMatch()" style="background:#2e7d32; color:white;">Save</button>
+<button onclick="shareStats()" style="background:#1565c0; color:white;">Share</button>
 
 <hr>
 
@@ -163,21 +167,17 @@ button { padding:8px; font-size:16px; }
 
 </div>
 
-<!-- SUMMARY TAB -->
+<!-- SUMMARY -->
 <div id="summary" class="tab">
-
 <h2>End of Match Stats</h2>
 
 <h3>Colmcille</h3>
-<input placeholder="Shooting Efficiency (e.g. 70%)">
-<input placeholder="Scores vs Wides (e.g. 10/15)">
-<input placeholder="Notes">
+<input placeholder="Shooting Efficiency">
+<input placeholder="Scores vs Wides">
 
 <h3>Team B</h3>
 <input placeholder="Shooting Efficiency">
 <input placeholder="Scores vs Wides">
-<input placeholder="Notes">
-
 </div>
 
 <!-- HISTORY -->
@@ -263,6 +263,26 @@ function loadHistory(){
   html += `<div><b>${m.teamA} vs ${m.teamB}</b><br>${m.score}<br><small>${m.date}</small><hr></div>`;
  });
  document.getElementById("historyList").innerHTML=html;
+}
+
+/* SHARE */
+function shareStats(){
+  let element = document.getElementById("stats");
+
+  html2canvas(element).then(canvas => {
+    canvas.toBlob(function(blob){
+      let file = new File([blob], "match-stats.png", { type: "image/png" });
+
+      if (navigator.share) {
+        navigator.share({
+          title: "Match Stats",
+          files: [file]
+        });
+      } else {
+        alert("Sharing not supported on this device");
+      }
+    });
+  });
 }
 
 /* PLAYERS */
