@@ -88,6 +88,11 @@ button { padding:10px; margin:5px; font-size:16px; }
 
 <h1 id="score">0-00 | 0-00</h1>
 
+<br>
+<button onclick="confirmReset()" style="background:#c62828; color:white;">
+Reset Match
+</button>
+
 <hr>
 
 <h3>Colmcille</h3>
@@ -178,6 +183,19 @@ function wB(v){ WB=Math.max(0,WB+v); update(); }
 function fB(v){ FB=Math.max(0,FB+v); update(); }
 function paB(v){ PSB=Math.max(0,PSB+v); update(); }
 
+/* RESET WITH CONFIRM */
+function confirmReset(){
+ if(confirm("Are you sure you want to reset the match?")){
+  resetMatch();
+ }
+}
+
+function resetMatch(){
+ GA=0; PA=0; WA=0; FA=0; PSA=0;
+ GB=0; PB=0; WB=0; FB=0; PSB=0;
+ update();
+}
+
 /* PLAYERS */
 function addPlayer(n,x,y,pitch){
  let p=document.createElement("div");
@@ -188,7 +206,6 @@ function addPlayer(n,x,y,pitch){
  p.style.left=x+"px";
  p.style.top=y+"px";
 
- /* EDIT PLAYER */
  p.onclick = function(){
   let name = prompt("Enter player name/number:", p.innerText);
   if(name){ p.innerText = name; }
