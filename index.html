@@ -9,15 +9,6 @@
 <style>
 body { margin:0; font-family:Arial; text-align:center; }
 
-.nav { background:#333; padding:10px; }
-.nav button {
-  margin:5px;
-  padding:10px;
-  color:white;
-  background:#555;
-  border:none;
-}
-
 .stat-row {
   display:flex;
   justify-content:center;
@@ -46,8 +37,8 @@ button { padding:8px; font-size:16px; }
 <h2>Match Stats</h2>
 
 <h3>
-<span id="nameA">Colmcille</span> vs 
-<span id="nameB">Team B</span>
+<span>Colmcille</span> vs 
+<span>Team B</span>
 </h3>
 
 <h1 id="score">0-00 | 0-00</h1>
@@ -93,60 +84,69 @@ button { padding:8px; font-size:16px; }
 <script>
 
 /* TIMER */
-let timerInterval=null;
-let seconds=0;
+let timerInterval = null;
+let seconds = 0;
 
 function startTimer(){
- if(timerInterval) return;
- timerInterval=setInterval(()=>{
+ if(timerInterval !== null) return;
+
+ timerInterval = setInterval(()=>{
   seconds++;
-  let m=Math.floor(seconds/60);
-  let s=seconds%60;
-  timer.innerText=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+  let m = Math.floor(seconds/60);
+  let s = seconds%60;
+  document.getElementById("timer").innerText =
+   (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
  },1000);
 }
 
 function pauseTimer(){
  clearInterval(timerInterval);
- timerInterval=null;
+ timerInterval = null;
 }
 
 function resetTimer(){
- seconds=0;
- timer.innerText="00:00";
+ seconds = 0;
+ document.getElementById("timer").innerText = "00:00";
 }
 
-/* STATS */
+/* TEAM A (HOME) */
 let GA=0,PA=0,WA=0,FA=0,PSA=0,TOA=0;
+
+/* TEAM B (AWAY - ONLY SCORE) */
 let GB=0,PB=0;
 
+/* UPDATE DISPLAY */
 function update(){
- score.innerText =
+
+ // SCORE LINE
+ document.getElementById("score").innerText =
   GA+"-"+(PA<10?"0":"")+PA+" | "+
   GB+"-"+(PB<10?"0":"")+PB;
 
- gA.innerText=GA;
- pA.innerText=PA;
- wA.innerText=WA;
- fA.innerText=FA;
- paA.innerText=PSA;
- toA.innerText=TOA;
+ // TEAM A
+ document.getElementById("gA").innerText=GA;
+ document.getElementById("pA").innerText=PA;
+ document.getElementById("wA").innerText=WA;
+ document.getElementById("fA").innerText=FA;
+ document.getElementById("paA").innerText=PSA;
+ document.getElementById("toA").innerText=TOA;
 
- gB.innerText=GB;
- pB.innerText=PB;
+ // TEAM B (ONLY THESE)
+ document.getElementById("gB").innerText=GB;
+ document.getElementById("pB").innerText=PB;
 }
 
-/* HOME TEAM */
-function gA(v){GA=Math.max(0,GA+v);update();}
-function pA(v){PA=Math.max(0,PA+v);update();}
-function wA(v){WA=Math.max(0,WA+v);update();}
-function fA(v){FA=Math.max(0,FA+v);update();}
-function paA(v){PSA=Math.max(0,PSA+v);update();}
-function toA(v){TOA=Math.max(0,TOA+v);update();}
+/* TEAM A FUNCTIONS */
+function gA(v){ GA=Math.max(0,GA+v); update(); }
+function pA(v){ PA=Math.max(0,PA+v); update(); }
+function wA(v){ WA=Math.max(0,WA+v); update(); }
+function fA(v){ FA=Math.max(0,FA+v); update(); }
+function paA(v){ PSA=Math.max(0,PSA+v); update(); }
+function toA(v){ TOA=Math.max(0,TOA+v); update(); }
 
-/* AWAY TEAM */
-function gB(v){GB=Math.max(0,GB+v);update();}
-function pB(v){PB=Math.max(0,PB+v);update();}
+/* TEAM B FUNCTIONS (SEPARATE) */
+function gB(v){ GB=Math.max(0,GB+v); update(); }
+function pB(v){ PB=Math.max(0,PB+v); update(); }
 
 /* RESET */
 function confirmReset(){
@@ -162,11 +162,14 @@ function shareStats(){
  html2canvas(document.body).then(canvas=>{
   canvas.toBlob(blob=>{
    let file=new File([blob],"stats.png",{type:"image/png"});
-   navigator.share && navigator.share({files:[file]});
+   if(navigator.share){
+    navigator.share({files:[file]});
+   }
   });
  });
 }
 
+/* INIT */
 update();
 
 </script>
