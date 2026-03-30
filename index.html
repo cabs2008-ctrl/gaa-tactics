@@ -18,49 +18,6 @@ body { margin:0; font-family:Arial; text-align:center; }
   border:none;
 }
 
-.tab { display:none; }
-.active { display:block; }
-
-.pitch {
-  width:100%;
-  max-width:400px;
-  height:600px;
-  margin:auto;
-  position:relative;
-  background:#4CAF50;
-  border:2px solid white;
-}
-
-.line {
-  position:absolute;
-  width:100%;
-  height:2px;
-  background:white;
-  top:50%;
-}
-
-.player {
-  width:45px;
-  height:45px;
-  border-radius:50%;
-  position:absolute;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:white;
-}
-
-.teamA { background:#1b5e20; }
-.teamB { background:#1565c0; }
-
-.bench-player {
-  display:inline-block;
-  padding:8px;
-  margin:5px;
-  background:#999;
-  color:white;
-}
-
 .stat-row {
   display:flex;
   justify-content:center;
@@ -72,6 +29,7 @@ body { margin:0; font-family:Arial; text-align:center; }
   display:flex;
   align-items:center;
   gap:5px;
+  font-size:18px;
 }
 
 .timer {
@@ -79,21 +37,11 @@ body { margin:0; font-family:Arial; text-align:center; }
   margin:10px;
 }
 
-button { padding:8px; }
-input { padding:8px; margin:5px; width:80%; }
+button { padding:8px; font-size:16px; }
 </style>
 </head>
 
 <body>
-
-<div class="nav">
-<button onclick="showTab('teamA')">Colmcille</button>
-<button onclick="showTab('teamB')">Team B</button>
-<button onclick="showTab('stats')">Stats</button>
-</div>
-
-<!-- STATS -->
-<div id="stats" class="tab active">
 
 <h2>Match Stats</h2>
 
@@ -116,7 +64,7 @@ input { padding:8px; margin:5px; width:80%; }
 
 <hr>
 
-<h3>Colmcille</h3>
+<h3>Colmcille (Full Stats)</h3>
 
 <div class="stat-row">
 <div class="stat-block">Goals <button onclick="gA(-1)">➖</button> <span id="gA">0</span> <button onclick="gA(1)">➕</button></div>
@@ -135,45 +83,32 @@ input { padding:8px; margin:5px; width:80%; }
 
 <hr>
 
-<h3>Team B</h3>
+<h3>Team B (Score Only)</h3>
 
 <div class="stat-row">
 <div class="stat-block">Goals <button onclick="gB(-1)">➖</button> <span id="gB">0</span> <button onclick="gB(1)">➕</button></div>
 <div class="stat-block">Points <button onclick="pB(-1)">➖</button> <span id="pB">0</span> <button onclick="pB(1)">➕</button></div>
 </div>
 
-<div class="stat-row">
-<div class="stat-block">Wides <button onclick="wB(-1)">➖</button> <span id="wB">0</span> <button onclick="wB(1)">➕</button></div>
-<div class="stat-block">Fouls <button onclick="fB(-1)">➖</button> <span id="fB">0</span> <button onclick="fB(1)">➕</button></div>
-</div>
-
-<div class="stat-row">
-<div class="stat-block">Passes <button onclick="paB(-1)">➖</button> <span id="paB">0</span> <button onclick="paB(1)">➕</button></div>
-<div class="stat-block">Turnovers <button onclick="toB(-1)">➖</button> <span id="toB">0</span> <button onclick="toB(1)">➕</button></div>
-</div>
-
-</div>
-
 <script>
 
 /* TIMER */
-let timerInterval = null;
-let seconds = 0;
+let timerInterval=null;
+let seconds=0;
 
 function startTimer(){
- if(timerInterval !== null) return;
- timerInterval = setInterval(()=>{
+ if(timerInterval) return;
+ timerInterval=setInterval(()=>{
   seconds++;
-  let m = Math.floor(seconds/60);
-  let s = seconds%60;
-  timer.innerText =
-   (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+  let m=Math.floor(seconds/60);
+  let s=seconds%60;
+  timer.innerText=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
  },1000);
 }
 
 function pauseTimer(){
  clearInterval(timerInterval);
- timerInterval = null;
+ timerInterval=null;
 }
 
 function resetTimer(){
@@ -183,18 +118,25 @@ function resetTimer(){
 
 /* STATS */
 let GA=0,PA=0,WA=0,FA=0,PSA=0,TOA=0;
-let GB=0,PB=0,WB=0,FB=0,PSB=0,TOB=0;
+let GB=0,PB=0;
 
 function update(){
  score.innerText =
   GA+"-"+(PA<10?"0":"")+PA+" | "+
   GB+"-"+(PB<10?"0":"")+PB;
 
- gA.innerText=GA; pA.innerText=PA; wA.innerText=WA; fA.innerText=FA; paA.innerText=PSA; toA.innerText=TOA;
- gB.innerText=GB; pB.innerText=PB; wB.innerText=WB; fB.innerText=FB; paB.innerText=PSB; toB.innerText=TOB;
+ gA.innerText=GA;
+ pA.innerText=PA;
+ wA.innerText=WA;
+ fA.innerText=FA;
+ paA.innerText=PSA;
+ toA.innerText=TOA;
+
+ gB.innerText=GB;
+ pB.innerText=PB;
 }
 
-/* FUNCTIONS */
+/* HOME TEAM */
 function gA(v){GA=Math.max(0,GA+v);update();}
 function pA(v){PA=Math.max(0,PA+v);update();}
 function wA(v){WA=Math.max(0,WA+v);update();}
@@ -202,23 +144,22 @@ function fA(v){FA=Math.max(0,FA+v);update();}
 function paA(v){PSA=Math.max(0,PSA+v);update();}
 function toA(v){TOA=Math.max(0,TOA+v);update();}
 
+/* AWAY TEAM */
 function gB(v){GB=Math.max(0,GB+v);update();}
 function pB(v){PB=Math.max(0,PB+v);update();}
-function wB(v){WB=Math.max(0,WB+v);update();}
-function fB(v){FB=Math.max(0,FB+v);update();}
-function paB(v){PSB=Math.max(0,PSB+v);update();}
-function toB(v){TOB=Math.max(0,TOB+v);update();}
 
+/* RESET */
 function confirmReset(){
  if(confirm("Reset match?")){
   GA=PA=WA=FA=PSA=TOA=0;
-  GB=PB=WB=FB=PSB=TOB=0;
+  GB=PB=0;
   update();
  }
 }
 
+/* SHARE */
 function shareStats(){
- html2canvas(document.getElementById("stats")).then(canvas=>{
+ html2canvas(document.body).then(canvas=>{
   canvas.toBlob(blob=>{
    let file=new File([blob],"stats.png",{type:"image/png"});
    navigator.share && navigator.share({files:[file]});
@@ -226,7 +167,7 @@ function shareStats(){
  });
 }
 
-window.onload=update;
+update();
 
 </script>
 
