@@ -75,6 +75,11 @@ body { margin:0; font-family:Arial; text-align:center; }
   gap:5px;
 }
 
+.timer {
+  font-size:24px;
+  margin:10px;
+}
+
 button { padding:8px; }
 input { padding:8px; margin:5px; width:80%; }
 
@@ -130,7 +135,15 @@ input { padding:8px; margin:5px; width:80%; }
 
 <h1 id="score">0-00 | 0-00</h1>
 
-<button onclick="confirmReset()">Reset</button>
+<!-- TIMER -->
+<div class="timer" id="timer">00:00</div>
+<button onclick="startTimer()">Start</button>
+<button onclick="pauseTimer()">Pause</button>
+<button onclick="resetTimer()">Reset Timer</button>
+
+<br><br>
+
+<button onclick="confirmReset()">Reset Match</button>
 <button onclick="saveMatch()">Save</button>
 <button onclick="shareStats()">Share Stats</button>
 
@@ -189,17 +202,43 @@ input { padding:8px; margin:5px; width:80%; }
 
 <script>
 
-/* TABS */
+/* TIMER FIXED */
+let timerInterval = null;
+let seconds = 0;
+
+function startTimer(){
+ if(timerInterval !== null) return;
+
+ timerInterval = setInterval(()=>{
+  seconds++;
+  let m = Math.floor(seconds/60);
+  let s = seconds%60;
+  document.getElementById("timer").innerText =
+   (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+ },1000);
+}
+
+function pauseTimer(){
+ if(timerInterval !== null){
+  clearInterval(timerInterval);
+  timerInterval = null;
+ }
+}
+
+function resetTimer(){
+ seconds = 0;
+ document.getElementById("timer").innerText = "00:00";
+}
+
+/* REST UNCHANGED */
 function showTab(id){
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
  document.getElementById(id).classList.add("active");
 }
 
-/* TEAM NAMES */
 teamAInput.oninput = ()=> nameA.innerText = teamAInput.value;
 teamBInput.oninput = ()=> nameB.innerText = teamBInput.value;
 
-/* STATS */
 let GA=0,PA=0,WA=0,FA=0,PSA=0;
 let GB=0,PB=0,WB=0,FB=0,PSB=0;
 
@@ -208,20 +247,10 @@ function update(){
   GA+"-"+(PA<10?"0":"")+PA + " | " +
   GB+"-"+(PB<10?"0":"")+PB;
 
- document.getElementById("gA").innerText=GA;
- document.getElementById("pA").innerText=PA;
- document.getElementById("wA").innerText=WA;
- document.getElementById("fA").innerText=FA;
- document.getElementById("paA").innerText=PSA;
-
- document.getElementById("gB").innerText=GB;
- document.getElementById("pB").innerText=PB;
- document.getElementById("wB").innerText=WB;
- document.getElementById("fB").innerText=FB;
- document.getElementById("paB").innerText=PSB;
+ gA.innerText=GA; pA.innerText=PA; wA.innerText=WA; fA.innerText=FA; paA.innerText=PSA;
+ gB.innerText=GB; pB.innerText=PB; wB.innerText=WB; fB.innerText=FB; paB.innerText=PSB;
 }
 
-/* FUNCTIONS */
 function gA(v){ GA=Math.max(0,GA+v); update(); }
 function pA(v){ PA=Math.max(0,PA+v); update(); }
 function wA(v){ WA=Math.max(0,WA+v); update(); }
@@ -234,7 +263,6 @@ function wB(v){ WB=Math.max(0,WB+v); update(); }
 function fB(v){ FB=Math.max(0,FB+v); update(); }
 function paB(v){ PSB=Math.max(0,PSB+v); update(); }
 
-/* RESET */
 function confirmReset(){
  if(confirm("Reset match?")) resetMatch();
 }
@@ -244,7 +272,6 @@ function resetMatch(){
  update();
 }
 
-/* SAVE */
 function saveMatch(){
  let history = JSON.parse(localStorage.getItem("gaaHistory")||"[]");
  history.unshift({score: score.innerText});
@@ -257,7 +284,6 @@ function loadHistory(){
  historyList.innerHTML = history.map(h=>"<div>"+h.score+"</div>").join("");
 }
 
-/* SHARE STATS */
 function shareStats(){
  html2canvas(document.getElementById("stats")).then(canvas=>{
   canvas.toBlob(blob=>{
@@ -267,7 +293,6 @@ function shareStats(){
  });
 }
 
-/* SHARE TEAM */
 function shareTeam(pitchId){
  html2canvas(document.getElementById(pitchId)).then(canvas=>{
   canvas.toBlob(blob=>{
@@ -277,7 +302,7 @@ function shareTeam(pitchId){
  });
 }
 
-/* SUBS SYSTEM */
+/* SUBS + PLAYERS */
 let selectedSub=null;
 
 function createBench(id){
@@ -297,7 +322,6 @@ function createBench(id){
  }
 }
 
-/* PLAYERS */
 function createPlayer(n,x,y,pitch){
  let p=document.createElement("div");
  p.className="player "+(pitch.id==="pitchA"?"teamA":"teamB");
