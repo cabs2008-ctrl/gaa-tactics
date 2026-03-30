@@ -1,176 +1,173 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GAA Match App</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<meta charset="UTF-8">
+<title>Match Stats</title>
 
 <style>
-body { margin:0; font-family:Arial; text-align:center; }
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
 
-.stat-row {
-  display:flex;
-  justify-content:center;
-  gap:20px;
-  margin:10px 0;
-}
+  .team {
+    margin: 20px auto;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    width: 90%;
+  }
 
-.stat-block {
-  display:flex;
-  align-items:center;
-  gap:5px;
-  font-size:18px;
-}
+  .row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 8px 0;
+  }
 
-.timer {
-  font-size:24px;
-  margin:10px;
-}
+  button {
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+  }
 
-button { padding:8px; font-size:16px; }
+  .value {
+    width: 30px;
+    display: inline-block;
+    font-size: 18px;
+  }
+
+  h1 {
+    font-size: 40px;
+  }
 </style>
 </head>
 
 <body>
 
 <h2>Match Stats</h2>
+<h3>Colmcille vs Team B</h3>
 
-<h3>
-<span>Colmcille</span> vs 
-<span>Team B</span>
-</h3>
+<h1 id="scoreboard">0-00 | 0-00</h1>
 
-<h1 id="score">0-00 | 0-00</h1>
+<!-- ================= HOME TEAM ================= -->
+<div class="team">
+  <h3>Colmcille (Full Stats)</h3>
 
-<div class="timer" id="timer">00:00</div>
-<button onclick="startTimer()">Start</button>
-<button onclick="pauseTimer()">Pause</button>
-<button onclick="resetTimer()">Reset Timer</button>
+  <div class="row">
+    Goals
+    <button onclick="updateScore('home','goals',-1)">-</button>
+    <span id="home_goals" class="value">0</span>
+    <button onclick="updateScore('home','goals',1)">+</button>
 
-<br><br>
+    &nbsp;&nbsp;&nbsp;
 
-<button onclick="confirmReset()">Reset Match</button>
-<button onclick="shareStats()">Share Stats</button>
+    Points
+    <button onclick="updateScore('home','points',-1)">-</button>
+    <span id="home_points" class="value">0</span>
+    <button onclick="updateScore('home','points',1)">+</button>
+  </div>
 
-<hr>
+  <div class="row">
+    Wides
+    <button onclick="updateStat('home','wides',-1)">-</button>
+    <span id="home_wides" class="value">0</span>
+    <button onclick="updateStat('home','wides',1)">+</button>
 
-<h3>Colmcille (Full Stats)</h3>
+    &nbsp;&nbsp;&nbsp;
 
-<div class="stat-row">
-<div class="stat-block">Goals <button onclick="gA(-1)">➖</button> <span id="gA">0</span> <button onclick="gA(1)">➕</button></div>
-<div class="stat-block">Points <button onclick="pA(-1)">➖</button> <span id="pA">0</span> <button onclick="pA(1)">➕</button></div>
+    Fouls
+    <button onclick="updateStat('home','fouls',-1)">-</button>
+    <span id="home_fouls" class="value">0</span>
+    <button onclick="updateStat('home','fouls',1)">+</button>
+  </div>
+
+  <div class="row">
+    Passes
+    <button onclick="updateStat('home','passes',-1)">-</button>
+    <span id="home_passes" class="value">0</span>
+    <button onclick="updateStat('home','passes',1)">+</button>
+
+    &nbsp;&nbsp;&nbsp;
+
+    Turnovers
+    <button onclick="updateStat('home','turnovers',-1)">-</button>
+    <span id="home_turnovers" class="value">0</span>
+    <button onclick="updateStat('home','turnovers',1)">+</button>
+  </div>
 </div>
 
-<div class="stat-row">
-<div class="stat-block">Wides <button onclick="wA(-1)">➖</button> <span id="wA">0</span> <button onclick="wA(1)">➕</button></div>
-<div class="stat-block">Fouls <button onclick="fA(-1)">➖</button> <span id="fA">0</span> <button onclick="fA(1)">➕</button></div>
+
+<!-- ================= TEAM B ================= -->
+<div class="team">
+  <h3>Team B (Score Only)</h3>
+
+  <div class="row">
+    Goals
+    <button onclick="updateScore('away','goals',-1)">-</button>
+    <span id="away_goals" class="value">0</span>
+    <button onclick="updateScore('away','goals',1)">+</button>
+
+    &nbsp;&nbsp;&nbsp;
+
+    Points
+    <button onclick="updateScore('away','points',-1)">-</button>
+    <span id="away_points" class="value">0</span>
+    <button onclick="updateScore('away','points',1)">+</button>
+  </div>
 </div>
 
-<div class="stat-row">
-<div class="stat-block">Passes <button onclick="paA(-1)">➖</button> <span id="paA">0</span> <button onclick="paA(1)">➕</button></div>
-<div class="stat-block">Turnovers <button onclick="toA(-1)">➖</button> <span id="toA">0</span> <button onclick="toA(1)">➕</button></div>
-</div>
-
-<hr>
-
-<h3>Team B (Score Only)</h3>
-
-<div class="stat-row">
-<div class="stat-block">Goals <button onclick="gB(-1)">➖</button> <span id="gB">0</span> <button onclick="gB(1)">➕</button></div>
-<div class="stat-block">Points <button onclick="pB(-1)">➖</button> <span id="pB">0</span> <button onclick="pB(1)">➕</button></div>
-</div>
 
 <script>
+// 🔒 Separate data (NO SHARING)
+let home = {
+  goals: 0,
+  points: 0,
+  wides: 0,
+  fouls: 0,
+  passes: 0,
+  turnovers: 0
+};
 
-/* TIMER */
-let timerInterval = null;
-let seconds = 0;
+let away = {
+  goals: 0,
+  points: 0
+};
 
-function startTimer(){
- if(timerInterval !== null) return;
 
- timerInterval = setInterval(()=>{
-  seconds++;
-  let m = Math.floor(seconds/60);
-  let s = seconds%60;
-  document.getElementById("timer").innerText =
-   (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
- },1000);
+// ✅ SCORE UPDATE (only affects correct team)
+function updateScore(team, type, change) {
+  let t = team === 'home' ? home : away;
+
+  t[type] += change;
+  if (t[type] < 0) t[type] = 0;
+
+  document.getElementById(team + "_" + type).innerText = t[type];
+
+  renderScore();
 }
 
-function pauseTimer(){
- clearInterval(timerInterval);
- timerInterval = null;
+
+// ✅ STAT UPDATE (home only stats)
+function updateStat(team, type, change) {
+  let t = team === 'home' ? home : away;
+
+  if (!t[type] && t[type] !== 0) return;
+
+  t[type] += change;
+  if (t[type] < 0) t[type] = 0;
+
+  document.getElementById(team + "_" + type).innerText = t[type];
 }
 
-function resetTimer(){
- seconds = 0;
- document.getElementById("timer").innerText = "00:00";
+
+// ✅ SCOREBOARD (separate values)
+function renderScore() {
+  const homeScore = `${home.goals}-${String(home.points).padStart(2, '0')}`;
+  const awayScore = `${away.goals}-${String(away.points).padStart(2, '0')}`;
+
+  document.getElementById("scoreboard").innerText =
+    homeScore + " | " + awayScore;
 }
-
-/* TEAM A (HOME) */
-let GA=0,PA=0,WA=0,FA=0,PSA=0,TOA=0;
-
-/* TEAM B (AWAY - ONLY SCORE) */
-let GB=0,PB=0;
-
-/* UPDATE DISPLAY */
-function update(){
-
- // SCORE LINE
- document.getElementById("score").innerText =
-  GA+"-"+(PA<10?"0":"")+PA+" | "+
-  GB+"-"+(PB<10?"0":"")+PB;
-
- // TEAM A
- document.getElementById("gA").innerText=GA;
- document.getElementById("pA").innerText=PA;
- document.getElementById("wA").innerText=WA;
- document.getElementById("fA").innerText=FA;
- document.getElementById("paA").innerText=PSA;
- document.getElementById("toA").innerText=TOA;
-
- // TEAM B (ONLY THESE)
- document.getElementById("gB").innerText=GB;
- document.getElementById("pB").innerText=PB;
-}
-
-/* TEAM A FUNCTIONS */
-function gA(v){ GA=Math.max(0,GA+v); update(); }
-function pA(v){ PA=Math.max(0,PA+v); update(); }
-function wA(v){ WA=Math.max(0,WA+v); update(); }
-function fA(v){ FA=Math.max(0,FA+v); update(); }
-function paA(v){ PSA=Math.max(0,PSA+v); update(); }
-function toA(v){ TOA=Math.max(0,TOA+v); update(); }
-
-/* TEAM B FUNCTIONS (SEPARATE) */
-function gB(v){ GB=Math.max(0,GB+v); update(); }
-function pB(v){ PB=Math.max(0,PB+v); update(); }
-
-/* RESET */
-function confirmReset(){
- if(confirm("Reset match?")){
-  GA=PA=WA=FA=PSA=TOA=0;
-  GB=PB=0;
-  update();
- }
-}
-
-/* SHARE */
-function shareStats(){
- html2canvas(document.body).then(canvas=>{
-  canvas.toBlob(blob=>{
-   let file=new File([blob],"stats.png",{type:"image/png"});
-   if(navigator.share){
-    navigator.share({files:[file]});
-   }
-  });
- });
-}
-
-/* INIT */
-update();
 
 </script>
 
