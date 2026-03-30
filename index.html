@@ -5,137 +5,105 @@
 <title>Match Stats</title>
 
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-  }
+body {
+  font-family: Arial;
+  text-align: center;
+}
 
-  .team {
-    margin: 20px auto;
-    padding: 10px;
-    border-top: 1px solid #ccc;
-    width: 90%;
-  }
+.section {
+  margin: 20px 0;
+}
 
-  .row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 8px 0;
-  }
+button {
+  width: 40px;
+  height: 40px;
+  margin: 5px;
+}
 
-  button {
-    width: 40px;
-    height: 40px;
-    margin: 5px;
-  }
-
-  .value {
-    width: 30px;
-    display: inline-block;
-    font-size: 18px;
-  }
-
-  h1 {
-    font-size: 40px;
-  }
+.value {
+  display: inline-block;
+  width: 30px;
+  font-size: 18px;
+}
 </style>
 </head>
 
 <body>
 
-<h2>Match Stats</h2>
+<h1>Match Stats</h1>
 <h3>Colmcille vs Team B</h3>
 
 <h1 id="scoreboard">0-00 | 0-00</h1>
 
-<!-- ================= HOME TEAM ================= -->
-<div class="team">
-  <h3>Colmcille (Full Stats)</h3>
+<hr>
 
-  <div class="row">
-    Goals
-    <button onclick="updateScore('home','goals',-1)">-</button>
-    <span id="home_goals" class="value">0</span>
-    <button onclick="updateScore('home','goals',1)">+</button>
+<!-- COLMCILLE -->
+<div class="section">
+<h2>Colmcille (Full Stats)</h2>
 
-    &nbsp;&nbsp;&nbsp;
+<div>
+Goals
+<button onclick="update('home','goals',-1)">-</button>
+<span id="home_goals" class="value">0</span>
+<button onclick="update('home','goals',1)">+</button>
 
-    Points
-    <button onclick="updateScore('home','points',-1)">-</button>
-    <span id="home_points" class="value">0</span>
-    <button onclick="updateScore('home','points',1)">+</button>
-  </div>
-
-  <div class="row">
-    Wides
-    <button onclick="updateStat('home','wides',-1)">-</button>
-    <span id="home_wides" class="value">0</span>
-    <button onclick="updateStat('home','wides',1)">+</button>
-
-    &nbsp;&nbsp;&nbsp;
-
-    Fouls
-    <button onclick="updateStat('home','fouls',-1)">-</button>
-    <span id="home_fouls" class="value">0</span>
-    <button onclick="updateStat('home','fouls',1)">+</button>
-  </div>
-
-  <div class="row">
-    Passes
-    <button onclick="updateStat('home','passes',-1)">-</button>
-    <span id="home_passes" class="value">0</span>
-    <button onclick="updateStat('home','passes',1)">+</button>
-
-    &nbsp;&nbsp;&nbsp;
-
-    Turnovers
-    <button onclick="updateStat('home','turnovers',-1)">-</button>
-    <span id="home_turnovers" class="value">0</span>
-    <button onclick="updateStat('home','turnovers',1)">+</button>
-  </div>
+Points
+<button onclick="update('home','points',-1)">-</button>
+<span id="home_points" class="value">0</span>
+<button onclick="update('home','points',1)">+</button>
 </div>
 
+<div>
+Wides
+<button onclick="stat('home_wides',-1)">-</button>
+<span id="home_wides" class="value">0</span>
+<button onclick="stat('home_wides',1)">+</button>
 
-<!-- ================= TEAM B ================= -->
-<div class="team">
-  <h3>Team B (Score Only)</h3>
-
-  <div class="row">
-    Goals
-    <button onclick="updateScore('away','goals',-1)">-</button>
-    <span id="away_goals" class="value">0</span>
-    <button onclick="updateScore('away','goals',1)">+</button>
-
-    &nbsp;&nbsp;&nbsp;
-
-    Points
-    <button onclick="updateScore('away','points',-1)">-</button>
-    <span id="away_points" class="value">0</span>
-    <button onclick="updateScore('away','points',1)">+</button>
-  </div>
+Fouls
+<button onclick="stat('home_fouls',-1)">-</button>
+<span id="home_fouls" class="value">0</span>
+<button onclick="stat('home_fouls',1)">+</button>
 </div>
 
+<div>
+Passes
+<button onclick="stat('home_passes',-1)">-</button>
+<span id="home_passes" class="value">0</span>
+<button onclick="stat('home_passes',1)">+</button>
+
+Turnovers
+<button onclick="stat('home_turnovers',-1)">-</button>
+<span id="home_turnovers" class="value">0</span>
+<button onclick="stat('home_turnovers',1)">+</button>
+</div>
+</div>
+
+<hr>
+
+<!-- TEAM B -->
+<div class="section">
+<h2>Team B (Score Only)</h2>
+
+<div>
+Goals
+<button onclick="update('away','goals',-1)">-</button>
+<span id="away_goals" class="value">0</span>
+<button onclick="update('away','goals',1)">+</button>
+
+Points
+<button onclick="update('away','points',-1)">-</button>
+<span id="away_points" class="value">0</span>
+<button onclick="update('away','points',1)">+</button>
+</div>
+</div>
 
 <script>
-// 🔒 Separate data (NO SHARING)
-let home = {
-  goals: 0,
-  points: 0,
-  wides: 0,
-  fouls: 0,
-  passes: 0,
-  turnovers: 0
-};
+// ✅ Separate teams completely
+let home = { goals: 0, points: 0 };
+let away = { goals: 0, points: 0 };
 
-let away = {
-  goals: 0,
-  points: 0
-};
-
-
-// ✅ SCORE UPDATE (only affects correct team)
-function updateScore(team, type, change) {
+// ✅ SCORE UPDATE (fixed)
+function update(team, type, change) {
   let t = team === 'home' ? home : away;
 
   t[type] += change;
@@ -146,29 +114,27 @@ function updateScore(team, type, change) {
   renderScore();
 }
 
+// ✅ STATS (passes, fouls etc)
+function stat(id, change) {
+  let el = document.getElementById(id);
+  let val = parseInt(el.innerText);
 
-// ✅ STAT UPDATE (home only stats)
-function updateStat(team, type, change) {
-  let t = team === 'home' ? home : away;
+  if (isNaN(val)) val = 0;
 
-  if (!t[type] && t[type] !== 0) return;
+  val += change;
+  if (val < 0) val = 0;
 
-  t[type] += change;
-  if (t[type] < 0) t[type] = 0;
-
-  document.getElementById(team + "_" + type).innerText = t[type];
+  el.innerText = val;
 }
 
-
-// ✅ SCOREBOARD (separate values)
+// ✅ SCOREBOARD (no crossover anymore)
 function renderScore() {
-  const homeScore = `${home.goals}-${String(home.points).padStart(2, '0')}`;
-  const awayScore = `${away.goals}-${String(away.points).padStart(2, '0')}`;
+  const homeScore = home.goals + "-" + String(home.points).padStart(2,'0');
+  const awayScore = away.goals + "-" + String(away.points).padStart(2,'0');
 
   document.getElementById("scoreboard").innerText =
     homeScore + " | " + awayScore;
 }
-
 </script>
 
 </body>
