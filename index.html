@@ -34,22 +34,17 @@ body {
   display:block;
 }
 
-/* FORCE WHITE STATS */
-#stats {
-  background:white;
-}
-
-/* STATS LAYOUT */
+/* STATS */
 .stat-line {
   display:flex;
   justify-content:center;
   align-items:center;
-  margin:8px 0;
   gap:10px;
+  margin:8px 0;
 }
 
 .label {
-  width:80px;
+  width:90px;
   text-align:right;
 }
 
@@ -200,15 +195,22 @@ function showTab(id){
 let home = { goals:0, points:0 };
 let away = { goals:0, points:0 };
 
-/* SCORE */
-function updateScore(team,type,change){
- let t = team === "home" ? home : away;
+/* ✅ FIXED SCORE FUNCTION */
+function updateScore(team, type, change) {
 
- t[type] += change;
- if(t[type] < 0) t[type] = 0;
+  if (team === "home") {
+    home[type] += change;
+    if (home[type] < 0) home[type] = 0;
+    document.getElementById("home_" + type).innerText = home[type];
+  }
 
- document.getElementById(team+"_"+type).innerText = t[type];
- renderScore();
+  if (team === "away") {
+    away[type] += change;
+    if (away[type] < 0) away[type] = 0;
+    document.getElementById("away_" + type).innerText = away[type];
+  }
+
+  renderScore();
 }
 
 /* STATS */
