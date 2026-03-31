@@ -15,22 +15,41 @@ body {
 }
 
 /* Tabs */
-.tabs { display: flex; background: #333; }
-.tab { flex: 1; padding: 14px; color: white; cursor: pointer; }
-.tab.active { background: #555; }
+.tabs {
+  display: flex;
+  background: #333;
+}
+.tab {
+  flex: 1;
+  padding: 14px;
+  color: white;
+  cursor: pointer;
+}
+.tab.active {
+  background: #555;
+}
 
 /* Sections */
-.section { display: none; padding: 10px; }
-.section.active { display: block; }
+.section {
+  display: none;
+  padding: 10px;
+}
+.section.active {
+  display: block;
+}
 
-/* Share Button */
+/* Share Button FIX */
+.share-container {
+  margin: 15px 0 5px 0;
+}
+
 .share-btn {
-  margin: 10px;
-  padding: 10px 20px;
   background: #333;
   color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
+  font-size: 14px;
 }
 
 /* Pitch */
@@ -41,7 +60,9 @@ body {
   background: green;
   border: 2px solid #333;
 }
-.pitch.blue { background: #1e90ff; }
+.pitch.blue {
+  background: #1e90ff;
+}
 
 /* Players */
 .player {
@@ -72,24 +93,22 @@ button { width: 32px; height: 32px; }
   <div class="tab" onclick="showTab('stats')">Stats</div>
 </div>
 
-<!-- HOME -->
 <div id="home" class="section active">
-<button class="share-btn" onclick="shareApp()">Share</button>
+
+<div class="share-container">
+  <button class="share-btn" onclick="shareApp()">Share</button>
+</div>
+
 <h2>Colmcille</h2>
 <div class="pitch" id="homePitch"></div>
 </div>
 
-<!-- AWAY -->
 <div id="away" class="section">
-<button class="share-btn" onclick="shareApp()">Share</button>
 <h2>Team B</h2>
 <div class="pitch blue" id="awayPitch"></div>
 </div>
 
-<!-- STATS -->
 <div id="stats" class="section">
-
-<button class="share-btn" onclick="shareApp()">Share</button>
 
 <h2>Match Stats</h2>
 <h3>Colmcille vs Team B</h3>
@@ -164,19 +183,10 @@ function showTab(id){
   event.target.classList.add('active');
 }
 
-/* SHARE FUNCTION */
+/* Share */
 function shareApp(){
-  const url = window.location.href;
-
-  if(navigator.share){
-    navigator.share({
-      title: "GAA Match Tracker",
-      url: url
-    });
-  } else {
-    navigator.clipboard.writeText(url);
-    alert("Link copied!");
-  }
+  navigator.clipboard.writeText(window.location.href);
+  alert("Link copied!");
 }
 
 /* Stats */
@@ -198,7 +208,7 @@ function updateScore(){
     stats.away.goals+"-"+String(stats.away.points).padStart(2,"0");
 }
 
-/* Team Layout */
+/* Formation */
 function createTeam(pitch){
   const positions=[
     [50,94],
