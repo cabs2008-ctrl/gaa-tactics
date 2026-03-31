@@ -1,5 +1,4 @@
-
-```html
+```html id="fixhistory1"
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,38 +7,15 @@
 <title>GAA Match Tracker</title>
 
 <style>
-body {
-  font-family: Arial;
-  margin: 0;
-  text-align: center;
-  background: white;
-}
+body { font-family: Arial; margin: 0; text-align: center; background: white; }
 
-/* Tabs */
-.tabs {
-  display: flex;
-  background: #333;
-}
-.tab {
-  flex: 1;
-  padding: 14px;
-  color: white;
-  cursor: pointer;
-}
-.tab.active {
-  background: #555;
-}
+.tabs { display: flex; background: #333; }
+.tab { flex: 1; padding: 14px; color: white; cursor: pointer; }
+.tab.active { background: #555; }
 
-/* Sections */
-.section {
-  display: none;
-  padding: 10px;
-}
-.section.active {
-  display: block;
-}
+.section { display: none; padding: 10px; }
+.section.active { display: block; }
 
-/* Share button */
 .share-btn {
   display: block;
   margin: 10px auto 20px auto;
@@ -48,10 +24,8 @@ body {
   border: none;
   padding: 10px 22px;
   border-radius: 8px;
-  font-size: 14px;
 }
 
-/* Pitch */
 .pitch {
   position: relative;
   width: 100%;
@@ -59,11 +33,8 @@ body {
   background: green;
   border: 2px solid #333;
 }
-.pitch.blue {
-  background: #1e90ff;
-}
+.pitch.blue { background: #1e90ff; }
 
-/* Players */
 .player {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -75,23 +46,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 }
 
-/* Stats */
+.timer { font-size: 28px; font-weight: bold; margin: 10px 0; }
+.timer-buttons button { width: 60px; margin: 5px; }
+
 .stat-line { margin: 12px 0; }
-button { width: 32px; height: 32px; }
 
-/* ✅ TIMER STYLE */
-.timer {
-  font-size: 28px;
-  font-weight: bold;
-  margin: 10px 0;
-}
-
-.timer-buttons button {
-  margin: 5px;
-  width: 60px;
+.history-item {
+  border: 1px solid #ccc;
+  margin: 10px;
+  padding: 10px;
+  text-align: left;
 }
 </style>
 </head>
@@ -99,25 +65,23 @@ button { width: 32px; height: 32px; }
 <body>
 
 <div class="tabs">
-  <div class="tab active" onclick="showTab('home')">Colmcille</div>
-  <div class="tab" onclick="showTab('away')">Team B</div>
-  <div class="tab" onclick="showTab('stats')">Stats</div>
+  <div class="tab active" onclick="showTab(event,'home')">Colmcille</div>
+  <div class="tab" onclick="showTab(event,'away')">Team B</div>
+  <div class="tab" onclick="showTab(event,'stats')">Stats</div>
+  <div class="tab" onclick="showTab(event,'history')">History</div>
 </div>
 
-<!-- COLMCILLE -->
 <div id="home" class="section active">
 <h2>Colmcille</h2>
 <button class="share-btn" onclick="shareApp()">Share</button>
 <div class="pitch" id="homePitch"></div>
 </div>
 
-<!-- TEAM B -->
 <div id="away" class="section">
 <h2>Team B</h2>
 <div class="pitch blue" id="awayPitch"></div>
 </div>
 
-<!-- STATS -->
 <div id="stats" class="section">
 
 <h2>Match Stats</h2>
@@ -125,7 +89,6 @@ button { width: 32px; height: 32px; }
 
 <button class="share-btn" onclick="shareApp()">Share</button>
 
-<!-- ✅ MATCH CLOCK -->
 <div class="timer" id="matchTime">00:00</div>
 <div class="timer-buttons">
   <button onclick="startTimer()">Start</button>
@@ -134,6 +97,8 @@ button { width: 32px; height: 32px; }
 </div>
 
 <h1 id="scoreboard">0-00 | 0-00</h1>
+
+<button onclick="saveMatch()">Save Match</button>
 
 <hr>
 
@@ -195,51 +160,46 @@ Points
 
 </div>
 
+<!-- ✅ HISTORY TAB -->
+<div id="history" class="section">
+<h2>Match History</h2>
+
+<button class="share-btn" onclick="shareHistory()">Share</button>
+
+<div id="historyList"></div>
+</div>
+
 <script>
 
-function showTab(id){
+function showTab(e,id){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  event.target.classList.add('active');
+  e.target.classList.add('active');
 }
 
+/* Share */
 function shareApp(){
   navigator.clipboard.writeText(window.location.href);
   alert("Link copied!");
 }
 
-/* ✅ TIMER LOGIC */
+/* TIMER */
 let seconds = 0;
 let timer = null;
 
-function updateTimerDisplay(){
+function updateTimer(){
   let mins = Math.floor(seconds / 60);
   let secs = seconds % 60;
-  document.getElementById("matchTime").innerText =
+  matchTime.innerText =
     String(mins).padStart(2,'0') + ":" + String(secs).padStart(2,'0');
 }
+function startTimer(){ if(timer) return; timer=setInterval(()=>{seconds++;updateTimer();},1000); }
+function pauseTimer(){ clearInterval(timer); timer=null; }
+function resetTimer(){ pauseTimer(); seconds=0; updateTimer(); }
+updateTimer();
 
-function startTimer(){
-  if(timer) return;
-  timer = setInterval(()=>{
-    seconds++;
-    updateTimerDisplay();
-  },1000);
-}
-
-function pauseTimer(){
-  clearInterval(timer);
-  timer = null;
-}
-
-function resetTimer(){
-  pauseTimer();
-  seconds = 0;
-  updateTimerDisplay();
-}
-
-/* Stats */
+/* STATS */
 let stats={
   home:{goals:0,points:0,wides:0,fouls:0,passes:0,turnovers:0},
   away:{goals:0,points:0}
@@ -252,13 +212,44 @@ function updateStat(team,type,val){
 }
 
 function updateScore(){
-  scoreboard.innerText=
+  scoreboard.innerText =
     stats.home.goals+"-"+String(stats.home.points).padStart(2,"0")+
     " | "+
     stats.away.goals+"-"+String(stats.away.points).padStart(2,"0");
 }
 
-/* Formation */
+/* SAVE MATCH */
+function saveMatch(){
+  let history = JSON.parse(localStorage.getItem("gaaHistory") || "[]");
+
+  history.push({
+    score: scoreboard.innerText,
+    home: {...stats.home}
+  });
+
+  localStorage.setItem("gaaHistory", JSON.stringify(history));
+  loadHistory();
+  alert("Match Saved");
+}
+
+/* LOAD HISTORY */
+function loadHistory(){
+  let history = JSON.parse(localStorage.getItem("gaaHistory") || "[]");
+  historyList.innerHTML = history.map(m =>
+    `<div class="history-item">
+      <strong>${m.score}</strong><br>
+      Wides: ${m.home.wides} | Fouls: ${m.home.fouls}<br>
+      Passes: ${m.home.passes} | Turnovers: ${m.home.turnovers}
+    </div>`
+  ).join("");
+}
+
+function shareHistory(){
+  navigator.clipboard.writeText(historyList.innerText);
+  alert("History copied!");
+}
+
+/* FORMATION */
 function createTeam(pitch){
   const positions=[
     [50,94],
@@ -288,6 +279,7 @@ function createTeam(pitch){
 
 createTeam(homePitch);
 createTeam(awayPitch);
+loadHistory();
 
 </script>
 
