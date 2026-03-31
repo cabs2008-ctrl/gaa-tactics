@@ -7,11 +7,33 @@
 <style>
 body {
   font-family: Arial;
+  margin: 0;
   text-align: center;
 }
 
+.tabs {
+  display: flex;
+  background: #333;
+}
+
+.tab {
+  flex: 1;
+  padding: 15px;
+  color: white;
+  cursor: pointer;
+}
+
+.active {
+  background: #555;
+}
+
 .section {
-  margin: 20px 0;
+  display: none;
+  padding: 20px;
+}
+
+.section.active {
+  display: block;
 }
 
 button {
@@ -23,12 +45,24 @@ button {
 .value {
   display: inline-block;
   width: 30px;
-  font-size: 18px;
+}
+
+hr {
+  margin: 20px 0;
 }
 </style>
 </head>
 
 <body>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('stats')">Stats</div>
+  <div class="tab" onclick="showTab('pitch')">Pitch</div>
+</div>
+
+<!-- STATS TAB -->
+<div id="stats" class="section active">
 
 <h1>Match Stats</h1>
 <h3>Colmcille vs Team B</h3>
@@ -38,72 +72,87 @@ button {
 <hr>
 
 <!-- COLMCILLE -->
-<div class="section">
 <h2>Colmcille (Full Stats)</h2>
 
 <div>
 Goals
-<button onclick="update('home','goals',-1)">-</button>
+<button onclick="updateScore('home','goals',-1)">-</button>
 <span id="home_goals" class="value">0</span>
-<button onclick="update('home','goals',1)">+</button>
+<button onclick="updateScore('home','goals',1)">+</button>
 
 Points
-<button onclick="update('home','points',-1)">-</button>
+<button onclick="updateScore('home','points',-1)">-</button>
 <span id="home_points" class="value">0</span>
-<button onclick="update('home','points',1)">+</button>
+<button onclick="updateScore('home','points',1)">+</button>
 </div>
 
 <div>
 Wides
-<button onclick="stat('home_wides',-1)">-</button>
+<button onclick="updateStat('home_wides',-1)">-</button>
 <span id="home_wides" class="value">0</span>
-<button onclick="stat('home_wides',1)">+</button>
+<button onclick="updateStat('home_wides',1)">+</button>
 
 Fouls
-<button onclick="stat('home_fouls',-1)">-</button>
+<button onclick="updateStat('home_fouls',-1)">-</button>
 <span id="home_fouls" class="value">0</span>
-<button onclick="stat('home_fouls',1)">+</button>
+<button onclick="updateStat('home_fouls',1)">+</button>
 </div>
 
 <div>
 Passes
-<button onclick="stat('home_passes',-1)">-</button>
+<button onclick="updateStat('home_passes',-1)">-</button>
 <span id="home_passes" class="value">0</span>
-<button onclick="stat('home_passes',1)">+</button>
+<button onclick="updateStat('home_passes',1)">+</button>
 
 Turnovers
-<button onclick="stat('home_turnovers',-1)">-</button>
+<button onclick="updateStat('home_turnovers',-1)">-</button>
 <span id="home_turnovers" class="value">0</span>
-<button onclick="stat('home_turnovers',1)">+</button>
-</div>
+<button onclick="updateStat('home_turnovers',1)">+</button>
 </div>
 
 <hr>
 
 <!-- TEAM B -->
-<div class="section">
 <h2>Team B (Score Only)</h2>
 
 <div>
 Goals
-<button onclick="update('away','goals',-1)">-</button>
+<button onclick="updateScore('away','goals',-1)">-</button>
 <span id="away_goals" class="value">0</span>
-<button onclick="update('away','goals',1)">+</button>
+<button onclick="updateScore('away','goals',1)">+</button>
 
 Points
-<button onclick="update('away','points',-1)">-</button>
+<button onclick="updateScore('away','points',-1)">-</button>
 <span id="away_points" class="value">0</span>
-<button onclick="update('away','points',1)">+</button>
+<button onclick="updateScore('away','points',1)">+</button>
 </div>
+
+</div>
+
+<!-- PITCH TAB -->
+<div id="pitch" class="section">
+  <h2>Pitch View</h2>
+  <p>(Your player layout goes here)</p>
 </div>
 
 <script>
-// ✅ Separate teams completely
+
+// ✅ TAB SWITCHING (restored)
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ✅ SEPARATE TEAM DATA (fixes your bug)
 let home = { goals: 0, points: 0 };
 let away = { goals: 0, points: 0 };
 
-// ✅ SCORE UPDATE (fixed)
-function update(team, type, change) {
+// ✅ SCORE UPDATE (NO CROSSOVER)
+function updateScore(team, type, change) {
+
   let t = team === 'home' ? home : away;
 
   t[type] += change;
@@ -114,12 +163,10 @@ function update(team, type, change) {
   renderScore();
 }
 
-// ✅ STATS (passes, fouls etc)
-function stat(id, change) {
+// ✅ STATS (passes, turnovers etc)
+function updateStat(id, change) {
   let el = document.getElementById(id);
-  let val = parseInt(el.innerText);
-
-  if (isNaN(val)) val = 0;
+  let val = parseInt(el.innerText) || 0;
 
   val += change;
   if (val < 0) val = 0;
@@ -127,7 +174,7 @@ function stat(id, change) {
   el.innerText = val;
 }
 
-// ✅ SCOREBOARD (no crossover anymore)
+// ✅ SCOREBOARD DISPLAY
 function renderScore() {
   const homeScore = home.goals + "-" + String(home.points).padStart(2,'0');
   const awayScore = away.goals + "-" + String(away.points).padStart(2,'0');
@@ -135,6 +182,7 @@ function renderScore() {
   document.getElementById("scoreboard").innerText =
     homeScore + " | " + awayScore;
 }
+
 </script>
 
 </body>
