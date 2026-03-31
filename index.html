@@ -23,6 +23,16 @@ body {
 .section { display: none; padding: 10px; }
 .section.active { display: block; }
 
+/* Share Button */
+.share-btn {
+  margin: 10px;
+  padding: 10px 20px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+
 /* Pitch */
 .pitch {
   position: relative;
@@ -62,18 +72,24 @@ button { width: 32px; height: 32px; }
   <div class="tab" onclick="showTab('stats')">Stats</div>
 </div>
 
+<!-- HOME -->
 <div id="home" class="section active">
+<button class="share-btn" onclick="shareApp()">Share</button>
 <h2>Colmcille</h2>
 <div class="pitch" id="homePitch"></div>
 </div>
 
+<!-- AWAY -->
 <div id="away" class="section">
+<button class="share-btn" onclick="shareApp()">Share</button>
 <h2>Team B</h2>
 <div class="pitch blue" id="awayPitch"></div>
 </div>
 
-<!-- ✅ FIXED STATS -->
+<!-- STATS -->
 <div id="stats" class="section">
+
+<button class="share-btn" onclick="shareApp()">Share</button>
 
 <h2>Match Stats</h2>
 <h3>Colmcille vs Team B</h3>
@@ -148,6 +164,22 @@ function showTab(id){
   event.target.classList.add('active');
 }
 
+/* SHARE FUNCTION */
+function shareApp(){
+  const url = window.location.href;
+
+  if(navigator.share){
+    navigator.share({
+      title: "GAA Match Tracker",
+      url: url
+    });
+  } else {
+    navigator.clipboard.writeText(url);
+    alert("Link copied!");
+  }
+}
+
+/* Stats */
 let stats={
   home:{goals:0,points:0,wides:0,fouls:0,passes:0,turnovers:0},
   away:{goals:0,points:0}
@@ -166,7 +198,7 @@ function updateScore(){
     stats.away.goals+"-"+String(stats.away.points).padStart(2,"0");
 }
 
-/* KEEP YOUR CURRENT FORMATION */
+/* Team Layout */
 function createTeam(pitch){
   const positions=[
     [50,94],
