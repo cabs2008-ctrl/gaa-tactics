@@ -38,7 +38,7 @@ body {
   display: block;
 }
 
-/* Share button - FIXED */
+/* Share button */
 .share-btn {
   display: block;
   margin: 10px auto 20px auto;
@@ -80,6 +80,18 @@ body {
 /* Stats */
 .stat-line { margin: 12px 0; }
 button { width: 32px; height: 32px; }
+
+/* ✅ TIMER STYLE */
+.timer {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.timer-buttons button {
+  margin: 5px;
+  width: 60px;
+}
 </style>
 </head>
 
@@ -94,9 +106,7 @@ button { width: 32px; height: 32px; }
 <!-- COLMCILLE -->
 <div id="home" class="section active">
 <h2>Colmcille</h2>
-
 <button class="share-btn" onclick="shareApp()">Share</button>
-
 <div class="pitch" id="homePitch"></div>
 </div>
 
@@ -108,10 +118,19 @@ button { width: 32px; height: 32px; }
 
 <!-- STATS -->
 <div id="stats" class="section">
+
 <h2>Match Stats</h2>
 <h3>Colmcille vs Team B</h3>
 
 <button class="share-btn" onclick="shareApp()">Share</button>
+
+<!-- ✅ MATCH CLOCK -->
+<div class="timer" id="matchTime">00:00</div>
+<div class="timer-buttons">
+  <button onclick="startTimer()">Start</button>
+  <button onclick="pauseTimer()">Pause</button>
+  <button onclick="resetTimer()">Reset</button>
+</div>
 
 <h1 id="scoreboard">0-00 | 0-00</h1>
 
@@ -189,6 +208,37 @@ function shareApp(){
   alert("Link copied!");
 }
 
+/* ✅ TIMER LOGIC */
+let seconds = 0;
+let timer = null;
+
+function updateTimerDisplay(){
+  let mins = Math.floor(seconds / 60);
+  let secs = seconds % 60;
+  document.getElementById("matchTime").innerText =
+    String(mins).padStart(2,'0') + ":" + String(secs).padStart(2,'0');
+}
+
+function startTimer(){
+  if(timer) return;
+  timer = setInterval(()=>{
+    seconds++;
+    updateTimerDisplay();
+  },1000);
+}
+
+function pauseTimer(){
+  clearInterval(timer);
+  timer = null;
+}
+
+function resetTimer(){
+  pauseTimer();
+  seconds = 0;
+  updateTimerDisplay();
+}
+
+/* Stats */
 let stats={
   home:{goals:0,points:0,wides:0,fouls:0,passes:0,turnovers:0},
   away:{goals:0,points:0}
