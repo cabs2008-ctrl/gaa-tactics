@@ -1,1 +1,168 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GAA Match Tracker</title>
 
+<style>
+body {
+  font-family: Arial;
+  margin: 0;
+  text-align: center;
+  background: white;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  background: #333;
+}
+.tab {
+  flex: 1;
+  padding: 15px;
+  color: white;
+  cursor: pointer;
+}
+.tab.active {
+  background: #555;
+}
+
+/* Sections */
+.section {
+  display: none;
+  padding: 20px;
+}
+.section.active {
+  display: block;
+}
+
+/* Stats */
+.stat-line {
+  margin: 10px 0;
+}
+
+button {
+  width: 40px;
+  height: 40px;
+  margin: 5px;
+}
+
+.value {
+  display: inline-block;
+  width: 30px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('home')">Colmcille</div>
+  <div class="tab" onclick="showTab('away')">Team B</div>
+  <div class="tab" onclick="showTab('stats')">Stats</div>
+</div>
+
+<!-- HOME -->
+<div id="home" class="section active">
+  <h1>Colmcille</h1>
+  <p>Team layout coming next</p>
+</div>
+
+<!-- AWAY -->
+<div id="away" class="section">
+  <h1>Team B</h1>
+  <p>Team layout coming next</p>
+</div>
+
+<!-- STATS -->
+<div id="stats" class="section">
+
+  <h2>Match Stats</h2>
+  <h3>Colmcille vs Team B</h3>
+  <h1 id="scoreboard">0-00 | 0-00</h1>
+
+  <hr>
+
+  <h3>Colmcille</h3>
+
+  <div class="stat-line">
+    Goals
+    <button onclick="changeScore('home','goals',-1)">-</button>
+    <span id="home_goals">0</span>
+    <button onclick="changeScore('home','goals',1)">+</button>
+  </div>
+
+  <div class="stat-line">
+    Points
+    <button onclick="changeScore('home','points',-1)">-</button>
+    <span id="home_points">0</span>
+    <button onclick="changeScore('home','points',1)">+</button>
+  </div>
+
+  <hr>
+
+  <h3>Team B</h3>
+
+  <div class="stat-line">
+    Goals
+    <button onclick="changeScore('away','goals',-1)">-</button>
+    <span id="away_goals">0</span>
+    <button onclick="changeScore('away','goals',1)">+</button>
+  </div>
+
+  <div class="stat-line">
+    Points
+    <button onclick="changeScore('away','points',-1)">-</button>
+    <span id="away_points">0</span>
+    <button onclick="changeScore('away','points',1)">+</button>
+  </div>
+
+</div>
+
+<script>
+
+/* Tabs */
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+/* SAFE SCORE SYSTEM */
+let homeScore = { goals: 0, points: 0 };
+let awayScore = { goals: 0, points: 0 };
+
+function changeScore(team, type, change) {
+
+  if (team === "home") {
+    homeScore[type] = Math.max(0, homeScore[type] + change);
+  } else {
+    awayScore[type] = Math.max(0, awayScore[type] + change);
+  }
+
+  render();
+}
+
+function render() {
+
+  document.getElementById("home_goals").innerText = homeScore.goals;
+  document.getElementById("home_points").innerText = homeScore.points;
+
+  document.getElementById("away_goals").innerText = awayScore.goals;
+  document.getElementById("away_points").innerText = awayScore.points;
+
+  document.getElementById("scoreboard").innerText =
+    homeScore.goals + "-" + String(homeScore.points).padStart(2,"0") +
+    " | " +
+    awayScore.goals + "-" + String(awayScore.points).padStart(2,"0");
+}
+
+</script>
+
+</body>
+</html>
+```
