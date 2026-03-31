@@ -20,7 +20,7 @@ body {
 }
 .tab {
   flex: 1;
-  padding: 15px;
+  padding: 12px;
   color: white;
   cursor: pointer;
 }
@@ -31,24 +31,25 @@ body {
 /* Sections */
 .section {
   display: none;
-  padding: 20px;
+  padding: 10px;
 }
 .section.active {
   display: block;
 }
 
-/* PITCH — LONG + REALISTIC */
+/* Pitch - FIXED FOR PHONE */
 .pitch {
   position: relative;
   width: 95%;
-  height: 750px; /* BIGGER + MORE REAL */
-  margin: auto;
+  max-width: 420px;
+  height: 300px;
+  margin: 10px auto;
   background: green;
-  border: 3px solid #222;
+  border: 2px solid #333;
 }
 
 .pitch.blue {
-  background: #2f6fd6;
+  background: #1e90ff;
 }
 
 /* Players */
@@ -56,22 +57,22 @@ body {
   position: absolute;
   transform: translate(-50%, -50%);
   background: rgba(255,255,255,0.35);
-  width: 42px;
-  height: 42px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  line-height: 42px;
+  line-height: 28px;
+  font-size: 12px;
   font-weight: bold;
 }
 
 /* Stats */
 .stat-line {
-  margin: 10px 0;
+  margin: 8px 0;
 }
 
 button {
-  width: 40px;
-  height: 40px;
-  margin: 5px;
+  width: 35px;
+  height: 35px;
 }
 </style>
 </head>
@@ -87,66 +88,60 @@ button {
 
 <!-- HOME -->
 <div id="home" class="section active">
-<h1>Colmcille</h1>
+<h2>Colmcille</h2>
 
 <div class="pitch">
 
-<!-- GK -->
-<div class="player" style="top:96%; left:50%;">1</div>
+<div class="player" style="top:92%; left:50%;">1</div>
 
-<!-- FULL BACK LINE -->
-<div class="player" style="top:84%; left:15%;">2</div>
-<div class="player" style="top:84%; left:50%;">3</div>
-<div class="player" style="top:84%; left:85%;">4</div>
+<div class="player" style="top:78%; left:30%;">2</div>
+<div class="player" style="top:78%; left:50%;">3</div>
+<div class="player" style="top:78%; left:70%;">4</div>
 
-<!-- HALF BACK LINE -->
-<div class="player" style="top:70%; left:15%;">5</div>
-<div class="player" style="top:70%; left:50%;">6</div>
-<div class="player" style="top:70%; left:85%;">7</div>
+<div class="player" style="top:62%; left:30%;">5</div>
+<div class="player" style="top:62%; left:50%;">6</div>
+<div class="player" style="top:62%; left:70%;">7</div>
 
-<!-- MIDFIELD -->
-<div class="player" style="top:55%; left:35%;">8</div>
-<div class="player" style="top:55%; left:65%;">9</div>
+<div class="player" style="top:48%; left:40%;">8</div>
+<div class="player" style="top:48%; left:60%;">9</div>
 
-<!-- HALF FORWARD -->
-<div class="player" style="top:38%; left:15%;">10</div>
-<div class="player" style="top:38%; left:50%;">11</div>
-<div class="player" style="top:38%; left:85%;">12</div>
+<div class="player" style="top:34%; left:30%;">10</div>
+<div class="player" style="top:34%; left:50%;">11</div>
+<div class="player" style="top:34%; left:70%;">12</div>
 
-<!-- FULL FORWARD -->
-<div class="player" style="top:20%; left:15%;">13</div>
-<div class="player" style="top:20%; left:50%;">14</div>
-<div class="player" style="top:20%; left:85%;">15</div>
+<div class="player" style="top:18%; left:30%;">13</div>
+<div class="player" style="top:18%; left:50%;">14</div>
+<div class="player" style="top:18%; left:70%;">15</div>
 
 </div>
 </div>
 
 <!-- AWAY -->
 <div id="away" class="section">
-<h1>Team B</h1>
+<h2>Team B</h2>
 
 <div class="pitch blue">
 
-<div class="player" style="top:96%; left:50%;">1</div>
+<div class="player" style="top:92%; left:50%;">1</div>
 
-<div class="player" style="top:84%; left:15%;">2</div>
-<div class="player" style="top:84%; left:50%;">3</div>
-<div class="player" style="top:84%; left:85%;">4</div>
+<div class="player" style="top:78%; left:30%;">2</div>
+<div class="player" style="top:78%; left:50%;">3</div>
+<div class="player" style="top:78%; left:70%;">4</div>
 
-<div class="player" style="top:70%; left:15%;">5</div>
-<div class="player" style="top:70%; left:50%;">6</div>
-<div class="player" style="top:70%; left:85%;">7</div>
+<div class="player" style="top:62%; left:30%;">5</div>
+<div class="player" style="top:62%; left:50%;">6</div>
+<div class="player" style="top:62%; left:70%;">7</div>
 
-<div class="player" style="top:55%; left:35%;">8</div>
-<div class="player" style="top:55%; left:65%;">9</div>
+<div class="player" style="top:48%; left:40%;">8</div>
+<div class="player" style="top:48%; left:60%;">9</div>
 
-<div class="player" style="top:38%; left:15%;">10</div>
-<div class="player" style="top:38%; left:50%;">11</div>
-<div class="player" style="top:38%; left:85%;">12</div>
+<div class="player" style="top:34%; left:30%;">10</div>
+<div class="player" style="top:34%; left:50%;">11</div>
+<div class="player" style="top:34%; left:70%;">12</div>
 
-<div class="player" style="top:20%; left:15%;">13</div>
-<div class="player" style="top:20%; left:50%;">14</div>
-<div class="player" style="top:20%; left:85%;">15</div>
+<div class="player" style="top:18%; left:30%;">13</div>
+<div class="player" style="top:18%; left:50%;">14</div>
+<div class="player" style="top:18%; left:70%;">15</div>
 
 </div>
 </div>
@@ -197,37 +192,37 @@ Points
 </div>
 
 <script>
+
 function showTab(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-
   document.getElementById(id).classList.add('active');
   event.target.classList.add('active');
 }
 
 let homeGoals=0, homePoints=0, awayGoals=0, awayPoints=0;
 
-function updateHome(type,change){
-  if(type==="goals"){homeGoals=Math.max(0,homeGoals+change);home_goals.innerText=homeGoals;}
-  if(type==="points"){homePoints=Math.max(0,homePoints+change);home_points.innerText=homePoints;}
+function updateHome(type,val){
+  if(type==="goals"){homeGoals=Math.max(0,homeGoals+val);home_goals.innerText=homeGoals;}
+  if(type==="points"){homePoints=Math.max(0,homePoints+val);home_points.innerText=homePoints;}
   updateScore();
 }
 
-function updateAway(type,change){
-  if(type==="goals"){awayGoals=Math.max(0,awayGoals+change);away_goals.innerText=awayGoals;}
-  if(type==="points"){awayPoints=Math.max(0,awayPoints+change);away_points.innerText=awayPoints;}
+function updateAway(type,val){
+  if(type==="goals"){awayGoals=Math.max(0,awayGoals+val);away_goals.innerText=awayGoals;}
+  if(type==="points"){awayPoints=Math.max(0,awayPoints+val);away_points.innerText=awayPoints;}
   updateScore();
 }
 
 function updateScore(){
   scoreboard.innerText =
-    homeGoals+"-"+String(homePoints).padStart(2,"0")
-    +" | "+
+    homeGoals+"-"+String(homePoints).padStart(2,"0") +
+    " | " +
     awayGoals+"-"+String(awayPoints).padStart(2,"0");
 }
+
 </script>
 
 </body>
 </html>
 ```
-
