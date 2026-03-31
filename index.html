@@ -10,10 +10,9 @@ body {
   font-family: Arial;
   margin: 0;
   text-align: center;
-  background: white; /* FIXED */
+  background: white;
 }
 
-/* TABS */
 .tabs {
   display: flex;
   background: #333;
@@ -36,15 +35,8 @@ body {
   display: block;
 }
 
-/* STATS LAYOUT */
 .stat-line {
   margin: 10px 0;
-}
-
-.label {
-  display: inline-block;
-  width: 90px;
-  text-align: left;
 }
 
 button {
@@ -56,11 +48,6 @@ button {
 .value {
   display: inline-block;
   width: 30px;
-}
-
-/* TEAM COLORS */
-.team-b {
-  background: #e6f0ff;
 }
 </style>
 </head>
@@ -81,7 +68,7 @@ button {
 </div>
 
 <!-- TEAM B -->
-<div id="teamB" class="section team-b">
+<div id="teamB" class="section">
   <h1>Team B</h1>
   <p>Team layout here</p>
 </div>
@@ -95,46 +82,46 @@ button {
 
   <hr>
 
-  <!-- COLMCILLE -->
+  <!-- HOME -->
   <h3>Colmcille</h3>
 
   <div class="stat-line">
-    <span class="label">Goals</span>
+    Goals
     <button onclick="updateScore('home','goals',-1)">-</button>
     <span id="home_goals" class="value">0</span>
     <button onclick="updateScore('home','goals',1)">+</button>
   </div>
 
   <div class="stat-line">
-    <span class="label">Points</span>
+    Points
     <button onclick="updateScore('home','points',-1)">-</button>
     <span id="home_points" class="value">0</span>
     <button onclick="updateScore('home','points',1)">+</button>
   </div>
 
   <div class="stat-line">
-    <span class="label">Wides</span>
+    Wides
     <button onclick="updateStat('home_wides',-1)">-</button>
     <span id="home_wides" class="value">0</span>
     <button onclick="updateStat('home_wides',1)">+</button>
   </div>
 
   <div class="stat-line">
-    <span class="label">Fouls</span>
+    Fouls
     <button onclick="updateStat('home_fouls',-1)">-</button>
     <span id="home_fouls" class="value">0</span>
     <button onclick="updateStat('home_fouls',1)">+</button>
   </div>
 
   <div class="stat-line">
-    <span class="label">Passes</span>
+    Passes
     <button onclick="updateStat('home_passes',-1)">-</button>
     <span id="home_passes" class="value">0</span>
     <button onclick="updateStat('home_passes',1)">+</button>
   </div>
 
   <div class="stat-line">
-    <span class="label">Turnovers</span>
+    Turnovers
     <button onclick="updateStat('home_turnovers',-1)">-</button>
     <span id="home_turnovers" class="value">0</span>
     <button onclick="updateStat('home_turnovers',1)">+</button>
@@ -142,18 +129,18 @@ button {
 
   <hr>
 
-  <!-- TEAM B -->
+  <!-- AWAY -->
   <h3>Team B (Score Only)</h3>
 
   <div class="stat-line">
-    <span class="label">Goals</span>
+    Goals
     <button onclick="updateScore('away','goals',-1)">-</button>
     <span id="away_goals" class="value">0</span>
     <button onclick="updateScore('away','goals',1)">+</button>
   </div>
 
   <div class="stat-line">
-    <span class="label">Points</span>
+    Points
     <button onclick="updateScore('away','points',-1)">-</button>
     <span id="away_points" class="value">0</span>
     <button onclick="updateScore('away','points',1)">+</button>
@@ -172,13 +159,14 @@ function showTab(id) {
   event.target.classList.add('active');
 }
 
-/* SCORE (FIXED ISOLATION) */
+/* ✅ FIXED SCORE FUNCTION (NO CROSSOVER) */
 function updateScore(team, type, change) {
 
   const el = document.getElementById(team + "_" + type);
-  let val = parseInt(el.innerText) || 0;
 
+  let val = parseInt(el.innerText) || 0;
   val = Math.max(0, val + change);
+
   el.innerText = val;
 
   const hg = parseInt(document.getElementById("home_goals").innerText) || 0;
