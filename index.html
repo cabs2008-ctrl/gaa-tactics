@@ -38,11 +38,12 @@ body {
   display: block;
 }
 
-/* Pitch */
+/* Pitch FIXED */
 .pitch {
   position: relative;
   width: 100%;
-  aspect-ratio: 1.5;
+  height: 75vh; /* BIGGER + FULL SCREEN */
+  max-height: 600px;
   background: green;
   border: 2px solid #333;
 }
@@ -55,27 +56,17 @@ body {
 .player {
   position: absolute;
   transform: translate(-50%, -50%);
-  background: rgba(255,255,255,0.5);
-  width: 50px;
-  height: 50px;
+  background: rgba(255,255,255,0.6);
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  font-size: 12px;
+  font-size: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 4px;
   cursor: pointer;
-}
-
-/* Stats */
-.stat-line {
-  margin: 10px 0;
-}
-
-button {
-  width: 35px;
-  height: 35px;
 }
 </style>
 </head>
@@ -92,18 +83,16 @@ button {
 <!-- HOME -->
 <div id="home" class="section active">
 <h2>Colmcille</h2>
-
 <div class="pitch" id="homePitch"></div>
 </div>
 
 <!-- AWAY -->
 <div id="away" class="section">
 <h2>Team B</h2>
-
 <div class="pitch blue" id="awayPitch"></div>
 </div>
 
-<!-- STATS -->
+<!-- STATS (UNCHANGED) -->
 <div id="stats" class="section">
 
 <h2>Match Stats</h2>
@@ -114,7 +103,7 @@ button {
 
 <h3>Colmcille</h3>
 
-<div class="stat-line">
+<div>
 Goals
 <button onclick="updateStat('home','goals',-1)">-</button>
 <span id="home_goals">0</span>
@@ -126,7 +115,7 @@ Points
 <button onclick="updateStat('home','points',1)">+</button>
 </div>
 
-<div class="stat-line">
+<div>
 Wides
 <button onclick="updateStat('home','wides',-1)">-</button>
 <span id="home_wides">0</span>
@@ -138,14 +127,14 @@ Fouls
 <button onclick="updateStat('home','fouls',1)">+</button>
 </div>
 
-<div class="stat-line">
+<div>
 Passes
 <button onclick="updateStat('home','passes',-1)">-</button>
 <span id="home_passes">0</span>
 <button onclick="updateStat('home','passes',1)">+</button>
 </div>
 
-<div class="stat-line">
+<div>
 Turnovers
 <button onclick="updateStat('home','turnovers',-1)">-</button>
 <span id="home_turnovers">0</span>
@@ -156,7 +145,7 @@ Turnovers
 
 <h3>Team B</h3>
 
-<div class="stat-line">
+<div>
 Goals
 <button onclick="updateStat('away','goals',-1)">-</button>
 <span id="away_goals">0</span>
@@ -199,15 +188,21 @@ function updateScore(){
     stats.away.goals+"-"+String(stats.away.points).padStart(2,"0");
 }
 
-/* Create Players */
+/* CORRECT GAA POSITIONS */
 function createTeam(pitch){
   const positions=[
-    [50,92],
-    [25,75],[50,75],[75,75],
-    [25,60],[50,60],[75,60],
-    [40,48],[60,48],
-    [25,35],[50,35],[75,35],
-    [25,20],[50,20],[75,20]
+
+    [50,92], // 1
+
+    [25,80],[50,80],[75,80], // 2-4
+
+    [25,68],[50,68],[75,68], // 5-7
+
+    [40,55],[60,55], // 8-9
+
+    [25,42],[50,42],[75,42], // 10-12
+
+    [25,28],[50,28],[75,28] // 13-15
   ];
 
   positions.forEach((pos,i)=>{
@@ -219,7 +214,7 @@ function createTeam(pitch){
     p.style.top=pos[1]+"%";
 
     p.onclick=()=>{
-      let name=prompt("Enter player name:",p.innerText);
+      let name=prompt("Player name:",p.innerText);
       if(name) p.innerText=name;
     };
 
