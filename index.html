@@ -5,43 +5,55 @@
 <title>GAA Match App</title>
 
 <style>
-body { font-family: Arial; margin:0; text-align:center; }
+body { font-family: Arial; margin:0; text-align:center; background:white; }
 
 .tabs { display:flex; background:#333; }
 .tab { flex:1; padding:15px; color:white; cursor:pointer; }
 .active { background:#555; }
 
-.section { display:none; padding:20px; }
+.section { display:none; padding:20px; background:white; }
 .section.active { display:block; }
 
-/* PITCH FIX */
+.row {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  margin:10px 0;
+}
+
+.stat {
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+button {
+  width:40px;
+  height:40px;
+}
+
+.value {
+  width:25px;
+  display:inline-block;
+}
+
 .pitch {
-  width:95%;
-  height:500px;
-  background:#2e7d32;
-  margin:auto;
+  height:450px;
+  background:green;
   position:relative;
-  border:3px solid white;
-  border-radius:10px;
+  margin:10px;
 }
 
-/* PLAYERS */
 .player {
-  width:42px;
-  height:42px;
+  width:40px;
+  height:40px;
   border-radius:50%;
-  background:#1b5e20;
+  background:#1e7d32;
   color:white;
-  line-height:42px;
+  line-height:40px;
   position:absolute;
-  font-weight:bold;
-  transform:translate(-50%,-50%);
 }
-
-/* BUTTONS */
-button { width:40px; height:40px; margin:5px; }
-.value { display:inline-block; width:30px; }
-
 </style>
 </head>
 
@@ -54,13 +66,13 @@ button { width:40px; height:40px; margin:5px; }
   <div class="tab" onclick="showTab('stats')">Stats</div>
 </div>
 
-<!-- HOME -->
+<!-- COLMCILLE -->
 <div id="colmcille" class="section active">
 <h2>Colmcille</h2>
 <div class="pitch" id="pitchHome"></div>
 </div>
 
-<!-- AWAY -->
+<!-- TEAM B -->
 <div id="teamB" class="section">
 <h2>Team B</h2>
 <div class="pitch" id="pitchAway"></div>
@@ -68,6 +80,7 @@ button { width:40px; height:40px; margin:5px; }
 
 <!-- STATS -->
 <div id="stats" class="section">
+
 <h2>Match Stats</h2>
 <h3>Colmcille vs Team B</h3>
 <h1 id="scoreboard">0-00 | 0-00</h1>
@@ -76,41 +89,65 @@ button { width:40px; height:40px; margin:5px; }
 
 <h3>Colmcille</h3>
 
-Goals
-<button onclick="updateScore('home','goals',-1)">-</button>
-<span id="home_goals" class="value">0</span>
-<button onclick="updateScore('home','goals',1)">+</button>
+<div class="row">
+  <div class="stat">Goals
+    <button onclick="updateScore('home','goals',-1)">-</button>
+    <span id="home_goals" class="value">0</span>
+    <button onclick="updateScore('home','goals',1)">+</button>
+  </div>
 
-Points
-<button onclick="updateScore('home','points',-1)">-</button>
-<span id="home_points" class="value">0</span>
-<button onclick="updateScore('home','points',1)">+</button>
+  <div class="stat">Points
+    <button onclick="updateScore('home','points',-1)">-</button>
+    <span id="home_points" class="value">0</span>
+    <button onclick="updateScore('home','points',1)">+</button>
+  </div>
+</div>
 
-<br><br>
+<div class="row">
+  <div class="stat">Wides
+    <button onclick="updateStat('home_wides',-1)">-</button>
+    <span id="home_wides" class="value">0</span>
+    <button onclick="updateStat('home_wides',1)">+</button>
+  </div>
 
-Passes
-<button onclick="updateStat('home_passes',-1)">-</button>
-<span id="home_passes" class="value">0</span>
-<button onclick="updateStat('home_passes',1)">+</button>
+  <div class="stat">Fouls
+    <button onclick="updateStat('home_fouls',-1)">-</button>
+    <span id="home_fouls" class="value">0</span>
+    <button onclick="updateStat('home_fouls',1)">+</button>
+  </div>
+</div>
 
-Turnovers
-<button onclick="updateStat('home_turnovers',-1)">-</button>
-<span id="home_turnovers" class="value">0</span>
-<button onclick="updateStat('home_turnovers',1)">+</button>
+<div class="row">
+  <div class="stat">Passes
+    <button onclick="updateStat('home_passes',-1)">-</button>
+    <span id="home_passes" class="value">0</span>
+    <button onclick="updateStat('home_passes',1)">+</button>
+  </div>
+
+  <div class="stat">Turnovers
+    <button onclick="updateStat('home_turnovers',-1)">-</button>
+    <span id="home_turnovers" class="value">0</span>
+    <button onclick="updateStat('home_turnovers',1)">+</button>
+  </div>
+</div>
 
 <hr>
 
-<h3>Team B</h3>
+<h3>Team B (Score Only)</h3>
 
-Goals
-<button onclick="updateScore('away','goals',-1)">-</button>
-<span id="away_goals" class="value">0</span>
-<button onclick="updateScore('away','goals',1)">+</button>
+<div class="row">
+  <div class="stat">Goals
+    <button onclick="updateScore('away','goals',-1)">-</button>
+    <span id="away_goals" class="value">0</span>
+    <button onclick="updateScore('away','goals',1)">+</button>
+  </div>
 
-Points
-<button onclick="updateScore('away','points',-1)">-</button>
-<span id="away_points" class="value">0</span>
-<button onclick="updateScore('away','points',1)">+</button>
+  <div class="stat">Points
+    <button onclick="updateScore('away','points',-1)">-</button>
+    <span id="away_points" class="value">0</span>
+    <button onclick="updateScore('away','points',1)">+</button>
+  </div>
+</div>
 
 </div>
 
@@ -125,10 +162,11 @@ function showTab(id){
  event.target.classList.add('active');
 }
 
-/* SCORE */
+/* SCORE DATA */
 let home = { goals:0, points:0 };
 let away = { goals:0, points:0 };
 
+/* SCORE */
 function updateScore(team,type,change){
  let t = team === "home" ? home : away;
 
@@ -139,35 +177,37 @@ function updateScore(team,type,change){
  renderScore();
 }
 
+/* STATS */
 function updateStat(id, change){
  let el = document.getElementById(id);
  let val = parseInt(el.innerText) || 0;
+
  val += change;
  if(val < 0) val = 0;
+
  el.innerText = val;
 }
 
+/* SCOREBOARD */
 function renderScore(){
  let h = home.goals + "-" + String(home.points).padStart(2,"0");
  let a = away.goals + "-" + String(away.points).padStart(2,"0");
+
  document.getElementById("scoreboard").innerText = h + " | " + a;
 }
 
-/* 🔥 REAL GAA FORMATION (FIXED SPACING) */
+/* FORMATION */
 const formation = [
-  [50,92],   // 1 GK
-
-  [20,78],[50,78],[80,78], // 2-4 FB
-  [20,64],[50,64],[80,64], // 5-7 HB
-  [35,50],[65,50],         // 8-9 MF
-  [20,36],[50,36],[80,36], // 10-12 HF
-  [20,22],[50,22],[80,22]  // 13-15 FF
+  [50,90],
+  [20,75],[50,75],[80,75],
+  [20,60],[50,60],[80,60],
+  [35,45],[65,45],
+  [20,30],[50,30],[80,30],
+  [20,15],[50,15],[80,15]
 ];
 
-/* DRAW TEAM */
-function drawTeam(id){
- let pitch = document.getElementById(id);
- pitch.innerHTML = "";
+function drawTeam(containerId){
+ let pitch = document.getElementById(containerId);
 
  formation.forEach((pos,i)=>{
    let p = document.createElement("div");
@@ -176,12 +216,12 @@ function drawTeam(id){
 
    p.style.left = pos[0]+"%";
    p.style.top = pos[1]+"%";
+   p.style.transform = "translate(-50%,-50%)";
 
    pitch.appendChild(p);
  });
 }
 
-/* INIT */
 drawTeam("pitchHome");
 drawTeam("pitchAway");
 
