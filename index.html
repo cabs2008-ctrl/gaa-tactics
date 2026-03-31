@@ -1,56 +1,66 @@
+```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Match Stats</title>
 
 <style>
-body { font-family: Arial; margin:0; text-align:center; }
+body {
+  font-family: Arial;
+  margin: 0;
+  text-align: center;
+  background: white; /* FIXED */
+}
 
 /* TABS */
-.tabs { display:flex; background:#333; }
-.tab { flex:1; padding:15px; color:white; cursor:pointer; }
-.tab.active { background:#555; }
+.tabs {
+  display: flex;
+  background: #333;
+}
+.tab {
+  flex: 1;
+  padding: 15px;
+  color: white;
+  cursor: pointer;
+}
+.tab.active {
+  background: #555;
+}
 
-/* SECTIONS */
-.section { display:none; padding:20px; }
-.section.active { display:block; }
+.section {
+  display: none;
+  padding: 20px;
+}
+.section.active {
+  display: block;
+}
 
-/* FORCE WHITE STATS */
-#stats { background:white !important; }
-
-/* STATS */
+/* STATS LAYOUT */
 .stat-line {
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:10px;
-  margin:8px 0;
+  margin: 10px 0;
 }
 
-.label { width:80px; text-align:right; }
-.value { width:25px; font-weight:bold; }
-
-/* BUTTONS */
-button { width:35px; height:35px; }
-
-/* PITCH */
-.pitch {
-  height:450px;
-  position:relative;
-  margin:10px;
+.label {
+  display: inline-block;
+  width: 90px;
+  text-align: left;
 }
 
-#pitchHome { background:green; }
-#pitchAway { background:blue; }
+button {
+  width: 40px;
+  height: 40px;
+  margin: 5px;
+}
 
-.player {
-  width:35px;
-  height:35px;
-  border-radius:50%;
-  background:#ffffff55;
-  color:white;
-  line-height:35px;
-  position:absolute;
+.value {
+  display: inline-block;
+  width: 30px;
+}
+
+/* TEAM COLORS */
+.team-b {
+  background: #e6f0ff;
 }
 </style>
 </head>
@@ -59,169 +69,140 @@ button { width:35px; height:35px; }
 
 <!-- TABS -->
 <div class="tabs">
-  <div class="tab active" onclick="showTab('colmcille', this)">Colmcille</div>
-  <div class="tab" onclick="showTab('teamB', this)">Team B</div>
-  <div class="tab" onclick="showTab('stats', this)">Stats</div>
+  <div class="tab active" onclick="showTab('colmcille')">Colmcille</div>
+  <div class="tab" onclick="showTab('teamB')">Team B</div>
+  <div class="tab" onclick="showTab('stats')">Stats</div>
 </div>
 
 <!-- COLMCILLE -->
 <div id="colmcille" class="section active">
-<h2>Colmcille</h2>
-<div id="pitchHome" class="pitch"></div>
+  <h1>Colmcille</h1>
+  <p>Team layout here</p>
 </div>
 
 <!-- TEAM B -->
-<div id="teamB" class="section">
-<h2>Team B</h2>
-<div id="pitchAway" class="pitch"></div>
+<div id="teamB" class="section team-b">
+  <h1>Team B</h1>
+  <p>Team layout here</p>
 </div>
 
 <!-- STATS -->
 <div id="stats" class="section">
 
-<h2>Match Stats</h2>
-<h3>Colmcille vs Team B</h3>
-<h1 id="scoreboard">0-00 | 0-00</h1>
+  <h2>Match Stats</h2>
+  <h3>Colmcille vs Team B</h3>
+  <h1 id="scoreboard">0-00 | 0-00</h1>
 
-<hr>
+  <hr>
 
-<h3>Colmcille</h3>
+  <!-- COLMCILLE -->
+  <h3>Colmcille</h3>
 
-<div class="stat-line">
-  <span class="label">Goals</span>
-  <button onclick="updateScore('home','goals',-1)">-</button>
-  <span id="home_goals" class="value">0</span>
-  <button onclick="updateScore('home','goals',1)">+</button>
-</div>
+  <div class="stat-line">
+    <span class="label">Goals</span>
+    <button onclick="updateScore('home','goals',-1)">-</button>
+    <span id="home_goals" class="value">0</span>
+    <button onclick="updateScore('home','goals',1)">+</button>
+  </div>
 
-<div class="stat-line">
-  <span class="label">Points</span>
-  <button onclick="updateScore('home','points',-1)">-</button>
-  <span id="home_points" class="value">0</span>
-  <button onclick="updateScore('home','points',1)">+</button>
-</div>
+  <div class="stat-line">
+    <span class="label">Points</span>
+    <button onclick="updateScore('home','points',-1)">-</button>
+    <span id="home_points" class="value">0</span>
+    <button onclick="updateScore('home','points',1)">+</button>
+  </div>
 
-<div class="stat-line">
-  <span class="label">Wides</span>
-  <button onclick="updateStat('home_wides',-1)">-</button>
-  <span id="home_wides" class="value">0</span>
-  <button onclick="updateStat('home_wides',1)">+</button>
-</div>
+  <div class="stat-line">
+    <span class="label">Wides</span>
+    <button onclick="updateStat('home_wides',-1)">-</button>
+    <span id="home_wides" class="value">0</span>
+    <button onclick="updateStat('home_wides',1)">+</button>
+  </div>
 
-<div class="stat-line">
-  <span class="label">Fouls</span>
-  <button onclick="updateStat('home_fouls',-1)">-</button>
-  <span id="home_fouls" class="value">0</span>
-  <button onclick="updateStat('home_fouls',1)">+</button>
-</div>
+  <div class="stat-line">
+    <span class="label">Fouls</span>
+    <button onclick="updateStat('home_fouls',-1)">-</button>
+    <span id="home_fouls" class="value">0</span>
+    <button onclick="updateStat('home_fouls',1)">+</button>
+  </div>
 
-<div class="stat-line">
-  <span class="label">Passes</span>
-  <button onclick="updateStat('home_passes',-1)">-</button>
-  <span id="home_passes" class="value">0</span>
-  <button onclick="updateStat('home_passes',1)">+</button>
-</div>
+  <div class="stat-line">
+    <span class="label">Passes</span>
+    <button onclick="updateStat('home_passes',-1)">-</button>
+    <span id="home_passes" class="value">0</span>
+    <button onclick="updateStat('home_passes',1)">+</button>
+  </div>
 
-<div class="stat-line">
-  <span class="label">Turnovers</span>
-  <button onclick="updateStat('home_turnovers',-1)">-</button>
-  <span id="home_turnovers" class="value">0</span>
-  <button onclick="updateStat('home_turnovers',1)">+</button>
-</div>
+  <div class="stat-line">
+    <span class="label">Turnovers</span>
+    <button onclick="updateStat('home_turnovers',-1)">-</button>
+    <span id="home_turnovers" class="value">0</span>
+    <button onclick="updateStat('home_turnovers',1)">+</button>
+  </div>
 
-<hr>
+  <hr>
 
-<h3>Team B (Score Only)</h3>
+  <!-- TEAM B -->
+  <h3>Team B (Score Only)</h3>
 
-<div class="stat-line">
-  <span class="label">Goals</span>
-  <button onclick="updateScore('away','goals',-1)">-</button>
-  <span id="away_goals" class="value">0</span>
-  <button onclick="updateScore('away','goals',1)">+</button>
-</div>
+  <div class="stat-line">
+    <span class="label">Goals</span>
+    <button onclick="updateScore('away','goals',-1)">-</button>
+    <span id="away_goals" class="value">0</span>
+    <button onclick="updateScore('away','goals',1)">+</button>
+  </div>
 
-<div class="stat-line">
-  <span class="label">Points</span>
-  <button onclick="updateScore('away','points',-1)">-</button>
-  <span id="away_points" class="value">0</span>
-  <button onclick="updateScore('away','points',1)">+</button>
-</div>
+  <div class="stat-line">
+    <span class="label">Points</span>
+    <button onclick="updateScore('away','points',-1)">-</button>
+    <span id="away_points" class="value">0</span>
+    <button onclick="updateScore('away','points',1)">+</button>
+  </div>
 
 </div>
 
 <script>
 
-/* FIXED TAB SWITCHING */
-function showTab(id, el){
- document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
- document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+/* TAB SWITCH */
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
 
- document.getElementById(id).classList.add('active');
- el.classList.add('active');
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
 }
 
-/* DATA */
-let home = { goals:0, points:0 };
-let away = { goals:0, points:0 };
+/* SCORE (FIXED ISOLATION) */
+function updateScore(team, type, change) {
 
-/* SCORE (FULLY ISOLATED) */
-function updateScore(team,type,change){
+  const el = document.getElementById(team + "_" + type);
+  let val = parseInt(el.innerText) || 0;
 
- if(team === "home"){
-   home[type] = Math.max(0, home[type] + change);
-   document.getElementById("home_"+type).innerText = home[type];
- }
+  val = Math.max(0, val + change);
+  el.innerText = val;
 
- if(team === "away"){
-   away[type] = Math.max(0, away[type] + change);
-   document.getElementById("away_"+type).innerText = away[type];
- }
+  const hg = parseInt(document.getElementById("home_goals").innerText) || 0;
+  const hp = parseInt(document.getElementById("home_points").innerText) || 0;
+  const ag = parseInt(document.getElementById("away_goals").innerText) || 0;
+  const ap = parseInt(document.getElementById("away_points").innerText) || 0;
 
- let h = home.goals + "-" + String(home.points).padStart(2,"0");
- let a = away.goals + "-" + String(away.points).padStart(2,"0");
-
- document.getElementById("scoreboard").innerText = h + " | " + a;
+  document.getElementById("scoreboard").innerText =
+    hg + "-" + String(hp).padStart(2,"0") +
+    " | " +
+    ag + "-" + String(ap).padStart(2,"0");
 }
 
-/* STATS */
-function updateStat(id, change){
- let el = document.getElementById(id);
- let val = parseInt(el.innerText) || 0;
+/* OTHER STATS */
+function updateStat(id, change) {
+  let el = document.getElementById(id);
+  let val = parseInt(el.innerText) || 0;
 
- val = Math.max(0, val + change);
- el.innerText = val;
+  val = Math.max(0, val + change);
+  el.innerText = val;
 }
-
-/* FORMATION */
-const formation = [
- [50,90],
- [20,75],[50,75],[80,75],
- [20,60],[50,60],[80,60],
- [35,45],[65,45],
- [20,30],[50,30],[80,30],
- [20,15],[50,15],[80,15]
-];
-
-function drawTeam(containerId){
- let pitch = document.getElementById(containerId);
-
- formation.forEach((pos,i)=>{
-   let p = document.createElement("div");
-   p.className="player";
-   p.innerText = i+1;
-
-   p.style.left = pos[0]+"%";
-   p.style.top = pos[1]+"%";
-   p.style.transform = "translate(-50%,-50%)";
-
-   pitch.appendChild(p);
- });
-}
-
-drawTeam("pitchHome");
-drawTeam("pitchAway");
 
 </script>
 
 </body>
 </html>
+```
