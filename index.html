@@ -1,4 +1,4 @@
-```html id="fixshare123"
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,43 +14,41 @@ body {
   background: white;
 }
 
-/* TOP BAR FIX */
-.topbar {
-  display: flex;
-  background: #333;
-  align-items: center;
-}
-
+/* Tabs */
 .tabs {
   display: flex;
-  flex: 1;
+  background: #333;
 }
-
 .tab {
   flex: 1;
   padding: 14px;
   color: white;
   cursor: pointer;
 }
-
 .tab.active {
   background: #555;
 }
 
-/* Share button in header */
-.share-btn {
-  background: #444;
-  color: white;
-  border: none;
-  padding: 10px 12px;
-  margin-right: 6px;
-  border-radius: 6px;
-  font-size: 12px;
+/* Sections */
+.section {
+  display: none;
+  padding: 10px;
+}
+.section.active {
+  display: block;
 }
 
-/* Sections */
-.section { display: none; padding: 10px; }
-.section.active { display: block; }
+/* Share button - FIXED */
+.share-btn {
+  display: block;
+  margin: 10px auto 20px auto;
+  background: #333;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 14px;
+}
 
 /* Pitch */
 .pitch {
@@ -60,7 +58,9 @@ body {
   background: green;
   border: 2px solid #333;
 }
-.pitch.blue { background: #1e90ff; }
+.pitch.blue {
+  background: #1e90ff;
+}
 
 /* Players */
 .player {
@@ -78,37 +78,41 @@ body {
 }
 
 /* Stats */
-.stat-line { margin: 10px 0; }
+.stat-line { margin: 12px 0; }
 button { width: 32px; height: 32px; }
 </style>
 </head>
 
 <body>
 
-<!-- ✅ HEADER WITH SHARE -->
-<div class="topbar">
-  <div class="tabs">
-    <div class="tab active" onclick="showTab('home')">Colmcille</div>
-    <div class="tab" onclick="showTab('away')">Team B</div>
-    <div class="tab" onclick="showTab('stats')">Stats</div>
-  </div>
-  <button class="share-btn" onclick="shareApp()">Share</button>
+<div class="tabs">
+  <div class="tab active" onclick="showTab('home')">Colmcille</div>
+  <div class="tab" onclick="showTab('away')">Team B</div>
+  <div class="tab" onclick="showTab('stats')">Stats</div>
 </div>
 
+<!-- COLMCILLE -->
 <div id="home" class="section active">
 <h2>Colmcille</h2>
+
+<button class="share-btn" onclick="shareApp()">Share</button>
+
 <div class="pitch" id="homePitch"></div>
 </div>
 
+<!-- TEAM B -->
 <div id="away" class="section">
 <h2>Team B</h2>
 <div class="pitch blue" id="awayPitch"></div>
 </div>
 
+<!-- STATS -->
 <div id="stats" class="section">
-
 <h2>Match Stats</h2>
 <h3>Colmcille vs Team B</h3>
+
+<button class="share-btn" onclick="shareApp()">Share</button>
+
 <h1 id="scoreboard">0-00 | 0-00</h1>
 
 <hr>
@@ -180,13 +184,11 @@ function showTab(id){
   event.target.classList.add('active');
 }
 
-/* Share */
 function shareApp(){
   navigator.clipboard.writeText(window.location.href);
   alert("Link copied!");
 }
 
-/* Stats */
 let stats={
   home:{goals:0,points:0,wides:0,fouls:0,passes:0,turnovers:0},
   away:{goals:0,points:0}
