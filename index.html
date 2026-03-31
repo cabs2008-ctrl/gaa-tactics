@@ -1,189 +1,121 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Match Stats</title>
-
-<style>
-body {
-  font-family: Arial;
-  margin: 0;
-  text-align: center;
-}
-
-.tabs {
-  display: flex;
-  background: #333;
-}
-
-.tab {
-  flex: 1;
-  padding: 15px;
-  color: white;
-  cursor: pointer;
-}
-
-.active {
-  background: #555;
-}
-
-.section {
-  display: none;
-  padding: 20px;
-}
-
-.section.active {
-  display: block;
-}
-
-button {
-  width: 40px;
-  height: 40px;
-  margin: 5px;
-}
-
-.value {
-  display: inline-block;
-  width: 30px;
-}
-
-hr {
-  margin: 20px 0;
-}
-</style>
-</head>
-
-<body>
-
-<!-- TABS -->
-<div class="tabs">
-  <div class="tab active" onclick="showTab('stats')">Stats</div>
-  <div class="tab" onclick="showTab('pitch')">Pitch</div>
-</div>
-
-<!-- STATS TAB -->
-<div id="stats" class="section active">
-
-<h1>Match Stats</h1>
-<h3>Colmcille vs Team B</h3>
-
-<h1 id="scoreboard">0-00 | 0-00</h1>
-
-<hr>
-
-<!-- COLMCILLE -->
-<h2>Colmcille (Full Stats)</h2>
-
-<div>
-Goals
-<button onclick="updateScore('home','goals',-1)">-</button>
-<span id="home_goals" class="value">0</span>
-<button onclick="updateScore('home','goals',1)">+</button>
-
-Points
-<button onclick="updateScore('home','points',-1)">-</button>
-<span id="home_points" class="value">0</span>
-<button onclick="updateScore('home','points',1)">+</button>
-</div>
-
-<div>
-Wides
-<button onclick="updateStat('home_wides',-1)">-</button>
-<span id="home_wides" class="value">0</span>
-<button onclick="updateStat('home_wides',1)">+</button>
-
-Fouls
-<button onclick="updateStat('home_fouls',-1)">-</button>
-<span id="home_fouls" class="value">0</span>
-<button onclick="updateStat('home_fouls',1)">+</button>
-</div>
-
-<div>
-Passes
-<button onclick="updateStat('home_passes',-1)">-</button>
-<span id="home_passes" class="value">0</span>
-<button onclick="updateStat('home_passes',1)">+</button>
-
-Turnovers
-<button onclick="updateStat('home_turnovers',-1)">-</button>
-<span id="home_turnovers" class="value">0</span>
-<button onclick="updateStat('home_turnovers',1)">+</button>
-</div>
-
-<hr>
-
-<!-- TEAM B -->
-<h2>Team B (Score Only)</h2>
-
-<div>
-Goals
-<button onclick="updateScore('away','goals',-1)">-</button>
-<span id="away_goals" class="value">0</span>
-<button onclick="updateScore('away','goals',1)">+</button>
-
-Points
-<button onclick="updateScore('away','points',-1)">-</button>
-<span id="away_points" class="value">0</span>
-<button onclick="updateScore('away','points',1)">+</button>
-</div>
-
-</div>
-
-<!-- PITCH TAB -->
-<div id="pitch" class="section">
-  <h2>Pitch View</h2>
-  <p>(Your player layout goes here)</p>
-</div>
-
 <script>
 
-// ✅ TAB SWITCHING (restored)
-function showTab(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+/* =========================
+   TIMER
+========================= */
+let timerInterval = null;
+let seconds = 0;
 
-  document.getElementById(id).classList.add('active');
-  event.target.classList.add('active');
+function startTimer(){
+  if(timerInterval) return;
+  timerInterval = setInterval(()=>{
+    seconds++;
+    let m = Math.floor(seconds/60);
+    let s = seconds % 60;
+    document.getElementById("timer").innerText =
+      (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+  },1000);
 }
 
-// ✅ SEPARATE TEAM DATA (fixes your bug)
-let home = { goals: 0, points: 0 };
-let away = { goals: 0, points: 0 };
-
-// ✅ SCORE UPDATE (NO CROSSOVER)
-function updateScore(team, type, change) {
-
-  let t = team === 'home' ? home : away;
-
-  t[type] += change;
-  if (t[type] < 0) t[type] = 0;
-
-  document.getElementById(team + "_" + type).innerText = t[type];
-
-  renderScore();
+function pauseTimer(){
+  clearInterval(timerInterval);
+  timerInterval = null;
 }
 
-// ✅ STATS (passes, turnovers etc)
-function updateStat(id, change) {
+function resetTimer(){
+  seconds = 0;
+  document.getElementById("timer").innerText = "00:00";
+}
+
+/* =========================
+   STATS (SEPARATE TEAMS)
+========================= */
+
+// HOME TEAM
+let GA=0, PA=0, WA=0, FA=0, PSA=0, TOA=0;
+
+// AWAY TEAM
+let GB=0, PB=0;
+
+/* =========================
+   UPDATE DISPLAY
+========================= */
+function updateScore(){
+
+  // SCORE LINE
+  document.getElementById("score").innerText =
+    GA + "-" + (PA<10?"0":"") + PA +
+    " | " +
+    GB + "-" + (PB<10?"0":"") + PB;
+
+  // HOME TEAM
+  setText("gA", GA);
+  setText("pA", PA);
+  setText("wA", WA);
+  setText("fA", FA);
+  setText("paA", PSA);
+  setText("toA", TOA);
+
+  // AWAY TEAM
+  setText("gB", GB);
+  setText("pB", PB);
+}
+
+/* SAFE SET TEXT */
+function setText(id, value){
   let el = document.getElementById(id);
-  let val = parseInt(el.innerText) || 0;
-
-  val += change;
-  if (val < 0) val = 0;
-
-  el.innerText = val;
+  if(el) el.innerText = value;
 }
 
-// ✅ SCOREBOARD DISPLAY
-function renderScore() {
-  const homeScore = home.goals + "-" + String(home.points).padStart(2,'0');
-  const awayScore = away.goals + "-" + String(away.points).padStart(2,'0');
+/* =========================
+   HOME TEAM BUTTONS
+========================= */
+function addGA(v){ GA = Math.max(0, GA + v); updateScore(); }
+function addPA(v){ PA = Math.max(0, PA + v); updateScore(); }
+function addWA(v){ WA = Math.max(0, WA + v); updateScore(); }
+function addFA(v){ FA = Math.max(0, FA + v); updateScore(); }
+function addPSA(v){ PSA = Math.max(0, PSA + v); updateScore(); }
+function addTOA(v){ TOA = Math.max(0, TOA + v); updateScore(); }
 
-  document.getElementById("scoreboard").innerText =
-    homeScore + " | " + awayScore;
+/* =========================
+   TEAM B (ISOLATED FIX)
+========================= */
+function addGB(v){
+  GB = Math.max(0, GB + v);
+  updateScore();
 }
+
+function addPB(v){
+  PB = Math.max(0, PB + v);
+  updateScore();
+}
+
+/* =========================
+   RESET MATCH
+========================= */
+function confirmReset(){
+  if(confirm("Are you sure you want to reset the match?")){
+    GA=PA=WA=FA=PSA=TOA=0;
+    GB=PB=0;
+    updateScore();
+  }
+}
+
+/* =========================
+   SHARE
+========================= */
+function shareStats(){
+  html2canvas(document.body).then(canvas=>{
+    canvas.toBlob(blob=>{
+      let file = new File([blob],"stats.png",{type:"image/png"});
+      if(navigator.share){
+        navigator.share({files:[file]});
+      }
+    });
+  });
+}
+
+/* INIT */
+updateScore();
 
 </script>
-
-</body>
-</html>
