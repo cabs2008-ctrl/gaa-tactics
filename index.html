@@ -8,6 +8,7 @@ body {
   font-family: Arial;
   margin:0;
   text-align:center;
+  background:white !important;
 }
 
 /* TABS */
@@ -29,12 +30,13 @@ body {
 .section {
   display:none;
   padding:20px;
+  background:white !important;
 }
 .section.active {
   display:block;
 }
 
-/* STATS */
+/* STATS LAYOUT */
 .stat-line {
   display:flex;
   justify-content:center;
@@ -192,25 +194,27 @@ function showTab(id){
 }
 
 /* DATA */
-let home = { goals:0, points:0 };
-let away = { goals:0, points:0 };
+let home = { goals: 0, points: 0 };
+let away = { goals: 0, points: 0 };
 
-/* ✅ FIXED SCORE FUNCTION */
+/* FIXED SCORE SYSTEM (FULLY ISOLATED) */
 function updateScore(team, type, change) {
 
   if (team === "home") {
-    home[type] += change;
-    if (home[type] < 0) home[type] = 0;
+    home[type] = Math.max(0, home[type] + change);
     document.getElementById("home_" + type).innerText = home[type];
   }
 
   if (team === "away") {
-    away[type] += change;
-    if (away[type] < 0) away[type] = 0;
+    away[type] = Math.max(0, away[type] + change);
     document.getElementById("away_" + type).innerText = away[type];
   }
 
-  renderScore();
+  const homeScore = home.goals + "-" + String(home.points).padStart(2, "0");
+  const awayScore = away.goals + "-" + String(away.points).padStart(2, "0");
+
+  document.getElementById("scoreboard").innerText =
+    homeScore + " | " + awayScore;
 }
 
 /* STATS */
@@ -218,18 +222,8 @@ function updateStat(id, change){
  let el = document.getElementById(id);
  let val = parseInt(el.innerText) || 0;
 
- val += change;
- if(val < 0) val = 0;
-
+ val = Math.max(0, val + change);
  el.innerText = val;
-}
-
-/* SCOREBOARD */
-function renderScore(){
- let h = home.goals + "-" + String(home.points).padStart(2,"0");
- let a = away.goals + "-" + String(away.points).padStart(2,"0");
-
- document.getElementById("scoreboard").innerText = h + " | " + a;
 }
 
 /* FORMATION */
@@ -239,29 +233,4 @@ const formation = [
   [20,60],[50,60],[80,60],
   [35,45],[65,45],
   [20,30],[50,30],[80,30],
-  [20,15],[50,15],[80,15]
-];
-
-function drawTeam(containerId){
- let pitch = document.getElementById(containerId);
-
- formation.forEach((pos,i)=>{
-   let p = document.createElement("div");
-   p.className="player";
-   p.innerText = i+1;
-
-   p.style.left = pos[0]+"%";
-   p.style.top = pos[1]+"%";
-   p.style.transform = "translate(-50%,-50%)";
-
-   pitch.appendChild(p);
- });
-}
-
-drawTeam("pitchHome");
-drawTeam("pitchAway");
-
-</script>
-
-</body>
-</html>
+  [20,15],[50,15
