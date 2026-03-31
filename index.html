@@ -37,6 +37,32 @@ body {
   display: block;
 }
 
+/* Pitch */
+.pitch {
+  position: relative;
+  width: 90%;
+  height: 500px;
+  margin: auto;
+  background: green;
+  border: 2px solid #333;
+}
+
+.pitch.blue {
+  background: #1e90ff;
+}
+
+/* Players */
+.player {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: rgba(255,255,255,0.3);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  line-height: 40px;
+  font-weight: bold;
+}
+
 /* Stats */
 .stat-line {
   margin: 10px 0;
@@ -48,10 +74,6 @@ button {
   margin: 5px;
 }
 
-.value {
-  display: inline-block;
-  width: 30px;
-}
 </style>
 </head>
 
@@ -67,13 +89,61 @@ button {
 <!-- HOME -->
 <div id="home" class="section active">
   <h1>Colmcille</h1>
-  <p>Team layout coming next</p>
+
+  <div class="pitch">
+
+    <div class="player" style="top:90%; left:50%;">1</div>
+
+    <div class="player" style="top:75%; left:30%;">2</div>
+    <div class="player" style="top:75%; left:50%;">3</div>
+    <div class="player" style="top:75%; left:70%;">4</div>
+
+    <div class="player" style="top:60%; left:30%;">5</div>
+    <div class="player" style="top:60%; left:50%;">6</div>
+    <div class="player" style="top:60%; left:70%;">7</div>
+
+    <div class="player" style="top:50%; left:40%;">8</div>
+    <div class="player" style="top:50%; left:60%;">9</div>
+
+    <div class="player" style="top:35%; left:30%;">10</div>
+    <div class="player" style="top:35%; left:50%;">11</div>
+    <div class="player" style="top:35%; left:70%;">12</div>
+
+    <div class="player" style="top:20%; left:30%;">13</div>
+    <div class="player" style="top:20%; left:50%;">14</div>
+    <div class="player" style="top:20%; left:70%;">15</div>
+
+  </div>
 </div>
 
 <!-- AWAY -->
 <div id="away" class="section">
   <h1>Team B</h1>
-  <p>Team layout coming next</p>
+
+  <div class="pitch blue">
+
+    <div class="player" style="top:90%; left:50%;">1</div>
+
+    <div class="player" style="top:75%; left:30%;">2</div>
+    <div class="player" style="top:75%; left:50%;">3</div>
+    <div class="player" style="top:75%; left:70%;">4</div>
+
+    <div class="player" style="top:60%; left:30%;">5</div>
+    <div class="player" style="top:60%; left:50%;">6</div>
+    <div class="player" style="top:60%; left:70%;">7</div>
+
+    <div class="player" style="top:50%; left:40%;">8</div>
+    <div class="player" style="top:50%; left:60%;">9</div>
+
+    <div class="player" style="top:35%; left:30%;">10</div>
+    <div class="player" style="top:35%; left:50%;">11</div>
+    <div class="player" style="top:35%; left:70%;">12</div>
+
+    <div class="player" style="top:20%; left:30%;">13</div>
+    <div class="player" style="top:20%; left:50%;">14</div>
+    <div class="player" style="top:20%; left:70%;">15</div>
+
+  </div>
 </div>
 
 <!-- STATS -->
@@ -89,16 +159,16 @@ button {
 
   <div class="stat-line">
     Goals
-    <button onclick="changeScore('home','goals',-1)">-</button>
+    <button onclick="updateHome('goals',-1)">-</button>
     <span id="home_goals">0</span>
-    <button onclick="changeScore('home','goals',1)">+</button>
+    <button onclick="updateHome('goals',1)">+</button>
   </div>
 
   <div class="stat-line">
     Points
-    <button onclick="changeScore('home','points',-1)">-</button>
+    <button onclick="updateHome('points',-1)">-</button>
     <span id="home_points">0</span>
-    <button onclick="changeScore('home','points',1)">+</button>
+    <button onclick="updateHome('points',1)">+</button>
   </div>
 
   <hr>
@@ -107,23 +177,22 @@ button {
 
   <div class="stat-line">
     Goals
-    <button onclick="changeScore('away','goals',-1)">-</button>
+    <button onclick="updateAway('goals',-1)">-</button>
     <span id="away_goals">0</span>
-    <button onclick="changeScore('away','goals',1)">+</button>
+    <button onclick="updateAway('goals',1)">+</button>
   </div>
 
   <div class="stat-line">
     Points
-    <button onclick="changeScore('away','points',-1)">-</button>
+    <button onclick="updateAway('points',-1)">-</button>
     <span id="away_points">0</span>
-    <button onclick="changeScore('away','points',1)">+</button>
+    <button onclick="updateAway('points',1)">+</button>
   </div>
 
 </div>
 
 <script>
 
-/* Tabs */
 function showTab(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -132,33 +201,41 @@ function showTab(id) {
   event.target.classList.add('active');
 }
 
-/* SAFE SCORE SYSTEM */
-let homeScore = { goals: 0, points: 0 };
-let awayScore = { goals: 0, points: 0 };
+/* Separate scores */
+let homeGoals = 0;
+let homePoints = 0;
+let awayGoals = 0;
+let awayPoints = 0;
 
-function changeScore(team, type, change) {
-
-  if (team === "home") {
-    homeScore[type] = Math.max(0, homeScore[type] + change);
-  } else {
-    awayScore[type] = Math.max(0, awayScore[type] + change);
+function updateHome(type, change) {
+  if (type === "goals") {
+    homeGoals = Math.max(0, homeGoals + change);
+    document.getElementById("home_goals").innerText = homeGoals;
   }
-
-  render();
+  if (type === "points") {
+    homePoints = Math.max(0, homePoints + change);
+    document.getElementById("home_points").innerText = homePoints;
+  }
+  updateScoreboard();
 }
 
-function render() {
+function updateAway(type, change) {
+  if (type === "goals") {
+    awayGoals = Math.max(0, awayGoals + change);
+    document.getElementById("away_goals").innerText = awayGoals;
+  }
+  if (type === "points") {
+    awayPoints = Math.max(0, awayPoints + change);
+    document.getElementById("away_points").innerText = awayPoints;
+  }
+  updateScoreboard();
+}
 
-  document.getElementById("home_goals").innerText = homeScore.goals;
-  document.getElementById("home_points").innerText = homeScore.points;
-
-  document.getElementById("away_goals").innerText = awayScore.goals;
-  document.getElementById("away_points").innerText = awayScore.points;
-
+function updateScoreboard() {
   document.getElementById("scoreboard").innerText =
-    homeScore.goals + "-" + String(homeScore.points).padStart(2,"0") +
+    homeGoals + "-" + String(homePoints).padStart(2,"0") +
     " | " +
-    awayScore.goals + "-" + String(awayScore.points).padStart(2,"0");
+    awayGoals + "-" + String(awayPoints).padStart(2,"0");
 }
 
 </script>
