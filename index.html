@@ -7,26 +7,29 @@
 
 <style>
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   margin: 0;
   text-align: center;
   background: white;
 }
 
+/* Tabs */
 .tabs {
   display: flex;
   background: #333;
 }
 .tab {
   flex: 1;
-  padding: 12px;
+  padding: 14px;
   color: white;
+  font-size: 15px;
   cursor: pointer;
 }
 .tab.active {
   background: #555;
 }
 
+/* Sections */
 .section {
   display: none;
   padding: 10px;
@@ -35,54 +38,60 @@ body {
   display: block;
 }
 
+/* Pitch (FIXED SIZE PROPERLY) */
 .pitch {
   position: relative;
   width: 95%;
-  max-width: 420px;
-  height: 420px;
+  max-width: 500px;
+  height: 500px;
   margin: 10px auto;
-  background: green;
-  border: 2px solid #333;
+  border: 3px solid #333;
+  border-radius: 6px;
 }
 
-.pitch.blue {
-  background: #1e90ff;
-}
+.green { background: #2e7d32; }
+.blue { background: #2f6fd6; }
 
+/* Players */
 .player {
   position: absolute;
   transform: translate(-50%, -50%);
-  background: rgba(255,255,255,0.4);
-  width: 45px;
-  height: 45px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  line-height: 45px;
+  background: rgba(255,255,255,0.45);
+  line-height: 42px;
   font-size: 14px;
+  font-weight: bold;
 }
 
-.stat-line {
-  margin: 10px 0;
+/* Stats layout */
+.stat-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
 }
 
 button {
-  margin: 3px;
   padding: 6px 10px;
+  font-size: 14px;
 }
 
-.history-item {
-  border-bottom: 1px solid #ccc;
-  padding: 10px;
-}
+h1 { font-size: 28px; }
+h2 { font-size: 20px; }
+
 </style>
 </head>
 
 <body>
 
+<!-- TABS -->
 <div class="tabs">
   <div class="tab active" onclick="showTab('home', this)">Colmcille</div>
   <div class="tab" onclick="showTab('away', this)">Team B</div>
   <div class="tab" onclick="showTab('stats', this)">Stats</div>
-  <div class="tab" onclick="showTab('history', this)">History</div>
 </div>
 
 <!-- HOME -->
@@ -90,22 +99,29 @@ button {
 <h2>Colmcille</h2>
 <button onclick="sharePage()">Share</button>
 
-<div class="pitch">
-<div class="player" style="top:90%; left:50%">1</div>
-<div class="player" style="top:75%; left:25%">2</div>
-<div class="player" style="top:75%; left:50%">3</div>
-<div class="player" style="top:75%; left:75%">4</div>
-<div class="player" style="top:60%; left:25%">5</div>
-<div class="player" style="top:60%; left:50%">6</div>
-<div class="player" style="top:60%; left:75%">7</div>
-<div class="player" style="top:45%; left:40%">8</div>
-<div class="player" style="top:45%; left:60%">9</div>
-<div class="player" style="top:30%; left:25%">10</div>
-<div class="player" style="top:30%; left:50%">11</div>
-<div class="player" style="top:30%; left:75%">12</div>
-<div class="player" style="top:15%; left:25%">13</div>
-<div class="player" style="top:15%; left:50%">14</div>
-<div class="player" style="top:15%; left:75%">15</div>
+<div class="pitch green">
+
+<div class="player" style="top:92%;left:50%">1</div>
+
+<div class="player" style="top:78%;left:25%">2</div>
+<div class="player" style="top:78%;left:50%">3</div>
+<div class="player" style="top:78%;left:75%">4</div>
+
+<div class="player" style="top:62%;left:25%">5</div>
+<div class="player" style="top:62%;left:50%">6</div>
+<div class="player" style="top:62%;left:75%">7</div>
+
+<div class="player" style="top:46%;left:40%">8</div>
+<div class="player" style="top:46%;left:60%">9</div>
+
+<div class="player" style="top:30%;left:25%">10</div>
+<div class="player" style="top:30%;left:50%">11</div>
+<div class="player" style="top:30%;left:75%">12</div>
+
+<div class="player" style="top:14%;left:25%">13</div>
+<div class="player" style="top:14%;left:50%">14</div>
+<div class="player" style="top:14%;left:75%">15</div>
+
 </div>
 </div>
 
@@ -114,21 +130,28 @@ button {
 <h2>Team B</h2>
 
 <div class="pitch blue">
-<div class="player" style="top:90%; left:50%">1</div>
-<div class="player" style="top:75%; left:25%">2</div>
-<div class="player" style="top:75%; left:50%">3</div>
-<div class="player" style="top:75%; left:75%">4</div>
-<div class="player" style="top:60%; left:25%">5</div>
-<div class="player" style="top:60%; left:50%">6</div>
-<div class="player" style="top:60%; left:75%">7</div>
-<div class="player" style="top:45%; left:40%">8</div>
-<div class="player" style="top:45%; left:60%">9</div>
-<div class="player" style="top:30%; left:25%">10</div>
-<div class="player" style="top:30%; left:50%">11</div>
-<div class="player" style="top:30%; left:75%">12</div>
-<div class="player" style="top:15%; left:25%">13</div>
-<div class="player" style="top:15%; left:50%">14</div>
-<div class="player" style="top:15%; left:75%">15</div>
+
+<div class="player" style="top:92%;left:50%">1</div>
+
+<div class="player" style="top:78%;left:25%">2</div>
+<div class="player" style="top:78%;left:50%">3</div>
+<div class="player" style="top:78%;left:75%">4</div>
+
+<div class="player" style="top:62%;left:25%">5</div>
+<div class="player" style="top:62%;left:50%">6</div>
+<div class="player" style="top:62%;left:75%">7</div>
+
+<div class="player" style="top:46%;left:40%">8</div>
+<div class="player" style="top:46%;left:60%">9</div>
+
+<div class="player" style="top:30%;left:25%">10</div>
+<div class="player" style="top:30%;left:50%">11</div>
+<div class="player" style="top:30%;left:75%">12</div>
+
+<div class="player" style="top:14%;left:25%">13</div>
+<div class="player" style="top:14%;left:50%">14</div>
+<div class="player" style="top:14%;left:75%">15</div>
+
 </div>
 </div>
 
@@ -141,37 +164,37 @@ button {
 
 <h3>Colmcille</h3>
 
-<div class="stat-line">Goals 
+<div class="stat-row">Goals 
 <button onclick="updateHome('goals',-1)">-</button>
 <span id="home_goals">0</span>
 <button onclick="updateHome('goals',1)">+</button>
 </div>
 
-<div class="stat-line">Points 
+<div class="stat-row">Points 
 <button onclick="updateHome('points',-1)">-</button>
 <span id="home_points">0</span>
 <button onclick="updateHome('points',1)">+</button>
 </div>
 
-<div class="stat-line">Wides 
+<div class="stat-row">Wides 
 <button onclick="updateHome('wides',-1)">-</button>
 <span id="home_wides">0</span>
 <button onclick="updateHome('wides',1)">+</button>
 </div>
 
-<div class="stat-line">Fouls 
+<div class="stat-row">Fouls 
 <button onclick="updateHome('fouls',-1)">-</button>
 <span id="home_fouls">0</span>
 <button onclick="updateHome('fouls',1)">+</button>
 </div>
 
-<div class="stat-line">Passes 
+<div class="stat-row">Passes 
 <button onclick="updateHome('passes',-1)">-</button>
 <span id="home_passes">0</span>
 <button onclick="updateHome('passes',1)">+</button>
 </div>
 
-<div class="stat-line">Turnovers 
+<div class="stat-row">Turnovers 
 <button onclick="updateHome('turnovers',-1)">-</button>
 <span id="home_turnovers">0</span>
 <button onclick="updateHome('turnovers',1)">+</button>
@@ -181,35 +204,25 @@ button {
 
 <h3>Team B</h3>
 
-<div class="stat-line">Goals 
+<div class="stat-row">Goals 
 <button onclick="updateAway('goals',-1)">-</button>
 <span id="away_goals">0</span>
 <button onclick="updateAway('goals',1)">+</button>
 </div>
 
-<div class="stat-line">Points 
+<div class="stat-row">Points 
 <button onclick="updateAway('points',-1)">-</button>
 <span id="away_points">0</span>
 <button onclick="updateAway('points',1)">+</button>
 </div>
 
-<br>
-<button onclick="saveMatch()">Save Match</button>
-
-</div>
-
-<!-- HISTORY -->
-<div id="history" class="section">
-<h2>Match History</h2>
-<button onclick="shareHistory()">Share History</button>
-<div id="historyList"></div>
 </div>
 
 <script>
 
-function showTab(id, el){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+function showTab(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
 }
@@ -219,64 +232,29 @@ let stats = {
   away:{goals:0,points:0}
 };
 
-function updateHome(type,val){
-  stats.home[type]=Math.max(0,stats.home[type]+val);
-  document.getElementById("home_"+type).innerText=stats.home[type];
+function updateHome(t,v){
+  stats.home[t]=Math.max(0,stats.home[t]+v);
+  document.getElementById("home_"+t).innerText=stats.home[t];
   updateScore();
 }
 
-function updateAway(type,val){
-  stats.away[type]=Math.max(0,stats.away[type]+val);
-  document.getElementById("away_"+type).innerText=stats.away[type];
+function updateAway(t,v){
+  stats.away[t]=Math.max(0,stats.away[t]+v);
+  document.getElementById("away_"+t).innerText=stats.away[t];
   updateScore();
 }
 
 function updateScore(){
-  scoreboard.innerText =
+  document.getElementById("scoreboard").innerText =
     stats.home.goals+"-"+String(stats.home.points).padStart(2,"0")+
     " | "+
     stats.away.goals+"-"+String(stats.away.points).padStart(2,"0");
-}
-
-function saveMatch(){
-  let history = JSON.parse(localStorage.getItem("gaaHistory") || "[]");
-  history.push({score: scoreboard.innerText, home:{...stats.home}});
-  localStorage.setItem("gaaHistory", JSON.stringify(history));
-  loadHistory();
-  alert("Match Saved");
-}
-
-function deleteMatch(i){
-  let history = JSON.parse(localStorage.getItem("gaaHistory") || "[]");
-  history.splice(i,1);
-  localStorage.setItem("gaaHistory", JSON.stringify(history));
-  loadHistory();
-}
-
-function loadHistory(){
-  let history = JSON.parse(localStorage.getItem("gaaHistory") || "[]");
-  historyList.innerHTML = history.map((m,i)=>`
-    <div class="history-item">
-      <strong>${m.score}</strong><br>
-      Wides: ${m.home.wides} | Fouls: ${m.home.fouls}<br>
-      Passes: ${m.home.passes} | Turnovers: ${m.home.turnovers}
-      <br><br>
-      <button onclick="deleteMatch(${i})">Delete</button>
-    </div>
-  `).join("");
 }
 
 function sharePage(){
   navigator.clipboard.writeText(document.body.innerText);
   alert("Copied");
 }
-
-function shareHistory(){
-  navigator.clipboard.writeText(historyList.innerText);
-  alert("History copied");
-}
-
-loadHistory();
 
 </script>
 
