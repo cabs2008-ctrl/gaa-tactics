@@ -1,1 +1,54 @@
+```html id="deletehistoryfix"
+<!-- SAME CODE AS BEFORE UNTIL LOAD HISTORY FUNCTION -->
+
+<script>
+
+/* KEEP ALL YOUR EXISTING CODE ABOVE */
+
+/* SAVE MATCH (UNCHANGED) */
+function saveMatch(){
+  let history = JSON.parse(localStorage.getItem("gaaHistory") || "[]");
+
+  history.push({
+    score: scoreboard.innerText,
+    home: {...stats.home}
+  });
+
+  localStorage.setItem("gaaHistory", JSON.stringify(history));
+  loadHistory();
+  alert("Match Saved");
+}
+
+/* ✅ DELETE MATCH */
+function deleteMatch(index){
+  let history = JSON.parse(localStorage.getItem("gaaHistory") || "[]");
+  history.splice(index,1);
+  localStorage.setItem("gaaHistory", JSON.stringify(history));
+  loadHistory();
+}
+
+/* LOAD HISTORY (UPDATED) */
+function loadHistory(){
+  let history = JSON.parse(localStorage.getItem("gaaHistory") || "[]");
+
+  historyList.innerHTML = history.map((m,i) =>
+    `<div class="history-item">
+      <strong>${m.score}</strong><br>
+      Wides: ${m.home.wides} | Fouls: ${m.home.fouls}<br>
+      Passes: ${m.home.passes} | Turnovers: ${m.home.turnovers}
+      <br><br>
+      <button onclick="deleteMatch(${i})">Delete</button>
+    </div>`
+  ).join("");
+}
+
+function shareHistory(){
+  navigator.clipboard.writeText(historyList.innerText);
+  alert("History copied!");
+}
+
+/* KEEP REST OF CODE SAME */
+
+</script>
+```
 
