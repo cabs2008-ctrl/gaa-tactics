@@ -7,80 +7,68 @@
 
 <style>
 body {
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   margin: 0;
   text-align: center;
   background: white;
 }
 
 /* Tabs */
-.tabs {
-  display: flex;
-  background: #333;
-}
+.tabs { display: flex; background: #333; }
 .tab {
   flex: 1;
-  padding: 14px;
+  padding: 12px;
   color: white;
-  font-size: 15px;
   cursor: pointer;
 }
-.tab.active {
-  background: #555;
-}
+.tab.active { background: #555; }
 
 /* Sections */
-.section {
-  display: none;
-  padding: 10px;
-}
-.section.active {
-  display: block;
-}
+.section { display: none; padding: 10px; }
+.section.active { display: block; }
 
-/* Pitch (FIXED SIZE PROPERLY) */
+/* Pitch (UNCHANGED) */
 .pitch {
   position: relative;
   width: 95%;
-  max-width: 500px;
-  height: 500px;
+  max-width: 420px;
+  height: 420px;
   margin: 10px auto;
-  border: 3px solid #333;
-  border-radius: 6px;
+  border: 2px solid #333;
 }
-
-.green { background: #2e7d32; }
-.blue { background: #2f6fd6; }
+.green { background: green; }
+.blue { background: #1e90ff; }
 
 /* Players */
 .player {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 42px;
-  height: 42px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.45);
-  line-height: 42px;
+  background: rgba(255,255,255,0.4);
+  line-height: 45px;
   font-size: 14px;
   font-weight: bold;
 }
 
-/* Stats layout */
+/* ✅ FIXED STATS LAYOUT */
 .stat-row {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
   margin: 8px 0;
+  font-size: 16px;
 }
 
-button {
-  padding: 6px 10px;
-  font-size: 14px;
+.stat-row button {
+  width: 35px;
+  height: 35px;
 }
 
-h1 { font-size: 28px; }
-h2 { font-size: 20px; }
+h1 { font-size: 30px; }
+h2 { font-size: 22px; }
 
 </style>
 </head>
@@ -89,68 +77,68 @@ h2 { font-size: 20px; }
 
 <!-- TABS -->
 <div class="tabs">
-  <div class="tab active" onclick="showTab('home', this)">Colmcille</div>
-  <div class="tab" onclick="showTab('away', this)">Team B</div>
-  <div class="tab" onclick="showTab('stats', this)">Stats</div>
+  <div class="tab active" onclick="showTab('home',this)">Colmcille</div>
+  <div class="tab" onclick="showTab('away',this)">Team B</div>
+  <div class="tab" onclick="showTab('stats',this)">Stats</div>
 </div>
 
 <!-- HOME -->
 <div id="home" class="section active">
-<h2>Colmcille</h2>
+<h2 onclick="editTeamName(this)">Colmcille</h2>
 <button onclick="sharePage()">Share</button>
 
 <div class="pitch green">
 
-<div class="player" style="top:92%;left:50%">1</div>
+<div class="player" onclick="editPlayer(this)" style="top:92%; left:50%">1</div>
 
-<div class="player" style="top:78%;left:25%">2</div>
-<div class="player" style="top:78%;left:50%">3</div>
-<div class="player" style="top:78%;left:75%">4</div>
+<div class="player" onclick="editPlayer(this)" style="top:78%; left:25%">2</div>
+<div class="player" onclick="editPlayer(this)" style="top:78%; left:50%">3</div>
+<div class="player" onclick="editPlayer(this)" style="top:78%; left:75%">4</div>
 
-<div class="player" style="top:62%;left:25%">5</div>
-<div class="player" style="top:62%;left:50%">6</div>
-<div class="player" style="top:62%;left:75%">7</div>
+<div class="player" onclick="editPlayer(this)" style="top:62%; left:25%">5</div>
+<div class="player" onclick="editPlayer(this)" style="top:62%; left:50%">6</div>
+<div class="player" onclick="editPlayer(this)" style="top:62%; left:75%">7</div>
 
-<div class="player" style="top:46%;left:40%">8</div>
-<div class="player" style="top:46%;left:60%">9</div>
+<div class="player" onclick="editPlayer(this)" style="top:46%; left:40%">8</div>
+<div class="player" onclick="editPlayer(this)" style="top:46%; left:60%">9</div>
 
-<div class="player" style="top:30%;left:25%">10</div>
-<div class="player" style="top:30%;left:50%">11</div>
-<div class="player" style="top:30%;left:75%">12</div>
+<div class="player" onclick="editPlayer(this)" style="top:30%; left:25%">10</div>
+<div class="player" onclick="editPlayer(this)" style="top:30%; left:50%">11</div>
+<div class="player" onclick="editPlayer(this)" style="top:30%; left:75%">12</div>
 
-<div class="player" style="top:14%;left:25%">13</div>
-<div class="player" style="top:14%;left:50%">14</div>
-<div class="player" style="top:14%;left:75%">15</div>
+<div class="player" onclick="editPlayer(this)" style="top:14%; left:25%">13</div>
+<div class="player" onclick="editPlayer(this)" style="top:14%; left:50%">14</div>
+<div class="player" onclick="editPlayer(this)" style="top:14%; left:75%">15</div>
 
 </div>
 </div>
 
 <!-- AWAY -->
 <div id="away" class="section">
-<h2>Team B</h2>
+<h2 onclick="editTeamName(this)">Team B</h2>
 
 <div class="pitch blue">
 
-<div class="player" style="top:92%;left:50%">1</div>
+<div class="player" onclick="editPlayer(this)" style="top:92%; left:50%">1</div>
 
-<div class="player" style="top:78%;left:25%">2</div>
-<div class="player" style="top:78%;left:50%">3</div>
-<div class="player" style="top:78%;left:75%">4</div>
+<div class="player" onclick="editPlayer(this)" style="top:78%; left:25%">2</div>
+<div class="player" onclick="editPlayer(this)" style="top:78%; left:50%">3</div>
+<div class="player" onclick="editPlayer(this)" style="top:78%; left:75%">4</div>
 
-<div class="player" style="top:62%;left:25%">5</div>
-<div class="player" style="top:62%;left:50%">6</div>
-<div class="player" style="top:62%;left:75%">7</div>
+<div class="player" onclick="editPlayer(this)" style="top:62%; left:25%">5</div>
+<div class="player" onclick="editPlayer(this)" style="top:62%; left:50%">6</div>
+<div class="player" onclick="editPlayer(this)" style="top:62%; left:75%">7</div>
 
-<div class="player" style="top:46%;left:40%">8</div>
-<div class="player" style="top:46%;left:60%">9</div>
+<div class="player" onclick="editPlayer(this)" style="top:46%; left:40%">8</div>
+<div class="player" onclick="editPlayer(this)" style="top:46%; left:60%">9</div>
 
-<div class="player" style="top:30%;left:25%">10</div>
-<div class="player" style="top:30%;left:50%">11</div>
-<div class="player" style="top:30%;left:75%">12</div>
+<div class="player" onclick="editPlayer(this)" style="top:30%; left:25%">10</div>
+<div class="player" onclick="editPlayer(this)" style="top:30%; left:50%">11</div>
+<div class="player" onclick="editPlayer(this)" style="top:30%; left:75%">12</div>
 
-<div class="player" style="top:14%;left:25%">13</div>
-<div class="player" style="top:14%;left:50%">14</div>
-<div class="player" style="top:14%;left:75%">15</div>
+<div class="player" onclick="editPlayer(this)" style="top:14%; left:25%">13</div>
+<div class="player" onclick="editPlayer(this)" style="top:14%; left:50%">14</div>
+<div class="player" onclick="editPlayer(this)" style="top:14%; left:75%">15</div>
 
 </div>
 </div>
@@ -164,37 +152,37 @@ h2 { font-size: 20px; }
 
 <h3>Colmcille</h3>
 
-<div class="stat-row">Goals 
+<div class="stat-row">Goals
 <button onclick="updateHome('goals',-1)">-</button>
 <span id="home_goals">0</span>
 <button onclick="updateHome('goals',1)">+</button>
 </div>
 
-<div class="stat-row">Points 
+<div class="stat-row">Points
 <button onclick="updateHome('points',-1)">-</button>
 <span id="home_points">0</span>
 <button onclick="updateHome('points',1)">+</button>
 </div>
 
-<div class="stat-row">Wides 
+<div class="stat-row">Wides
 <button onclick="updateHome('wides',-1)">-</button>
 <span id="home_wides">0</span>
 <button onclick="updateHome('wides',1)">+</button>
 </div>
 
-<div class="stat-row">Fouls 
+<div class="stat-row">Fouls
 <button onclick="updateHome('fouls',-1)">-</button>
 <span id="home_fouls">0</span>
 <button onclick="updateHome('fouls',1)">+</button>
 </div>
 
-<div class="stat-row">Passes 
+<div class="stat-row">Passes
 <button onclick="updateHome('passes',-1)">-</button>
 <span id="home_passes">0</span>
 <button onclick="updateHome('passes',1)">+</button>
 </div>
 
-<div class="stat-row">Turnovers 
+<div class="stat-row">Turnovers
 <button onclick="updateHome('turnovers',-1)">-</button>
 <span id="home_turnovers">0</span>
 <button onclick="updateHome('turnovers',1)">+</button>
@@ -204,13 +192,13 @@ h2 { font-size: 20px; }
 
 <h3>Team B</h3>
 
-<div class="stat-row">Goals 
+<div class="stat-row">Goals
 <button onclick="updateAway('goals',-1)">-</button>
 <span id="away_goals">0</span>
 <button onclick="updateAway('goals',1)">+</button>
 </div>
 
-<div class="stat-row">Points 
+<div class="stat-row">Points
 <button onclick="updateAway('points',-1)">-</button>
 <span id="away_points">0</span>
 <button onclick="updateAway('points',1)">+</button>
@@ -220,40 +208,52 @@ h2 { font-size: 20px; }
 
 <script>
 
-function showTab(id, el) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+function showTab(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
 }
 
-let stats = {
-  home:{goals:0,points:0,wides:0,fouls:0,passes:0,turnovers:0},
-  away:{goals:0,points:0}
+/* EDIT TEAM NAME */
+function editTeamName(el){
+  let name = prompt("Enter team name:", el.innerText);
+  if(name) el.innerText = name;
+}
+
+/* EDIT PLAYER */
+function editPlayer(el){
+  let name = prompt("Enter player name/number:", el.innerText);
+  if(name) el.innerText = name;
+}
+
+let stats={
+ home:{goals:0,points:0,wides:0,fouls:0,passes:0,turnovers:0},
+ away:{goals:0,points:0}
 };
 
 function updateHome(t,v){
-  stats.home[t]=Math.max(0,stats.home[t]+v);
-  document.getElementById("home_"+t).innerText=stats.home[t];
-  updateScore();
+ stats.home[t]=Math.max(0,stats.home[t]+v);
+ document.getElementById("home_"+t).innerText=stats.home[t];
+ updateScore();
 }
 
 function updateAway(t,v){
-  stats.away[t]=Math.max(0,stats.away[t]+v);
-  document.getElementById("away_"+t).innerText=stats.away[t];
-  updateScore();
+ stats.away[t]=Math.max(0,stats.away[t]+v);
+ document.getElementById("away_"+t).innerText=stats.away[t];
+ updateScore();
 }
 
 function updateScore(){
-  document.getElementById("scoreboard").innerText =
-    stats.home.goals+"-"+String(stats.home.points).padStart(2,"0")+
-    " | "+
-    stats.away.goals+"-"+String(stats.away.points).padStart(2,"0");
+ scoreboard.innerText=
+ stats.home.goals+"-"+String(stats.home.points).padStart(2,"0")+
+ " | "+
+ stats.away.goals+"-"+String(stats.away.points).padStart(2,"0");
 }
 
 function sharePage(){
-  navigator.clipboard.writeText(document.body.innerText);
-  alert("Copied");
+ navigator.clipboard.writeText(document.body.innerText);
+ alert("Copied");
 }
 
 </script>
