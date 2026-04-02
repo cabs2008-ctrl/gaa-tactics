@@ -7,40 +7,15 @@
 <title>GAA Match Tracker</title>
 
 <style>
+body { font-family: Arial; margin: 0; text-align: center; }
 
-body {
-  font-family: Arial;
-  margin: 0;
-  background: white;
-  text-align: center;
-}
-
-/* TABS */
-.tabs {
-  display: flex;
-  width: 100%;
-  background: #333;
-}
-
-.tab {
-  flex: 1;
-  padding: 16px;
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-}
-
+.tabs { display: flex; background: #333; }
+.tab { flex: 1; padding: 14px; color: white; cursor: pointer; }
 .tab.active { background: #555; }
 
-/* SECTIONS */
-.section {
-  display: none;
-  padding: 10px;
-}
-
+.section { display: none; padding: 10px; }
 .section.active { display: block; }
 
-/* PITCH */
 .pitch {
   position: relative;
   width: 95vw;
@@ -52,153 +27,212 @@ body {
 .green { background: green; }
 .blue { background: #1e90ff; }
 
-/* PLAYERS */
 .player {
   position: absolute;
   transform: translate(-50%, -50%);
   width: 55px;
   height: 55px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.7);
   line-height: 55px;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-/* STATS UI */
-.stats-container {
-  margin-top: 10px;
-}
-
-.team-title {
-  font-size: 22px;
-  margin: 10px 0;
+  font-size: 14px;
   font-weight: bold;
 }
 
 .stat-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   margin: 10px auto;
-  padding: 12px 16px;
+  padding: 12px;
   width: 92%;
   max-width: 420px;
   background: #f4f4f4;
   border-radius: 14px;
-  font-size: 18px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
 }
 
-.stat-label {
-  font-weight: 600;
-}
-
-.stat-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.stat-controls span {
-  min-width: 30px;
-  text-align: center;
-  font-weight: bold;
-}
-
-.stat-controls button {
-  width: 38px;
-  height: 38px;
+.btn-minus, .btn-plus {
+  width: 35px;
+  height: 35px;
   border: none;
   border-radius: 10px;
-  font-size: 20px;
-  font-weight: bold;
-  cursor: pointer;
+  font-size: 18px;
 }
 
 .btn-minus { background: #ff4d4d; color: white; }
 .btn-plus { background: #28a745; color: white; }
 
-.highlight {
-  background: #fff3cd;
-  border: 2px solid #ffc107;
+.clock { font-size: 26px; font-weight: bold; }
+
+.history-item {
+  background: #f4f4f4;
+  margin: 10px auto;
+  padding: 12px;
+  width: 90%;
+  max-width: 420px;
+  border-radius: 12px;
 }
 
-.stat-controls button:active {
-  transform: scale(0.9);
+.top-btn {
+  margin: 5px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #333;
+  color: white;
 }
-
-h1 { font-size: 34px; }
-h2 { font-size: 26px; }
-
-button {
-  padding: 10px 16px;
-  font-size: 16px;
-  margin: 10px 0;
-}
-
 </style>
 </head>
 
 <body>
 
-<!-- TABS -->
 <div class="tabs">
-  <div class="tab active" onclick="showTab('home',this)">Colmcille</div>
-  <div class="tab" onclick="showTab('away',this)">Team B</div>
+  <div class="tab active" onclick="showTab('home',this)">Home</div>
+  <div class="tab" onclick="showTab('away',this)">Away</div>
   <div class="tab" onclick="showTab('stats',this)">Stats</div>
+  <div class="tab" onclick="showTab('history',this)">History</div>
 </div>
 
 <!-- HOME -->
 <div id="home" class="section active">
-<h2 onclick="editTeamName(this)">Colmcille</h2>
-<button onclick="sharePage()">Share</button>
+<h2 onclick="editTeamName('home',this)">Home</h2>
 
-<div class="pitch green">
-  <div class="player" style="top:92%; left:50%" onclick="editPlayer(this)">1</div>
-  <div class="player" style="top:78%; left:25%" onclick="editPlayer(this)">2</div>
-  <div class="player" style="top:78%; left:50%" onclick="editPlayer(this)">3</div>
-  <div class="player" style="top:78%; left:75%" onclick="editPlayer(this)">4</div>
-  <div class="player" style="top:62%; left:25%" onclick="editPlayer(this)">5</div>
-  <div class="player" style="top:62%; left:50%" onclick="editPlayer(this)">6</div>
-  <div class="player" style="top:62%; left:75%" onclick="editPlayer(this)">7</div>
-  <div class="player" style="top:46%; left:40%" onclick="editPlayer(this)">8</div>
-  <div class="player" style="top:46%; left:60%" onclick="editPlayer(this)">9</div>
-  <div class="player" style="top:30%; left:25%" onclick="editPlayer(this)">10</div>
-  <div class="player" style="top:30%; left:50%" onclick="editPlayer(this)">11</div>
-  <div class="player" style="top:30%; left:75%" onclick="editPlayer(this)">12</div>
-  <div class="player" style="top:14%; left:25%" onclick="editPlayer(this)">13</div>
-  <div class="player" style="top:14%; left:50%" onclick="editPlayer(this)">14</div>
-  <div class="player" style="top:14%; left:75%" onclick="editPlayer(this)">15</div>
-</div>
+<button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
+<button class="top-btn" onclick="shareMatch()">Share</button>
+
+<div class="pitch green" id="homePitch"></div>
 </div>
 
 <!-- AWAY -->
 <div id="away" class="section">
-<h2 onclick="editTeamName(this)">Team B</h2>
+<h2 onclick="editTeamName('away',this)">Away</h2>
 
-<div class="pitch blue">
-  <!-- same layout -->
-  <div class="player" style="top:92%; left:50%" onclick="editPlayer(this)">1</div>
-  <!-- (rest unchanged for simplicity) -->
-</div>
+<button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
+<button class="top-btn" onclick="shareMatch()">Share</button>
+
+<div class="pitch blue" id="awayPitch"></div>
 </div>
 
 <!-- STATS -->
 <div id="stats" class="section">
-  <h2>Match Stats</h2>
-  <button onclick="sharePage()">Share</button>
+<h2>Match Stats</h2>
 
-  <h1 id="scoreboard">0-00 | 0-00</h1>
+<button class="top-btn" onclick="shareMatch()">Share</button>
 
-  <div id="homeStats"></div>
+<h1 id="scoreboard"></h1>
 
-  <hr>
+<div class="clock" id="matchClock">00:00</div>
+<button onclick="startClock()">Start</button>
+<button onclick="pauseClock()">Pause</button>
+<button onclick="resetClock()">Reset</button>
 
-  <div id="awayStats"></div>
+<h3 id="homeLabel"></h3>
+<div id="homeStats"></div>
+
+<hr>
+
+<h3 id="awayLabel"></h3>
+<div id="awayStats"></div>
+</div>
+
+<!-- HISTORY -->
+<div id="history" class="section">
+<h2>Match History</h2>
+
+<button class="top-btn" onclick="saveMatch()">Save Match</button>
+<button class="top-btn" onclick="shareMatch()">Share</button>
+
+<div id="historyList"></div>
 </div>
 
 <script>
+
+/* POSITIONS */
+const positions = [
+[92,50],[78,25],[78,50],[78,75],
+[62,25],[62,50],[62,75],
+[46,40],[46,60],
+[30,25],[30,50],[30,75],
+[14,25],[14,50],[14,75]
+];
+
+/* DATA */
+let data = JSON.parse(localStorage.getItem("gaaData")||"{}");
+
+if(!data.home) data.home={name:"Home",players:Array.from({length:15},(_,i)=>i+1)};
+if(!data.away) data.away={name:"Away",players:Array.from({length:15},(_,i)=>i+1)};
+
+let stats = JSON.parse(localStorage.getItem("gaaStats")||"null");
+
+const statList = [
+  {key:"goals",label:"Goals"},
+  {key:"points",label:"Points"},
+  {key:"wides",label:"Wides"},
+  {key:"fouls",label:"Fouls"},
+  {key:"turnovers",label:"Turnovers"}
+];
+
+if(!stats){
+  stats = {
+    home:Object.fromEntries(statList.map(s=>[s.key,0])),
+    away:Object.fromEntries(statList.map(s=>[s.key,0]))
+  };
+}
+
+function saveData(){
+  localStorage.setItem("gaaData",JSON.stringify(data));
+  localStorage.setItem("gaaStats",JSON.stringify(stats));
+}
+
+/* RESET TEAM */
+function resetTeam(team){
+  if(!confirm("Reset players for "+data[team].name+"?")) return;
+  data[team].players = Array.from({length:15},(_,i)=>i+1);
+  saveData();
+  renderPitch(team);
+}
+
+/* SHARE */
+function shareMatch(){
+  let text = `
+${data.home.name} vs ${data.away.name}
+
+${scoreboard.innerText}
+
+HOME:
+${statList.map(s=>`${s.label}: ${stats.home[s.key]}`).join("\n")}
+
+AWAY:
+${statList.map(s=>`${s.label}: ${stats.away[s.key]}`).join("\n")}
+`;
+
+  if(navigator.share){
+    navigator.share({ text });
+  } else {
+    prompt("Copy this:", text);
+  }
+}
+
+/* RENDER PLAYERS */
+function renderPitch(team){
+  document.getElementById(team+"Pitch").innerHTML =
+    positions.map((p,i)=>`
+      <div class="player"
+        style="top:${p[0]}%;left:${p[1]}%"
+        onclick="editPlayer('${team}',${i})">
+        ${data[team].players[i]}
+      </div>
+    `).join("");
+}
+
+function editPlayer(team,i){
+  let n=prompt("Player:",data[team].players[i]);
+  if(n){ data[team].players[i]=n; saveData(); renderPitch(team); }
+}
+
+function editTeamName(team,el){
+  let n=prompt("Team:",data[team].name);
+  if(n){ data[team].name=n; el.innerText=n; saveData(); renderLabels(); }
+}
 
 /* TABS */
 function showTab(id,el){
@@ -208,109 +242,121 @@ function showTab(id,el){
   el.classList.add('active');
 }
 
-/* EDIT */
-function editTeamName(el){
-  let name = prompt("Enter team name:", el.innerText);
-  if(name) el.innerText = name;
-}
-
-function editPlayer(el){
-  let name = prompt("Player:", el.innerText);
-  if(name) el.innerText = name;
-}
-
-/* CONFIG */
-const statConfig = {
-  home: [
-    { key: "goals", label: "Goals", highlight: true },
-    { key: "points", label: "Points", highlight: true },
-    { key: "wides", label: "Wides" },
-    { key: "fouls", label: "Fouls" },
-    { key: "passes", label: "Passes" },
-    { key: "turnovers", label: "Turnovers" }
-  ],
-  away: [
-    { key: "goals", label: "Goals", highlight: true },
-    { key: "points", label: "Points", highlight: true }
-  ]
-};
-
-let stats = { home:{}, away:{} };
-
-/* INIT */
-function initStats(){
-  statConfig.home.forEach(s => stats.home[s.key] = 0);
-  statConfig.away.forEach(s => stats.away[s.key] = 0);
-}
-
-/* RENDER */
+/* STATS */
 function renderStats(){
-  renderTeam("home","Colmcille","homeStats");
-  renderTeam("away","Team B","awayStats");
+  renderLabels();
+
+  ["home","away"].forEach(team=>{
+    document.getElementById(team+"Stats").innerHTML =
+      statList.map(s=>row(team,s)).join("");
+  });
 }
 
-function renderTeam(team,title,containerId){
-  const container = document.getElementById(containerId);
+function renderLabels(){
+  homeLabel.innerText = data.home.name;
+  awayLabel.innerText = data.away.name;
+}
 
-  container.innerHTML = `
-    <div class="stats-container">
-      <div class="team-title">${title}</div>
-      ${statConfig[team].map(stat => `
-        <div class="stat-row ${stat.highlight ? 'highlight' : ''}">
-          <div class="stat-label">${stat.label}</div>
-          <div class="stat-controls">
-            <button class="btn-minus" onclick="updateStat('${team}','${stat.key}',-1)">−</button>
-            <span id="${team}_${stat.key}">${stats[team][stat.key]}</span>
-            <button class="btn-plus" onclick="updateStat('${team}','${stat.key}',1)">+</button>
-          </div>
-        </div>
-      `).join("")}
+function row(team,s){
+  return `
+  <div class="stat-row">
+    <div>${s.label}</div>
+    <div>
+      <button class="btn-minus" onclick="updateStat('${team}','${s.key}',-1)">-</button>
+      <span id="${team}_${s.key}">${stats[team][s.key]}</span>
+      <button class="btn-plus" onclick="updateStat('${team}','${s.key}',1)">+</button>
     </div>
-  `;
+  </div>`;
 }
 
-/* UPDATE */
 function updateStat(team,key,val){
-  stats[team][key] = Math.max(0, stats[team][key] + val);
-  document.getElementById(`${team}_${key}`).innerText = stats[team][key];
-  updateScore();
+  stats[team][key]=Math.max(0,stats[team][key]+val);
+  document.getElementById(`${team}_${key}`).innerText=stats[team][key];
   saveData();
+  updateScore();
 }
 
 /* SCORE */
 function updateScore(){
-  let h = stats.home.goals*3 + stats.home.points;
-  let a = stats.away.goals*3 + stats.away.points;
+  let h=stats.home.goals*3+stats.home.points;
+  let a=stats.away.goals*3+stats.away.points;
 
-  scoreboard.innerText =
-    stats.home.goals+"-"+String(stats.home.points).padStart(2,"0")+
-    " ("+h+") | "+
-    stats.away.goals+"-"+String(stats.away.points).padStart(2,"0")+
-    " ("+a+")";
+  scoreboard.innerText=
+    `${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) vs ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})`;
 }
 
-/* SAVE */
-function saveData(){
-  localStorage.setItem("gaaStats", JSON.stringify(stats));
+/* CLOCK */
+let sec=0,timer=null;
+
+function startClock(){
+  if(!timer){
+    timer=setInterval(()=>{sec++;updateClock();},1000);
+  }
 }
 
-function loadData(){
-  let d = localStorage.getItem("gaaStats");
-  if(d) stats = JSON.parse(d);
+function pauseClock(){
+  clearInterval(timer);
+  timer=null;
 }
 
-/* SHARE */
-function sharePage(){
-  const text = `Score: ${scoreboard.innerText}`;
-  navigator.clipboard.writeText(text);
-  alert("Copied!");
+function resetClock(){
+  pauseClock();
+  sec=0;
+  updateClock();
 }
 
-/* INIT APP */
-initStats();
-loadData();
+function updateClock(){
+  matchClock.innerText=
+    String(Math.floor(sec/60)).padStart(2,"0")+":"+
+    String(sec%60).padStart(2,"0");
+}
+
+/* HISTORY */
+function getHistory(){
+  return JSON.parse(localStorage.getItem("gaaHistory")||"[]");
+}
+
+function saveMatch(){
+  if(!scoreboard.innerText) return;
+
+  let h=getHistory();
+  h.unshift({
+    score:scoreboard.innerText,
+    date:new Date().toLocaleString()
+  });
+
+  localStorage.setItem("gaaHistory",JSON.stringify(h));
+  renderHistory();
+}
+
+function renderHistory(){
+  let h=getHistory();
+
+  historyList.innerHTML=h.map((m,i)=>`
+    <div class="history-item">
+      ${m.score}<br>${m.date}
+      <br><button onclick="deleteMatch(${i})">Delete</button>
+    </div>
+  `).join("");
+}
+
+function deleteMatch(i){
+  let h=getHistory();
+  h.splice(i,1);
+  localStorage.setItem("gaaHistory",JSON.stringify(h));
+  renderHistory();
+}
+
+/* INIT */
+document.querySelector("#home h2").innerText=data.home.name;
+document.querySelector("#away h2").innerText=data.away.name;
+
+renderPitch("home");
+renderPitch("away");
 renderStats();
 updateScore();
+updateClock();
+renderHistory();
 
 </script>
 
