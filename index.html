@@ -39,6 +39,28 @@ body { font-family: Arial; margin: 0; text-align: center; }
   font-weight: bold;
 }
 
+.subs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.sub {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.1);
+  line-height: 50px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.selected {
+  outline: 3px solid red;
+}
+
 .stat-row {
   display: flex;
   justify-content: space-between;
@@ -80,6 +102,11 @@ body { font-family: Arial; margin: 0; text-align: center; }
   background: #333;
   color: white;
 }
+
+.sublog {
+  font-size: 14px;
+  margin: 5px;
+}
 </style>
 </head>
 
@@ -100,6 +127,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button class="top-btn" onclick="shareMatch()">Share</button>
 
 <div class="pitch green" id="homePitch"></div>
+<div class="subs" id="homeSubs"></div>
 </div>
 
 <!-- AWAY -->
@@ -110,6 +138,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button class="top-btn" onclick="shareMatch()">Share</button>
 
 <div class="pitch blue" id="awayPitch"></div>
+<div class="subs" id="awaySubs"></div>
 </div>
 
 <!-- STATS -->
@@ -127,11 +156,15 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <h3 id="homeLabel"></h3>
 <div id="homeStats"></div>
+<h4>Subs</h4>
+<div id="homeSubLog"></div>
 
 <hr>
 
 <h3 id="awayLabel"></h3>
 <div id="awayStats"></div>
+<h4>Subs</h4>
+<div id="awaySubLog"></div>
 </div>
 
 <!-- HISTORY -->
@@ -158,8 +191,22 @@ const positions = [
 /* DATA */
 let data = JSON.parse(localStorage.getItem("gaaData")||"{}");
 
-if(!data.home) data.home={name:"Home",players:Array.from({length:15},(_,i)=>i+1)};
-if(!data.away) data.away={name:"Away",players:Array.from({length:15},(_,i)=>i+1)};
+if(!data.home) data.home={
+  name:"Home",
+  players:Array.from({length:15},(_,i)=>i+1),
+  subs:Array.from({length:5},(_,i)=>"S"+(i+1)),
+  subLog:[]
+};
+
+if(!data.away) data.away={
+  name:"Away",
+  players:Array.from({length:15},(_,i)=>i+1),
+  subs:Array.from({length:5},(_,i)=>"S"+(i+1)),
+  subLog:[]
+};
+
+if(!data.home.subLog) data.home.subLog=[];
+if(!data.away.subLog) data.away.subLog=[];
 
 let stats = JSON.parse(localStorage.getItem("gaaStats")||"null");
 
@@ -183,12 +230,71 @@ function saveData(){
   localStorage.setItem("gaaStats",JSON.stringify(stats));
 }
 
+/* SUB SYSTEM */
+let selectedSub = null;
+
+function selectSub(team,i){
+  selectedSub = {team,i};
+  renderSubs("home");
+  renderSubs("away");
+}
+
+function swapWithPlayer(team,playerIndex){
+  if(!selectedSub || selectedSub.team !== team) return;
+
+  let playerOff = data[team].players[playerIndex];
+  let playerOn = data[team].subs[selectedSub.i];
+
+  data[team].players[playerIndex] = playerOn;
+  data[team].subs[selectedSub.i] = playerOff;
+
+  data[team].subLog.unshift({
+    off: playerOff,
+    on: playerOn,
+    time: matchClock.innerText
+  });
+
+  selectedSub = null;
+
+  saveData();
+  renderPitch(team);
+  renderSubs(team);
+  renderSubLog();
+}
+
+function renderSubs(team){
+  document.getElementById(team+"Subs").innerHTML =
+    data[team].subs.map((s,i)=>`
+      <div class="sub ${selectedSub && selectedSub.team===team && selectedSub.i===i ? 'selected' : ''}"
+        onclick="selectSub('${team}',${i})">
+        ${s}
+      </div>
+    `).join("");
+}
+
+function renderSubLog(){
+  ["home","away"].forEach(team=>{
+    document.getElementById(team+"SubLog").innerHTML =
+      data[team].subLog.map(s=>`
+        <div class="sublog">
+          ${s.time} — ⬅️ ${s.off} | ➡️ ${s.on}
+        </div>
+      `).join("");
+  });
+}
+
 /* RESET TEAM */
 function resetTeam(team){
   if(!confirm("Reset players for "+data[team].name+"?")) return;
+
   data[team].players = Array.from({length:15},(_,i)=>i+1);
+  data[team].subs = Array.from({length:5},(_,i)=>"S"+(i+1));
+  data[team].subLog = [];
+
   saveData();
   renderPitch(team);
+  renderSubs(team);
+  renderSubLog();
 }
 
 /* SHARE */
@@ -218,15 +324,10 @@ function renderPitch(team){
     positions.map((p,i)=>`
       <div class="player"
         style="top:${p[0]}%;left:${p[1]}%"
-        onclick="editPlayer('${team}',${i})">
+        onclick="swapWithPlayer('${team}',${i})">
         ${data[team].players[i]}
       </div>
     `).join("");
-}
-
-function editPlayer(team,i){
-  let n=prompt("Player:",data[team].players[i]);
-  if(n){ data[team].players[i]=n; saveData(); renderPitch(team); }
 }
 
 function editTeamName(team,el){
@@ -353,7 +454,10 @@ document.querySelector("#away h2").innerText=data.away.name;
 
 renderPitch("home");
 renderPitch("away");
+renderSubs("home");
+renderSubs("away");
 renderStats();
+renderSubLog();
 updateScore();
 updateClock();
 renderHistory();
