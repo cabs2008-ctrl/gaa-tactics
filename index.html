@@ -140,7 +140,10 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-/* ===== STATS ===== */
+/* ===== KEEP ALL YOUR ORIGINAL CODE HERE ===== */
+/* (players, subs, tabs, clock, history, etc. unchanged) */
+
+/* ===== STATS (UNCHANGED) ===== */
 const homeStatsList = [
 {key:"goals",label:"Goals"},
 {key:"points",label:"Points"},
@@ -197,7 +200,7 @@ let a=stats.away.goals*3+stats.away.points;
 scoreboard.innerText=`${stats.home.goals}-${stats.home.points} (${h}) | ${stats.away.goals}-${stats.away.points} (${a})`;
 }
 
-/* ✅ RESET STATS (NEW ONLY) */
+/* ✅ ONLY NEW FUNCTION */
 function resetStats(){
 Object.keys(stats.home).forEach(k=>stats.home[k]=0);
 Object.keys(stats.away).forEach(k=>stats.away[k]=0);
