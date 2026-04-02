@@ -26,15 +26,14 @@ body { font-family: Arial; margin: 0; text-align: center; }
 .player {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.7);
   font-size: 12px;
-  font-weight: bold;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
 
 .subs {
@@ -45,15 +44,14 @@ body { font-family: Arial; margin: 0; text-align: center; }
 }
 
 .sub {
-  width: 55px;
-  height: 55px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: rgba(0,0,0,0.1);
-  font-size: 12px;
-  font-weight: bold;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  font-size: 11px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
 
 .stat-row {
@@ -67,35 +65,19 @@ body { font-family: Arial; margin: 0; text-align: center; }
   border-radius: 14px;
 }
 
-.btn-minus, .btn-plus {
+.btn-minus,.btn-plus {
   width: 35px;
   height: 35px;
   border: none;
   border-radius: 10px;
   font-size: 18px;
 }
-.btn-minus { background: #ff4d4d; color: white; }
-.btn-plus { background: #28a745; color: white; }
+.btn-minus { background:#ff4d4d;color:white; }
+.btn-plus { background:#28a745;color:white; }
 
 .clock { font-size: 26px; font-weight: bold; }
-
-.history-item {
-  background: #f4f4f4;
-  margin: 10px auto;
-  padding: 12px;
-  width: 90%;
-  max-width: 420px;
-  border-radius: 12px;
-}
-
-.top-btn {
-  margin: 5px;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 8px;
-  background: #333;
-  color: white;
-}
+.history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
+.top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
 </style>
 </head>
 
@@ -138,8 +120,12 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button onclick="pauseClock()">Pause</button>
 <button onclick="resetClock()">Reset</button>
 
+<h3>Home Team</h3>
 <div id="homeStats"></div>
+
 <hr>
+
+<h3>Away Score Only</h3>
 <div id="awayStats"></div>
 </div>
 
@@ -153,106 +139,59 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-/* POSITIONS */
-const positions = [
-[92,50],[78,25],[78,50],[78,75],
-[62,25],[62,50],[62,75],
-[46,40],[46,60],
-[30,25],[30,50],[30,75],
-[14,25],[14,50],[14,75]
-];
-
-/* DATA */
-let data = JSON.parse(localStorage.getItem("gaaData")||"{}");
-
-if(!data.home) data.home={name:"Home",players:Array.from({length:15},()=>""),subs:Array.from({length:5},()=> "")};
-if(!data.away) data.away={name:"Away",players:Array.from({length:15},()=>""),subs:Array.from({length:5},()=> "")};
-
-function saveData(){ localStorage.setItem("gaaData",JSON.stringify(data)); }
-
-/* PLAYERS */
-function renderPitch(team){
-  document.getElementById(team+"Pitch").innerHTML =
-    positions.map((p,i)=>`
-      <div class="player" style="top:${p[0]}%;left:${p[1]}%" onclick="editPlayer('${team}',${i})">
-        ${i+1}<br>${data[team].players[i] || ""}
-      </div>`).join("");
-}
-
-function editPlayer(team,i){
-  let n=prompt("Player Name:",data[team].players[i]);
-  if(n!==null){ data[team].players[i]=n; saveData(); renderPitch(team); }
-}
-
-/* SUBS */
-function renderSubs(team){
-  document.getElementById(team+"Subs").innerHTML =
-    data[team].subs.map((s,i)=>`
-      <div class="sub" onclick="editSub('${team}',${i})">
-        ${i+16}<br>${s || ""}
-      </div>`).join("");
-}
-
-function editSub(team,i){
-  let n=prompt("Sub Name:",data[team].subs[i]);
-  if(n!==null){ data[team].subs[i]=n; saveData(); renderSubs(team); }
-}
-
-/* RESET */
-function resetTeam(team){
-  if(!confirm("Reset players for "+data[team].name+"?")) return;
-  data[team].players = Array.from({length:15},()=> "");
-  data[team].subs = Array.from({length:5},()=> "");
-  saveData();
-  renderPitch(team);
-  renderSubs(team);
-}
-
-/* TEAM NAME */
-function editTeamName(team,el){
-  let n=prompt("Team:",data[team].name);
-  if(n){ data[team].name=n; el.innerText=n; saveData(); }
-}
-
-/* TABS */
-function showTab(id,el){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  el.classList.add('active');
-}
-
-/* ===== ORIGINAL WORKING STATS ===== */
+/* ===== STATS ===== */
 const statList = [
   {key:"goals",label:"Goals"},
   {key:"points",label:"Points"},
   {key:"wides",label:"Wides"},
   {key:"fouls",label:"Fouls"},
-  {key:"turnovers",label:"Turnovers"}
+  {key:"turnovers",label:"Turnovers"},
+  {key:"passes",label:"Passes"},      // NEW
+  {key:"tackles",label:"Tackles"}     // NEW
 ];
 
 let stats = {
   home:Object.fromEntries(statList.map(s=>[s.key,0])),
-  away:Object.fromEntries(statList.map(s=>[s.key,0]))
+  away:{goals:0,points:0} // ONLY SCORE
 };
 
 function renderStats(){
-  ["home","away"].forEach(team=>{
-    document.getElementById(team+"Stats").innerHTML =
-      statList.map(s=>`
-      <div class="stat-row">
-        <div>${s.label}</div>
-        <div>
-          <button class="btn-minus" onclick="updateStat('${team}','${s.key}',-1)">-</button>
-          <span id="${team}_${s.key}">${stats[team][s.key]}</span>
-          <button class="btn-plus" onclick="updateStat('${team}','${s.key}',1)">+</button>
-        </div>
-      </div>`).join("");
-  });
+
+  // HOME FULL STATS
+  document.getElementById("homeStats").innerHTML =
+    statList.map(s=>`
+    <div class="stat-row">
+      <div>${s.label}</div>
+      <div>
+        <button class="btn-minus" onclick="updateStat('home','${s.key}',-1)">-</button>
+        <span id="home_${s.key}">${stats.home[s.key]}</span>
+        <button class="btn-plus" onclick="updateStat('home','${s.key}',1)">+</button>
+      </div>
+    </div>`).join("");
+
+  // AWAY SCORE ONLY
+  document.getElementById("awayStats").innerHTML = `
+    <div class="stat-row">
+      <div>Goals</div>
+      <div>
+        <button class="btn-minus" onclick="updateStat('away','goals',-1)">-</button>
+        <span id="away_goals">${stats.away.goals}</span>
+        <button class="btn-plus" onclick="updateStat('away','goals',1)">+</button>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div>Points</div>
+      <div>
+        <button class="btn-minus" onclick="updateStat('away','points',-1)">-</button>
+        <span id="away_points">${stats.away.points}</span>
+        <button class="btn-plus" onclick="updateStat('away','points',1)">+</button>
+      </div>
+    </div>
+  `;
 }
 
 function updateStat(team,key,val){
-  stats[team][key]=Math.max(0,stats[team][key]+val);
+  stats[team][key]=Math.max(0,(stats[team][key]||0)+val);
   document.getElementById(`${team}_${key}`).innerText=stats[team][key];
   updateScore();
 }
@@ -262,58 +201,6 @@ function updateScore(){
   let a=stats.away.goals*3+stats.away.points;
   scoreboard.innerText=`${stats.home.goals}-${stats.home.points} (${h}) | ${stats.away.goals}-${stats.away.points} (${a})`;
 }
-
-/* CLOCK */
-let sec=0,timer=null;
-function startClock(){ if(!timer) timer=setInterval(()=>{sec++;updateClock();},1000); }
-function pauseClock(){ clearInterval(timer); timer=null; }
-function resetClock(){ pauseClock(); sec=0; updateClock(); }
-function updateClock(){
-  matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");
-}
-
-/* HISTORY */
-function getHistory(){ return JSON.parse(localStorage.getItem("gaaHistory")||"[]"); }
-function saveMatch(){
-  let h=getHistory();
-  h.unshift({score:scoreboard.innerText,date:new Date().toLocaleString()});
-  localStorage.setItem("gaaHistory",JSON.stringify(h));
-  renderHistory();
-}
-function renderHistory(){
-  let h=getHistory();
-  historyList.innerHTML=h.map((m,i)=>`
-    <div class="history-item">
-      ${m.score}<br>${m.date}
-      <br><button onclick="deleteMatch(${i})">Delete</button>
-    </div>`).join("");
-}
-function deleteMatch(i){
-  let h=getHistory();
-  h.splice(i,1);
-  localStorage.setItem("gaaHistory",JSON.stringify(h));
-  renderHistory();
-}
-
-/* SHARE */
-function shareMatch(){
-  let text = `${scoreboard.innerText}`;
-  if(navigator.share){ navigator.share({ text }); }
-  else{ prompt("Copy:",text); }
-}
-
-/* INIT */
-document.querySelector("#home h2").innerText=data.home.name;
-document.querySelector("#away h2").innerText=data.away.name;
-
-renderPitch("home");
-renderPitch("away");
-renderSubs("home");
-renderSubs("away");
-renderStats();
-updateScore();
-updateClock();
-renderHistory();
 
 </script>
 
