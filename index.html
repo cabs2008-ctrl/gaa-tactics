@@ -66,14 +66,6 @@ body {
 }
 
 /* STATS */
-.stats-container { margin-top: 10px; }
-
-.team-title {
-  font-size: 22px;
-  margin: 10px 0;
-  font-weight: bold;
-}
-
 .stat-row {
   display: flex;
   justify-content: space-between;
@@ -84,20 +76,11 @@ body {
   max-width: 420px;
   background: #f4f4f4;
   border-radius: 14px;
-  font-size: 18px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
 }
 
 .stat-controls {
   display: flex;
-  align-items: center;
   gap: 12px;
-}
-
-.stat-controls span {
-  min-width: 30px;
-  text-align: center;
-  font-weight: bold;
 }
 
 .stat-controls button {
@@ -106,16 +89,20 @@ body {
   border: none;
   border-radius: 10px;
   font-size: 20px;
-  font-weight: bold;
-  cursor: pointer;
 }
 
 .btn-minus { background: #ff4d4d; color: white; }
 .btn-plus { background: #28a745; color: white; }
 
-.highlight {
-  background: #fff3cd;
-  border: 2px solid #ffc107;
+/* CLOCK */
+.clock {
+  font-size: 28px;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+.clock-controls button {
+  margin: 5px;
 }
 
 /* HISTORY */
@@ -126,16 +113,6 @@ body {
   width: 90%;
   max-width: 420px;
   border-radius: 12px;
-}
-
-/* TEXT */
-h1 { font-size: 34px; }
-h2 { font-size: 26px; }
-
-button {
-  padding: 10px 16px;
-  font-size: 16px;
-  margin: 10px 0;
 }
 
 </style>
@@ -154,31 +131,24 @@ button {
 <!-- HOME -->
 <div id="home" class="section active">
 <h2 onclick="editTeamName(this)">Colmcille</h2>
-<button onclick="sharePage()">Share</button>
 
 <div class="pitch green">
-
-<div class="player" style="top:92%; left:50%" onclick="editPlayer(this)">1</div>
-
-<div class="player" style="top:78%; left:25%" onclick="editPlayer(this)">2</div>
-<div class="player" style="top:78%; left:50%" onclick="editPlayer(this)">3</div>
-<div class="player" style="top:78%; left:75%" onclick="editPlayer(this)">4</div>
-
-<div class="player" style="top:62%; left:25%" onclick="editPlayer(this)">5</div>
-<div class="player" style="top:62%; left:50%" onclick="editPlayer(this)">6</div>
-<div class="player" style="top:62%; left:75%" onclick="editPlayer(this)">7</div>
-
-<div class="player" style="top:46%; left:40%" onclick="editPlayer(this)">8</div>
-<div class="player" style="top:46%; left:60%" onclick="editPlayer(this)">9</div>
-
-<div class="player" style="top:30%; left:25%" onclick="editPlayer(this)">10</div>
-<div class="player" style="top:30%; left:50%" onclick="editPlayer(this)">11</div>
-<div class="player" style="top:30%; left:75%" onclick="editPlayer(this)">12</div>
-
-<div class="player" style="top:14%; left:25%" onclick="editPlayer(this)">13</div>
-<div class="player" style="top:14%; left:50%" onclick="editPlayer(this)">14</div>
-<div class="player" style="top:14%; left:75%" onclick="editPlayer(this)">15</div>
-
+  <!-- FULL 15 -->
+  <div class="player" style="top:92%; left:50%" onclick="editPlayer(this)">1</div>
+  <div class="player" style="top:78%; left:25%" onclick="editPlayer(this)">2</div>
+  <div class="player" style="top:78%; left:50%" onclick="editPlayer(this)">3</div>
+  <div class="player" style="top:78%; left:75%" onclick="editPlayer(this)">4</div>
+  <div class="player" style="top:62%; left:25%" onclick="editPlayer(this)">5</div>
+  <div class="player" style="top:62%; left:50%" onclick="editPlayer(this)">6</div>
+  <div class="player" style="top:62%; left:75%" onclick="editPlayer(this)">7</div>
+  <div class="player" style="top:46%; left:40%" onclick="editPlayer(this)">8</div>
+  <div class="player" style="top:46%; left:60%" onclick="editPlayer(this)">9</div>
+  <div class="player" style="top:30%; left:25%" onclick="editPlayer(this)">10</div>
+  <div class="player" style="top:30%; left:50%" onclick="editPlayer(this)">11</div>
+  <div class="player" style="top:30%; left:75%" onclick="editPlayer(this)">12</div>
+  <div class="player" style="top:14%; left:25%" onclick="editPlayer(this)">13</div>
+  <div class="player" style="top:14%; left:50%" onclick="editPlayer(this)">14</div>
+  <div class="player" style="top:14%; left:75%" onclick="editPlayer(this)">15</div>
 </div>
 </div>
 
@@ -187,37 +157,38 @@ button {
 <h2 onclick="editTeamName(this)">Team B</h2>
 
 <div class="pitch blue">
-
-<div class="player" style="top:92%; left:50%" onclick="editPlayer(this)">1</div>
-
-<div class="player" style="top:78%; left:25%" onclick="editPlayer(this)">2</div>
-<div class="player" style="top:78%; left:50%" onclick="editPlayer(this)">3</div>
-<div class="player" style="top:78%; left:75%" onclick="editPlayer(this)">4</div>
-
-<div class="player" style="top:62%; left:25%" onclick="editPlayer(this)">5</div>
-<div class="player" style="top:62%; left:50%" onclick="editPlayer(this)">6</div>
-<div class="player" style="top:62%; left:75%" onclick="editPlayer(this)">7</div>
-
-<div class="player" style="top:46%; left:40%" onclick="editPlayer(this)">8</div>
-<div class="player" style="top:46%; left:60%" onclick="editPlayer(this)">9</div>
-
-<div class="player" style="top:30%; left:25%" onclick="editPlayer(this)">10</div>
-<div class="player" style="top:30%; left:50%" onclick="editPlayer(this)">11</div>
-<div class="player" style="top:30%; left:75%" onclick="editPlayer(this)">12</div>
-
-<div class="player" style="top:14%; left:25%" onclick="editPlayer(this)">13</div>
-<div class="player" style="top:14%; left:50%" onclick="editPlayer(this)">14</div>
-<div class="player" style="top:14%; left:75%" onclick="editPlayer(this)">15</div>
-
+  <!-- SAME 15 -->
+  <div class="player" style="top:92%; left:50%" onclick="editPlayer(this)">1</div>
+  <div class="player" style="top:78%; left:25%" onclick="editPlayer(this)">2</div>
+  <div class="player" style="top:78%; left:50%" onclick="editPlayer(this)">3</div>
+  <div class="player" style="top:78%; left:75%" onclick="editPlayer(this)">4</div>
+  <div class="player" style="top:62%; left:25%" onclick="editPlayer(this)">5</div>
+  <div class="player" style="top:62%; left:50%" onclick="editPlayer(this)">6</div>
+  <div class="player" style="top:62%; left:75%" onclick="editPlayer(this)">7</div>
+  <div class="player" style="top:46%; left:40%" onclick="editPlayer(this)">8</div>
+  <div class="player" style="top:46%; left:60%" onclick="editPlayer(this)">9</div>
+  <div class="player" style="top:30%; left:25%" onclick="editPlayer(this)">10</div>
+  <div class="player" style="top:30%; left:50%" onclick="editPlayer(this)">11</div>
+  <div class="player" style="top:30%; left:75%" onclick="editPlayer(this)">12</div>
+  <div class="player" style="top:14%; left:25%" onclick="editPlayer(this)">13</div>
+  <div class="player" style="top:14%; left:50%" onclick="editPlayer(this)">14</div>
+  <div class="player" style="top:14%; left:75%" onclick="editPlayer(this)">15</div>
 </div>
 </div>
 
 <!-- STATS -->
 <div id="stats" class="section">
 <h2>Match Stats</h2>
-<button onclick="sharePage()">Share</button>
 
 <h1 id="scoreboard">0-00 | 0-00</h1>
+
+<!-- CLOCK -->
+<div class="clock" id="matchClock">00:00</div>
+<div class="clock-controls">
+  <button onclick="startClock()">Start</button>
+  <button onclick="pauseClock()">Pause</button>
+  <button onclick="resetClock()">Reset</button>
+</div>
 
 <div id="homeStats"></div>
 <hr>
@@ -252,79 +223,79 @@ function editPlayer(el){
   if(name) el.innerText = name;
 }
 
-/* STATS CONFIG */
+/* STATS */
 const statConfig = {
   home:[
-    {key:"goals",label:"Goals",highlight:true},
-    {key:"points",label:"Points",highlight:true},
-    {key:"wides",label:"Wides"},
-    {key:"fouls",label:"Fouls"},
-    {key:"passes",label:"Passes"},
-    {key:"turnovers",label:"Turnovers"}
+    {key:"goals",label:"Goals"},
+    {key:"points",label:"Points"}
   ],
   away:[
-    {key:"goals",label:"Goals",highlight:true},
-    {key:"points",label:"Points",highlight:true}
+    {key:"goals",label:"Goals"},
+    {key:"points",label:"Points"}
   ]
 };
 
-let stats={home:{},away:{}};
-
-function initStats(){
-  statConfig.home.forEach(s=>stats.home[s.key]=0);
-  statConfig.away.forEach(s=>stats.away[s.key]=0);
-}
+let stats={home:{goals:0,points:0},away:{goals:0,points:0}};
 
 function renderStats(){
-  renderTeam("home","Colmcille","homeStats");
-  renderTeam("away","Team B","awayStats");
+  renderTeam("home","homeStats");
+  renderTeam("away","awayStats");
 }
 
-function renderTeam(team,title,id){
-  let el=document.getElementById(id);
-  el.innerHTML=statConfig[team].map(s=>`
-    <div class="stat-row ${s.highlight?'highlight':''}">
-      <div>${s.label}</div>
-      <div class="stat-controls">
-        <button class="btn-minus" onclick="updateStat('${team}','${s.key}',-1)">−</button>
-        <span id="${team}_${s.key}">${stats[team][s.key]}</span>
-        <button class="btn-plus" onclick="updateStat('${team}','${s.key}',1)">+</button>
+function renderTeam(team,id){
+  document.getElementById(id).innerHTML=
+    statConfig[team].map(s=>`
+      <div class="stat-row">
+        <div>${s.label}</div>
+        <div class="stat-controls">
+          <button class="btn-minus" onclick="updateStat('${team}','${s.key}',-1)">−</button>
+          <span id="${team}_${s.key}">${stats[team][s.key]}</span>
+          <button class="btn-plus" onclick="updateStat('${team}','${s.key}',1)">+</button>
+        </div>
       </div>
-    </div>
-  `).join("");
+    `).join("");
 }
 
 function updateStat(team,key,val){
   stats[team][key]=Math.max(0,stats[team][key]+val);
   document.getElementById(`${team}_${key}`).innerText=stats[team][key];
   updateScore();
-  saveData();
 }
 
+/* SCORE */
 function updateScore(){
   let h=stats.home.goals*3+stats.home.points;
   let a=stats.away.goals*3+stats.away.points;
-  scoreboard.innerText=
-    stats.home.goals+"-"+String(stats.home.points).padStart(2,"0")+
-    " ("+h+") | "+
-    stats.away.goals+"-"+String(stats.away.points).padStart(2,"0")+
-    " ("+a+")";
+  scoreboard.innerText=`${stats.home.goals}-${stats.home.points} (${h}) | ${stats.away.goals}-${stats.away.points} (${a})`;
 }
 
-/* SAVE CURRENT */
-function saveData(){
-  localStorage.setItem("gaaStats",JSON.stringify(stats));
+/* CLOCK */
+let seconds=0;
+let timer=null;
+
+function startClock(){
+  if(timer) return;
+  timer=setInterval(()=>{
+    seconds++;
+    updateClock();
+  },1000);
 }
 
-function loadData(){
-  let d=localStorage.getItem("gaaStats");
-  if(d) stats=JSON.parse(d);
+function pauseClock(){
+  clearInterval(timer);
+  timer=null;
 }
 
-/* SHARE */
-function sharePage(){
-  navigator.clipboard.writeText(scoreboard.innerText);
-  alert("Copied!");
+function resetClock(){
+  pauseClock();
+  seconds=0;
+  updateClock();
+}
+
+function updateClock(){
+  let m=String(Math.floor(seconds/60)).padStart(2,"0");
+  let s=String(seconds%60).padStart(2,"0");
+  matchClock.innerText=`${m}:${s}`;
 }
 
 /* HISTORY */
@@ -339,9 +310,8 @@ function saveHistory(h){
 function saveMatch(){
   let h=getHistory();
   h.unshift({
-    date:new Date().toLocaleString(),
-    stats:JSON.parse(JSON.stringify(stats)),
-    score:scoreboard.innerText
+    score:scoreboard.innerText,
+    date:new Date().toLocaleString()
   });
   saveHistory(h);
   renderHistory();
@@ -349,44 +319,26 @@ function saveMatch(){
 
 function renderHistory(){
   let h=getHistory();
-  let el=document.getElementById("historyList");
-
-  if(!h.length){
-    el.innerHTML="<p>No matches saved</p>";
-    return;
-  }
-
-  el.innerHTML=h.map((m,i)=>`
+  historyList.innerHTML=h.map((m,i)=>`
     <div class="history-item">
-      <div class="history-title">${m.score}</div>
+      <div>${m.score}</div>
       <div>${m.date}</div>
-      <button onclick="loadMatch(${i})">Load</button>
       <button onclick="deleteMatch(${i})">Delete</button>
     </div>
   `).join("");
 }
 
-function loadMatch(i){
-  let h=getHistory();
-  stats=h[i].stats;
-  renderStats();
-  updateScore();
-  saveData();
-}
-
 function deleteMatch(i){
   let h=getHistory();
-  if(!confirm("Delete match?")) return;
   h.splice(i,1);
   saveHistory(h);
   renderHistory();
 }
 
 /* INIT */
-initStats();
-loadData();
 renderStats();
 updateScore();
+updateClock();
 renderHistory();
 
 </script>
