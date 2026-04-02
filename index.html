@@ -120,12 +120,8 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button onclick="pauseClock()">Pause</button>
 <button onclick="resetClock()">Reset</button>
 
-<h3>Home Team</h3>
 <div id="homeStats"></div>
-
 <hr>
-
-<h3>Away Score Only</h3>
 <div id="awayStats"></div>
 </div>
 
@@ -139,59 +135,58 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-/* ===== STATS ===== */
-const statList = [
+/* ===== STATS (SAFE EDIT ONLY) ===== */
+const statListHome = [
   {key:"goals",label:"Goals"},
   {key:"points",label:"Points"},
   {key:"wides",label:"Wides"},
   {key:"fouls",label:"Fouls"},
   {key:"turnovers",label:"Turnovers"},
-  {key:"passes",label:"Passes"},      // NEW
-  {key:"tackles",label:"Tackles"}     // NEW
+  {key:"passes",label:"Passes"},   // added
+  {key:"tackles",label:"Tackles"}  // added
+];
+
+const statListAway = [
+  {key:"goals",label:"Goals"},
+  {key:"points",label:"Points"}
 ];
 
 let stats = {
-  home:Object.fromEntries(statList.map(s=>[s.key,0])),
-  away:{goals:0,points:0} // ONLY SCORE
+  home:Object.fromEntries(statListHome.map(s=>[s.key,0])),
+  away:Object.fromEntries(statListAway.map(s=>[s.key,0]))
 };
 
 function renderStats(){
 
-  // HOME FULL STATS
+  // HOME
   document.getElementById("homeStats").innerHTML =
-    statList.map(s=>`
-    <div class="stat-row">
-      <div>${s.label}</div>
-      <div>
-        <button class="btn-minus" onclick="updateStat('home','${s.key}',-1)">-</button>
-        <span id="home_${s.key}">${stats.home[s.key]}</span>
-        <button class="btn-plus" onclick="updateStat('home','${s.key}',1)">+</button>
+    statListHome.map(s=>`
+      <div class="stat-row">
+        <div>${s.label}</div>
+        <div>
+          <button class="btn-minus" onclick="updateStat('home','${s.key}',-1)">-</button>
+          <span id="home_${s.key}">${stats.home[s.key]}</span>
+          <button class="btn-plus" onclick="updateStat('home','${s.key}',1)">+</button>
+        </div>
       </div>
-    </div>`).join("");
+    `).join("");
 
-  // AWAY SCORE ONLY
-  document.getElementById("awayStats").innerHTML = `
-    <div class="stat-row">
-      <div>Goals</div>
-      <div>
-        <button class="btn-minus" onclick="updateStat('away','goals',-1)">-</button>
-        <span id="away_goals">${stats.away.goals}</span>
-        <button class="btn-plus" onclick="updateStat('away','goals',1)">+</button>
+  // AWAY (score only)
+  document.getElementById("awayStats").innerHTML =
+    statListAway.map(s=>`
+      <div class="stat-row">
+        <div>${s.label}</div>
+        <div>
+          <button class="btn-minus" onclick="updateStat('away','${s.key}',-1)">-</button>
+          <span id="away_${s.key}">${stats.away[s.key]}</span>
+          <button class="btn-plus" onclick="updateStat('away','${s.key}',1)">+</button>
+        </div>
       </div>
-    </div>
-    <div class="stat-row">
-      <div>Points</div>
-      <div>
-        <button class="btn-minus" onclick="updateStat('away','points',-1)">-</button>
-        <span id="away_points">${stats.away.points}</span>
-        <button class="btn-plus" onclick="updateStat('away','points',1)">+</button>
-      </div>
-    </div>
-  `;
+    `).join("");
 }
 
 function updateStat(team,key,val){
-  stats[team][key]=Math.max(0,(stats[team][key]||0)+val);
+  stats[team][key]=Math.max(0,stats[team][key]+val);
   document.getElementById(`${team}_${key}`).innerText=stats[team][key];
   updateScore();
 }
