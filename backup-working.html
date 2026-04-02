@@ -26,15 +26,14 @@ body { font-family: Arial; margin: 0; text-align: center; }
 .player {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.7);
   font-size: 12px;
-  font-weight: bold;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
 
 .subs {
@@ -45,15 +44,14 @@ body { font-family: Arial; margin: 0; text-align: center; }
 }
 
 .sub {
-  width: 55px;
-  height: 55px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: rgba(0,0,0,0.1);
-  font-size: 12px;
-  font-weight: bold;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  font-size: 11px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
 
 .stat-row {
@@ -67,35 +65,19 @@ body { font-family: Arial; margin: 0; text-align: center; }
   border-radius: 14px;
 }
 
-.btn-minus, .btn-plus {
+.btn-minus,.btn-plus {
   width: 35px;
   height: 35px;
   border: none;
   border-radius: 10px;
   font-size: 18px;
 }
-.btn-minus { background: #ff4d4d; color: white; }
-.btn-plus { background: #28a745; color: white; }
+.btn-minus { background:#ff4d4d;color:white; }
+.btn-plus { background:#28a745;color:white; }
 
 .clock { font-size: 26px; font-weight: bold; }
-
-.history-item {
-  background: #f4f4f4;
-  margin: 10px auto;
-  padding: 12px;
-  width: 90%;
-  max-width: 420px;
-  border-radius: 12px;
-}
-
-.top-btn {
-  margin: 5px;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 8px;
-  background: #333;
-  color: white;
-}
+.history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
+.top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
 </style>
 </head>
 
@@ -138,8 +120,12 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button onclick="pauseClock()">Pause</button>
 <button onclick="resetClock()">Reset</button>
 
+<h3>Home</h3>
 <div id="homeStats"></div>
+
 <hr>
+
+<h3>Away</h3>
 <div id="awayStats"></div>
 </div>
 
@@ -175,7 +161,7 @@ function renderPitch(team){
   document.getElementById(team+"Pitch").innerHTML =
     positions.map((p,i)=>`
       <div class="player" style="top:${p[0]}%;left:${p[1]}%" onclick="editPlayer('${team}',${i})">
-        ${i+1}<br>${data[team].players[i] || ""}
+        ${i+1}<br>${data[team].players[i]||""}
       </div>`).join("");
 }
 
@@ -189,7 +175,7 @@ function renderSubs(team){
   document.getElementById(team+"Subs").innerHTML =
     data[team].subs.map((s,i)=>`
       <div class="sub" onclick="editSub('${team}',${i})">
-        ${i+16}<br>${s || ""}
+        ${i+16}<br>${s||""}
       </div>`).join("");
 }
 
@@ -200,18 +186,12 @@ function editSub(team,i){
 
 /* RESET */
 function resetTeam(team){
-  if(!confirm("Reset players for "+data[team].name+"?")) return;
-  data[team].players = Array.from({length:15},()=> "");
-  data[team].subs = Array.from({length:5},()=> "");
+  if(!confirm("Reset team?")) return;
+  data[team].players=Array.from({length:15},()=> "");
+  data[team].subs=Array.from({length:5},()=> "");
   saveData();
   renderPitch(team);
   renderSubs(team);
-}
-
-/* TEAM NAME */
-function editTeamName(team,el){
-  let n=prompt("Team:",data[team].name);
-  if(n){ data[team].name=n; el.innerText=n; saveData(); }
 }
 
 /* TABS */
@@ -222,45 +202,61 @@ function showTab(id,el){
   el.classList.add('active');
 }
 
-/* ===== ORIGINAL WORKING STATS ===== */
-const statList = [
-  {key:"goals",label:"Goals"},
-  {key:"points",label:"Points"},
-  {key:"wides",label:"Wides"},
-  {key:"fouls",label:"Fouls"},
-  {key:"turnovers",label:"Turnovers"}
+/* ===== STATS ===== */
+const homeStatsList = [
+{key:"goals",label:"Goals"},
+{key:"points",label:"Points"},
+{key:"wides",label:"Wides"},
+{key:"fouls",label:"Fouls"},
+{key:"turnovers",label:"Turnovers"},
+{key:"passes",label:"Passes"},
+{key:"tackles",label:"Tackles"}
+];
+
+const awayStatsList = [
+{key:"goals",label:"Goals"},
+{key:"points",label:"Points"}
 ];
 
 let stats = {
-  home:Object.fromEntries(statList.map(s=>[s.key,0])),
-  away:Object.fromEntries(statList.map(s=>[s.key,0]))
+home:Object.fromEntries(homeStatsList.map(s=>[s.key,0])),
+away:Object.fromEntries(awayStatsList.map(s=>[s.key,0]))
 };
 
 function renderStats(){
-  ["home","away"].forEach(team=>{
-    document.getElementById(team+"Stats").innerHTML =
-      statList.map(s=>`
-      <div class="stat-row">
-        <div>${s.label}</div>
-        <div>
-          <button class="btn-minus" onclick="updateStat('${team}','${s.key}',-1)">-</button>
-          <span id="${team}_${s.key}">${stats[team][s.key]}</span>
-          <button class="btn-plus" onclick="updateStat('${team}','${s.key}',1)">+</button>
-        </div>
-      </div>`).join("");
-  });
+document.getElementById("homeStats").innerHTML=
+homeStatsList.map(s=>`
+<div class="stat-row">
+<div>${s.label}</div>
+<div>
+<button class="btn-minus" onclick="updateStat('home','${s.key}',-1)">-</button>
+<span id="home_${s.key}">${stats.home[s.key]}</span>
+<button class="btn-plus" onclick="updateStat('home','${s.key}',1)">+</button>
+</div>
+</div>`).join("");
+
+document.getElementById("awayStats").innerHTML=
+awayStatsList.map(s=>`
+<div class="stat-row">
+<div>${s.label}</div>
+<div>
+<button class="btn-minus" onclick="updateStat('away','${s.key}',-1)">-</button>
+<span id="away_${s.key}">${stats.away[s.key]}</span>
+<button class="btn-plus" onclick="updateStat('away','${s.key}',1)">+</button>
+</div>
+</div>`).join("");
 }
 
 function updateStat(team,key,val){
-  stats[team][key]=Math.max(0,stats[team][key]+val);
-  document.getElementById(`${team}_${key}`).innerText=stats[team][key];
-  updateScore();
+stats[team][key]=Math.max(0,stats[team][key]+val);
+document.getElementById(`${team}_${key}`).innerText=stats[team][key];
+updateScore();
 }
 
 function updateScore(){
-  let h=stats.home.goals*3+stats.home.points;
-  let a=stats.away.goals*3+stats.away.points;
-  scoreboard.innerText=`${stats.home.goals}-${stats.home.points} (${h}) | ${stats.away.goals}-${stats.away.points} (${a})`;
+let h=stats.home.goals*3+stats.home.points;
+let a=stats.away.goals*3+stats.away.points;
+scoreboard.innerText=`${stats.home.goals}-${stats.home.points} (${h}) | ${stats.away.goals}-${stats.away.points} (${a})`;
 }
 
 /* CLOCK */
@@ -269,43 +265,40 @@ function startClock(){ if(!timer) timer=setInterval(()=>{sec++;updateClock();},1
 function pauseClock(){ clearInterval(timer); timer=null; }
 function resetClock(){ pauseClock(); sec=0; updateClock(); }
 function updateClock(){
-  matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");
+matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");
 }
 
 /* HISTORY */
 function getHistory(){ return JSON.parse(localStorage.getItem("gaaHistory")||"[]"); }
 function saveMatch(){
-  let h=getHistory();
-  h.unshift({score:scoreboard.innerText,date:new Date().toLocaleString()});
-  localStorage.setItem("gaaHistory",JSON.stringify(h));
-  renderHistory();
+let h=getHistory();
+h.unshift({score:scoreboard.innerText,date:new Date().toLocaleString()});
+localStorage.setItem("gaaHistory",JSON.stringify(h));
+renderHistory();
 }
 function renderHistory(){
-  let h=getHistory();
-  historyList.innerHTML=h.map((m,i)=>`
-    <div class="history-item">
-      ${m.score}<br>${m.date}
-      <br><button onclick="deleteMatch(${i})">Delete</button>
-    </div>`).join("");
+let h=getHistory();
+historyList.innerHTML=h.map((m,i)=>`
+<div class="history-item">
+${m.score}<br>${m.date}
+<br><button onclick="deleteMatch(${i})">Delete</button>
+</div>`).join("");
 }
 function deleteMatch(i){
-  let h=getHistory();
-  h.splice(i,1);
-  localStorage.setItem("gaaHistory",JSON.stringify(h));
-  renderHistory();
+let h=getHistory();
+h.splice(i,1);
+localStorage.setItem("gaaHistory",JSON.stringify(h));
+renderHistory();
 }
 
 /* SHARE */
 function shareMatch(){
-  let text = `${scoreboard.innerText}`;
-  if(navigator.share){ navigator.share({ text }); }
-  else{ prompt("Copy:",text); }
+let text=scoreboard.innerText;
+if(navigator.share){navigator.share({text});}
+else{prompt("Copy:",text);}
 }
 
 /* INIT */
-document.querySelector("#home h2").innerText=data.home.name;
-document.querySelector("#away h2").innerText=data.away.name;
-
 renderPitch("home");
 renderPitch("away");
 renderSubs("home");
