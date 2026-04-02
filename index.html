@@ -65,10 +65,8 @@ body {
   font-weight: bold;
 }
 
-/* STATS UI */
-.stats-container {
-  margin-top: 10px;
-}
+/* STATS */
+.stats-container { margin-top: 10px; }
 
 .team-title {
   font-size: 22px;
@@ -90,9 +88,7 @@ body {
   box-shadow: 0 3px 6px rgba(0,0,0,0.1);
 }
 
-.stat-label {
-  font-weight: 600;
-}
+.stat-label { font-weight: 600; }
 
 .stat-controls {
   display: flex;
@@ -128,6 +124,25 @@ body {
   transform: scale(0.9);
 }
 
+/* HISTORY */
+.history-item {
+  background: #f4f4f4;
+  margin: 10px auto;
+  padding: 12px;
+  width: 90%;
+  max-width: 420px;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.history-title { font-weight: bold; }
+
+.history-buttons {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-around;
+}
+
 h1 { font-size: 34px; }
 h2 { font-size: 26px; }
 
@@ -147,6 +162,7 @@ button {
   <div class="tab active" onclick="showTab('home',this)">Colmcille</div>
   <div class="tab" onclick="showTab('away',this)">Team B</div>
   <div class="tab" onclick="showTab('stats',this)">Stats</div>
+  <div class="tab" onclick="showTab('history',this)">History</div>
 </div>
 
 <!-- HOME -->
@@ -156,20 +172,6 @@ button {
 
 <div class="pitch green">
   <div class="player" style="top:92%; left:50%" onclick="editPlayer(this)">1</div>
-  <div class="player" style="top:78%; left:25%" onclick="editPlayer(this)">2</div>
-  <div class="player" style="top:78%; left:50%" onclick="editPlayer(this)">3</div>
-  <div class="player" style="top:78%; left:75%" onclick="editPlayer(this)">4</div>
-  <div class="player" style="top:62%; left:25%" onclick="editPlayer(this)">5</div>
-  <div class="player" style="top:62%; left:50%" onclick="editPlayer(this)">6</div>
-  <div class="player" style="top:62%; left:75%" onclick="editPlayer(this)">7</div>
-  <div class="player" style="top:46%; left:40%" onclick="editPlayer(this)">8</div>
-  <div class="player" style="top:46%; left:60%" onclick="editPlayer(this)">9</div>
-  <div class="player" style="top:30%; left:25%" onclick="editPlayer(this)">10</div>
-  <div class="player" style="top:30%; left:50%" onclick="editPlayer(this)">11</div>
-  <div class="player" style="top:30%; left:75%" onclick="editPlayer(this)">12</div>
-  <div class="player" style="top:14%; left:25%" onclick="editPlayer(this)">13</div>
-  <div class="player" style="top:14%; left:50%" onclick="editPlayer(this)">14</div>
-  <div class="player" style="top:14%; left:75%" onclick="editPlayer(this)">15</div>
 </div>
 </div>
 
@@ -178,9 +180,7 @@ button {
 <h2 onclick="editTeamName(this)">Team B</h2>
 
 <div class="pitch blue">
-  <!-- same layout -->
   <div class="player" style="top:92%; left:50%" onclick="editPlayer(this)">1</div>
-  <!-- (rest unchanged for simplicity) -->
 </div>
 </div>
 
@@ -192,10 +192,15 @@ button {
   <h1 id="scoreboard">0-00 | 0-00</h1>
 
   <div id="homeStats"></div>
-
   <hr>
-
   <div id="awayStats"></div>
+</div>
+
+<!-- HISTORY -->
+<div id="history" class="section">
+  <h2>Match History</h2>
+  <button onclick="saveMatch()">Save Match</button>
+  <div id="historyList"></div>
 </div>
 
 <script>
@@ -210,7 +215,7 @@ function showTab(id,el){
 
 /* EDIT */
 function editTeamName(el){
-  let name = prompt("Enter team name:", el.innerText);
+  let name = prompt("Team name:", el.innerText);
   if(name) el.innerText = name;
 }
 
@@ -222,16 +227,16 @@ function editPlayer(el){
 /* CONFIG */
 const statConfig = {
   home: [
-    { key: "goals", label: "Goals", highlight: true },
-    { key: "points", label: "Points", highlight: true },
-    { key: "wides", label: "Wides" },
-    { key: "fouls", label: "Fouls" },
-    { key: "passes", label: "Passes" },
-    { key: "turnovers", label: "Turnovers" }
+    { key:"goals",label:"Goals",highlight:true },
+    { key:"points",label:"Points",highlight:true },
+    { key:"wides",label:"Wides" },
+    { key:"fouls",label:"Fouls" },
+    { key:"passes",label:"Passes" },
+    { key:"turnovers",label:"Turnovers" }
   ],
   away: [
-    { key: "goals", label: "Goals", highlight: true },
-    { key: "points", label: "Points", highlight: true }
+    { key:"goals",label:"Goals",highlight:true },
+    { key:"points",label:"Points",highlight:true }
   ]
 };
 
@@ -239,8 +244,8 @@ let stats = { home:{}, away:{} };
 
 /* INIT */
 function initStats(){
-  statConfig.home.forEach(s => stats.home[s.key] = 0);
-  statConfig.away.forEach(s => stats.away[s.key] = 0);
+  statConfig.home.forEach(s=>stats.home[s.key]=0);
+  statConfig.away.forEach(s=>stats.away[s.key]=0);
 }
 
 /* RENDER */
@@ -249,68 +254,122 @@ function renderStats(){
   renderTeam("away","Team B","awayStats");
 }
 
-function renderTeam(team,title,containerId){
-  const container = document.getElementById(containerId);
-
-  container.innerHTML = `
+function renderTeam(team,title,id){
+  const el = document.getElementById(id);
+  el.innerHTML = `
     <div class="stats-container">
       <div class="team-title">${title}</div>
-      ${statConfig[team].map(stat => `
-        <div class="stat-row ${stat.highlight ? 'highlight' : ''}">
-          <div class="stat-label">${stat.label}</div>
+      ${statConfig[team].map(s=>`
+        <div class="stat-row ${s.highlight?'highlight':''}">
+          <div>${s.label}</div>
           <div class="stat-controls">
-            <button class="btn-minus" onclick="updateStat('${team}','${stat.key}',-1)">−</button>
-            <span id="${team}_${stat.key}">${stats[team][stat.key]}</span>
-            <button class="btn-plus" onclick="updateStat('${team}','${stat.key}',1)">+</button>
+            <button class="btn-minus" onclick="updateStat('${team}','${s.key}',-1)">−</button>
+            <span id="${team}_${s.key}">${stats[team][s.key]}</span>
+            <button class="btn-plus" onclick="updateStat('${team}','${s.key}',1)">+</button>
           </div>
         </div>
       `).join("")}
-    </div>
-  `;
+    </div>`;
 }
 
 /* UPDATE */
 function updateStat(team,key,val){
-  stats[team][key] = Math.max(0, stats[team][key] + val);
-  document.getElementById(`${team}_${key}`).innerText = stats[team][key];
+  stats[team][key]=Math.max(0,stats[team][key]+val);
+  document.getElementById(`${team}_${key}`).innerText=stats[team][key];
   updateScore();
   saveData();
 }
 
 /* SCORE */
 function updateScore(){
-  let h = stats.home.goals*3 + stats.home.points;
-  let a = stats.away.goals*3 + stats.away.points;
-
-  scoreboard.innerText =
+  let h=stats.home.goals*3+stats.home.points;
+  let a=stats.away.goals*3+stats.away.points;
+  scoreboard.innerText=
     stats.home.goals+"-"+String(stats.home.points).padStart(2,"0")+
     " ("+h+") | "+
     stats.away.goals+"-"+String(stats.away.points).padStart(2,"0")+
     " ("+a+")";
 }
 
-/* SAVE */
+/* SAVE CURRENT */
 function saveData(){
-  localStorage.setItem("gaaStats", JSON.stringify(stats));
+  localStorage.setItem("gaaStats",JSON.stringify(stats));
 }
 
 function loadData(){
-  let d = localStorage.getItem("gaaStats");
-  if(d) stats = JSON.parse(d);
+  let d=localStorage.getItem("gaaStats");
+  if(d) stats=JSON.parse(d);
 }
 
 /* SHARE */
 function sharePage(){
-  const text = `Score: ${scoreboard.innerText}`;
-  navigator.clipboard.writeText(text);
+  navigator.clipboard.writeText(scoreboard.innerText);
   alert("Copied!");
 }
 
-/* INIT APP */
+/* HISTORY */
+function getHistory(){
+  return JSON.parse(localStorage.getItem("gaaHistory")||"[]");
+}
+
+function saveHistory(h){
+  localStorage.setItem("gaaHistory",JSON.stringify(h));
+}
+
+function saveMatch(){
+  let h=getHistory();
+  h.unshift({
+    date:new Date().toLocaleString(),
+    stats:JSON.parse(JSON.stringify(stats)),
+    score:scoreboard.innerText
+  });
+  saveHistory(h);
+  renderHistory();
+}
+
+function renderHistory(){
+  let h=getHistory();
+  let el=document.getElementById("historyList");
+
+  if(!h.length){
+    el.innerHTML="<p>No matches saved</p>";
+    return;
+  }
+
+  el.innerHTML=h.map((m,i)=>`
+    <div class="history-item">
+      <div class="history-title">${m.score}</div>
+      <div>${m.date}</div>
+      <div class="history-buttons">
+        <button onclick="loadMatch(${i})">Load</button>
+        <button onclick="deleteMatch(${i})">Delete</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function loadMatch(i){
+  let h=getHistory();
+  stats=h[i].stats;
+  renderStats();
+  updateScore();
+  saveData();
+}
+
+function deleteMatch(i){
+  let h=getHistory();
+  if(!confirm("Delete match?")) return;
+  h.splice(i,1);
+  saveHistory(h);
+  renderHistory();
+}
+
+/* INIT */
 initStats();
 loadData();
 renderStats();
 updateScore();
+renderHistory();
 
 </script>
 
