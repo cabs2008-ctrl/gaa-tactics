@@ -71,6 +71,15 @@ body { font-family: Arial; margin: 0; text-align: center; }
   max-width: 420px;
   border-radius: 12px;
 }
+
+.top-btn {
+  margin: 5px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #333;
+  color: white;
+}
 </style>
 </head>
 
@@ -86,18 +95,29 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <!-- HOME -->
 <div id="home" class="section active">
 <h2 onclick="editTeamName('home',this)">Home</h2>
+
+<button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
+<button class="top-btn" onclick="shareMatch()">Share</button>
+
 <div class="pitch green" id="homePitch"></div>
 </div>
 
 <!-- AWAY -->
 <div id="away" class="section">
 <h2 onclick="editTeamName('away',this)">Away</h2>
+
+<button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
+<button class="top-btn" onclick="shareMatch()">Share</button>
+
 <div class="pitch blue" id="awayPitch"></div>
 </div>
 
 <!-- STATS -->
 <div id="stats" class="section">
 <h2>Match Stats</h2>
+
+<button class="top-btn" onclick="shareMatch()">Share</button>
+
 <h1 id="scoreboard"></h1>
 
 <div class="clock" id="matchClock">00:00</div>
@@ -117,7 +137,10 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <!-- HISTORY -->
 <div id="history" class="section">
 <h2>Match History</h2>
-<button onclick="saveMatch()">Save Match</button>
+
+<button class="top-btn" onclick="saveMatch()">Save Match</button>
+<button class="top-btn" onclick="shareMatch()">Share</button>
+
 <div id="historyList"></div>
 </div>
 
@@ -138,7 +161,6 @@ let data = JSON.parse(localStorage.getItem("gaaData")||"{}");
 if(!data.home) data.home={name:"Home",players:Array.from({length:15},(_,i)=>i+1)};
 if(!data.away) data.away={name:"Away",players:Array.from({length:15},(_,i)=>i+1)};
 
-/* STATS LOAD */
 let stats = JSON.parse(localStorage.getItem("gaaStats")||"null");
 
 const statList = [
@@ -159,6 +181,35 @@ if(!stats){
 function saveData(){
   localStorage.setItem("gaaData",JSON.stringify(data));
   localStorage.setItem("gaaStats",JSON.stringify(stats));
+}
+
+/* RESET TEAM */
+function resetTeam(team){
+  if(!confirm("Reset players for "+data[team].name+"?")) return;
+  data[team].players = Array.from({length:15},(_,i)=>i+1);
+  saveData();
+  renderPitch(team);
+}
+
+/* SHARE */
+function shareMatch(){
+  let text = `
+${data.home.name} vs ${data.away.name}
+
+${scoreboard.innerText}
+
+HOME:
+${statList.map(s=>`${s.label}: ${stats.home[s.key]}`).join("\n")}
+
+AWAY:
+${statList.map(s=>`${s.label}: ${stats.away[s.key]}`).join("\n")}
+`;
+
+  if(navigator.share){
+    navigator.share({ text });
+  } else {
+    prompt("Copy this:", text);
+  }
 }
 
 /* RENDER PLAYERS */
@@ -231,9 +282,7 @@ function updateScore(){
   let a=stats.away.goals*3+stats.away.points;
 
   scoreboard.innerText=
-    `${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) 
-     vs 
-     ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})`;
+    `${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) vs ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})`;
 }
 
 /* CLOCK */
