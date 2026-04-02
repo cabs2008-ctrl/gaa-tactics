@@ -138,12 +138,8 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button onclick="pauseClock()">Pause</button>
 <button onclick="resetClock()">Reset</button>
 
-<h3 id="homeLabel"></h3>
 <div id="homeStats"></div>
-
 <hr>
-
-<h3 id="awayLabel"></h3>
 <div id="awayStats"></div>
 </div>
 
@@ -157,76 +153,9 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-/* POSITIONS */
-const positions = [
-[92,50],[78,25],[78,50],[78,75],
-[62,25],[62,50],[62,75],
-[46,40],[46,60],
-[30,25],[30,50],[30,75],
-[14,25],[14,50],[14,75]
-];
+/* ===== KEEP YOUR EXISTING CODE ABOVE THIS ===== */
 
-/* DATA */
-let data = JSON.parse(localStorage.getItem("gaaData")||"{}");
-
-if(!data.home) data.home={name:"Home",players:Array.from({length:15},()=>""),subs:Array.from({length:5},()=> "")};
-if(!data.away) data.away={name:"Away",players:Array.from({length:15},()=>""),subs:Array.from({length:5},()=> "")};
-
-function saveData(){ localStorage.setItem("gaaData",JSON.stringify(data)); }
-
-/* PLAYERS */
-function renderPitch(team){
-  document.getElementById(team+"Pitch").innerHTML =
-    positions.map((p,i)=>`
-      <div class="player" style="top:${p[0]}%;left:${p[1]}%" onclick="editPlayer('${team}',${i})">
-        ${i+1}<br>${data[team].players[i] || ""}
-      </div>`).join("");
-}
-
-function editPlayer(team,i){
-  let n=prompt("Player Name:",data[team].players[i]);
-  if(n!==null){ data[team].players[i]=n; saveData(); renderPitch(team); }
-}
-
-/* SUBS */
-function renderSubs(team){
-  document.getElementById(team+"Subs").innerHTML =
-    data[team].subs.map((s,i)=>`
-      <div class="sub" onclick="editSub('${team}',${i})">
-        ${i+16}<br>${s || ""}
-      </div>`).join("");
-}
-
-function editSub(team,i){
-  let n=prompt("Sub Name:",data[team].subs[i]);
-  if(n!==null){ data[team].subs[i]=n; saveData(); renderSubs(team); }
-}
-
-/* RESET */
-function resetTeam(team){
-  if(!confirm("Reset players for "+data[team].name+"?")) return;
-  data[team].players = Array.from({length:15},()=> "");
-  data[team].subs = Array.from({length:5},()=> "");
-  saveData();
-  renderPitch(team);
-  renderSubs(team);
-}
-
-/* TEAM NAME */
-function editTeamName(team,el){
-  let n=prompt("Team:",data[team].name);
-  if(n){ data[team].name=n; el.innerText=n; saveData(); renderLabels(); }
-}
-
-/* TABS */
-function showTab(id,el){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  el.classList.add('active');
-}
-
-/* ===== STATS (FIXED PROPERLY) ===== */
+/* ===== ORIGINAL WORKING STATS ===== */
 const statList = [
   {key:"goals",label:"Goals"},
   {key:"points",label:"Points"},
@@ -241,33 +170,24 @@ let stats = {
 };
 
 function renderStats(){
-  renderLabels();
   ["home","away"].forEach(team=>{
     document.getElementById(team+"Stats").innerHTML =
       statList.map(s=>`
-        <div class="stat-row">
-          <div>${s.label}</div>
-          <div>
-            <button class="btn-minus" onclick="updateStat('${team}','${s.key}',-1)">-</button>
-            <span id="${team}_${s.key}">${stats[team][s.key]}</span>
-            <button class="btn-plus" onclick="updateStat('${team}','${s.key}',1)">+</button>
-          </div>
-        </div>`).join("");
+      <div class="stat-row">
+        <div>${s.label}</div>
+        <div>
+          <button class="btn-minus" onclick="updateStat('${team}','${s.key}',-1)">-</button>
+          <span id="${team}_${s.key}">${stats[team][s.key]}</span>
+          <button class="btn-plus" onclick="updateStat('${team}','${s.key}',1)">+</button>
+        </div>
+      </div>`).join("");
   });
 }
 
 function updateStat(team,key,val){
   stats[team][key]=Math.max(0,stats[team][key]+val);
-
-  const el = document.getElementById(`${team}_${key}`);
-  if(el){ el.innerText = stats[team][key]; }
-
+  document.getElementById(`${team}_${key}`).innerText=stats[team][key];
   updateScore();
-}
-
-function renderLabels(){
-  homeLabel.innerText=data.home.name;
-  awayLabel.innerText=data.away.name;
 }
 
 function updateScore(){
@@ -275,58 +195,6 @@ function updateScore(){
   let a=stats.away.goals*3+stats.away.points;
   scoreboard.innerText=`${stats.home.goals}-${stats.home.points} (${h}) | ${stats.away.goals}-${stats.away.points} (${a})`;
 }
-
-/* CLOCK */
-let sec=0,timer=null;
-function startClock(){ if(!timer) timer=setInterval(()=>{sec++;updateClock();},1000); }
-function pauseClock(){ clearInterval(timer); timer=null; }
-function resetClock(){ pauseClock(); sec=0; updateClock(); }
-function updateClock(){
-  matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");
-}
-
-/* HISTORY */
-function getHistory(){ return JSON.parse(localStorage.getItem("gaaHistory")||"[]"); }
-function saveMatch(){
-  let h=getHistory();
-  h.unshift({score:scoreboard.innerText,date:new Date().toLocaleString()});
-  localStorage.setItem("gaaHistory",JSON.stringify(h));
-  renderHistory();
-}
-function renderHistory(){
-  let h=getHistory();
-  historyList.innerHTML=h.map((m,i)=>`
-    <div class="history-item">
-      ${m.score}<br>${m.date}
-      <br><button onclick="deleteMatch(${i})">Delete</button>
-    </div>`).join("");
-}
-function deleteMatch(i){
-  let h=getHistory();
-  h.splice(i,1);
-  localStorage.setItem("gaaHistory",JSON.stringify(h));
-  renderHistory();
-}
-
-/* SHARE */
-function shareMatch(){
-  let text = `${scoreboard.innerText}`;
-  if(navigator.share){ navigator.share({ text }); }
-  else{ prompt("Copy:",text); }
-}
-
-/* INIT */
-document.querySelector("#home h2").innerText=data.home.name;
-document.querySelector("#away h2").innerText=data.away.name;
-
-renderPitch("home");
-renderPitch("away");
-renderSubs("home");
-renderSubs("away");
-renderStats();
-updateScore();
-updateClock();
-renderHistory();
 
 </script>
 
