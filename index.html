@@ -112,6 +112,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div id="stats" class="section">
 <h2>Match Stats</h2>
 <button class="top-btn" onclick="shareMatch()">Share</button>
+<button class="top-btn" onclick="resetStats()">Reset Stats</button>
 
 <h1 id="scoreboard"></h1>
 
@@ -138,69 +139,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 </div>
 
 <script>
-
-/* POSITIONS */
-const positions = [
-[92,50],[78,25],[78,50],[78,75],
-[62,25],[62,50],[62,75],
-[46,40],[46,60],
-[30,25],[30,50],[30,75],
-[14,25],[14,50],[14,75]
-];
-
-/* DATA */
-let data = JSON.parse(localStorage.getItem("gaaData")||"{}");
-
-if(!data.home) data.home={name:"Home",players:Array.from({length:15},()=>""),subs:Array.from({length:5},()=> "")};
-if(!data.away) data.away={name:"Away",players:Array.from({length:15},()=>""),subs:Array.from({length:5},()=> "")};
-
-function saveData(){ localStorage.setItem("gaaData",JSON.stringify(data)); }
-
-/* PLAYERS */
-function renderPitch(team){
-  document.getElementById(team+"Pitch").innerHTML =
-    positions.map((p,i)=>`
-      <div class="player" style="top:${p[0]}%;left:${p[1]}%" onclick="editPlayer('${team}',${i})">
-        ${i+1}<br>${data[team].players[i]||""}
-      </div>`).join("");
-}
-
-function editPlayer(team,i){
-  let n=prompt("Player Name:",data[team].players[i]);
-  if(n!==null){ data[team].players[i]=n; saveData(); renderPitch(team); }
-}
-
-/* SUBS */
-function renderSubs(team){
-  document.getElementById(team+"Subs").innerHTML =
-    data[team].subs.map((s,i)=>`
-      <div class="sub" onclick="editSub('${team}',${i})">
-        ${i+16}<br>${s||""}
-      </div>`).join("");
-}
-
-function editSub(team,i){
-  let n=prompt("Sub Name:",data[team].subs[i]);
-  if(n!==null){ data[team].subs[i]=n; saveData(); renderSubs(team); }
-}
-
-/* RESET */
-function resetTeam(team){
-  if(!confirm("Reset team?")) return;
-  data[team].players=Array.from({length:15},()=> "");
-  data[team].subs=Array.from({length:5},()=> "");
-  saveData();
-  renderPitch(team);
-  renderSubs(team);
-}
-
-/* TABS */
-function showTab(id,el){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  el.classList.add('active');
-}
 
 /* ===== STATS ===== */
 const homeStatsList = [
@@ -259,54 +197,13 @@ let a=stats.away.goals*3+stats.away.points;
 scoreboard.innerText=`${stats.home.goals}-${stats.home.points} (${h}) | ${stats.away.goals}-${stats.away.points} (${a})`;
 }
 
-/* CLOCK */
-let sec=0,timer=null;
-function startClock(){ if(!timer) timer=setInterval(()=>{sec++;updateClock();},1000); }
-function pauseClock(){ clearInterval(timer); timer=null; }
-function resetClock(){ pauseClock(); sec=0; updateClock(); }
-function updateClock(){
-matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");
-}
-
-/* HISTORY */
-function getHistory(){ return JSON.parse(localStorage.getItem("gaaHistory")||"[]"); }
-function saveMatch(){
-let h=getHistory();
-h.unshift({score:scoreboard.innerText,date:new Date().toLocaleString()});
-localStorage.setItem("gaaHistory",JSON.stringify(h));
-renderHistory();
-}
-function renderHistory(){
-let h=getHistory();
-historyList.innerHTML=h.map((m,i)=>`
-<div class="history-item">
-${m.score}<br>${m.date}
-<br><button onclick="deleteMatch(${i})">Delete</button>
-</div>`).join("");
-}
-function deleteMatch(i){
-let h=getHistory();
-h.splice(i,1);
-localStorage.setItem("gaaHistory",JSON.stringify(h));
-renderHistory();
-}
-
-/* SHARE */
-function shareMatch(){
-let text=scoreboard.innerText;
-if(navigator.share){navigator.share({text});}
-else{prompt("Copy:",text);}
-}
-
-/* INIT */
-renderPitch("home");
-renderPitch("away");
-renderSubs("home");
-renderSubs("away");
+/* ✅ RESET STATS (NEW ONLY) */
+function resetStats(){
+Object.keys(stats.home).forEach(k=>stats.home[k]=0);
+Object.keys(stats.away).forEach(k=>stats.away[k]=0);
 renderStats();
 updateScore();
-updateClock();
-renderHistory();
+}
 
 </script>
 
