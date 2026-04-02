@@ -88,8 +88,6 @@ body {
   box-shadow: 0 3px 6px rgba(0,0,0,0.1);
 }
 
-.stat-label { font-weight: 600; }
-
 .stat-controls {
   display: flex;
   align-items: center;
@@ -120,10 +118,6 @@ body {
   border: 2px solid #ffc107;
 }
 
-.stat-controls button:active {
-  transform: scale(0.9);
-}
-
 /* HISTORY */
 .history-item {
   background: #f4f4f4;
@@ -132,17 +126,9 @@ body {
   width: 90%;
   max-width: 420px;
   border-radius: 12px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.history-title { font-weight: bold; }
-
-.history-buttons {
-  margin-top: 8px;
-  display: flex;
-  justify-content: space-around;
-}
-
+/* TEXT */
 h1 { font-size: 34px; }
 h2 { font-size: 26px; }
 
@@ -171,7 +157,28 @@ button {
 <button onclick="sharePage()">Share</button>
 
 <div class="pitch green">
-  <div class="player" style="top:92%; left:50%" onclick="editPlayer(this)">1</div>
+
+<div class="player" style="top:92%; left:50%" onclick="editPlayer(this)">1</div>
+
+<div class="player" style="top:78%; left:25%" onclick="editPlayer(this)">2</div>
+<div class="player" style="top:78%; left:50%" onclick="editPlayer(this)">3</div>
+<div class="player" style="top:78%; left:75%" onclick="editPlayer(this)">4</div>
+
+<div class="player" style="top:62%; left:25%" onclick="editPlayer(this)">5</div>
+<div class="player" style="top:62%; left:50%" onclick="editPlayer(this)">6</div>
+<div class="player" style="top:62%; left:75%" onclick="editPlayer(this)">7</div>
+
+<div class="player" style="top:46%; left:40%" onclick="editPlayer(this)">8</div>
+<div class="player" style="top:46%; left:60%" onclick="editPlayer(this)">9</div>
+
+<div class="player" style="top:30%; left:25%" onclick="editPlayer(this)">10</div>
+<div class="player" style="top:30%; left:50%" onclick="editPlayer(this)">11</div>
+<div class="player" style="top:30%; left:75%" onclick="editPlayer(this)">12</div>
+
+<div class="player" style="top:14%; left:25%" onclick="editPlayer(this)">13</div>
+<div class="player" style="top:14%; left:50%" onclick="editPlayer(this)">14</div>
+<div class="player" style="top:14%; left:75%" onclick="editPlayer(this)">15</div>
+
 </div>
 </div>
 
@@ -180,27 +187,48 @@ button {
 <h2 onclick="editTeamName(this)">Team B</h2>
 
 <div class="pitch blue">
-  <div class="player" style="top:92%; left:50%" onclick="editPlayer(this)">1</div>
+
+<div class="player" style="top:92%; left:50%" onclick="editPlayer(this)">1</div>
+
+<div class="player" style="top:78%; left:25%" onclick="editPlayer(this)">2</div>
+<div class="player" style="top:78%; left:50%" onclick="editPlayer(this)">3</div>
+<div class="player" style="top:78%; left:75%" onclick="editPlayer(this)">4</div>
+
+<div class="player" style="top:62%; left:25%" onclick="editPlayer(this)">5</div>
+<div class="player" style="top:62%; left:50%" onclick="editPlayer(this)">6</div>
+<div class="player" style="top:62%; left:75%" onclick="editPlayer(this)">7</div>
+
+<div class="player" style="top:46%; left:40%" onclick="editPlayer(this)">8</div>
+<div class="player" style="top:46%; left:60%" onclick="editPlayer(this)">9</div>
+
+<div class="player" style="top:30%; left:25%" onclick="editPlayer(this)">10</div>
+<div class="player" style="top:30%; left:50%" onclick="editPlayer(this)">11</div>
+<div class="player" style="top:30%; left:75%" onclick="editPlayer(this)">12</div>
+
+<div class="player" style="top:14%; left:25%" onclick="editPlayer(this)">13</div>
+<div class="player" style="top:14%; left:50%" onclick="editPlayer(this)">14</div>
+<div class="player" style="top:14%; left:75%" onclick="editPlayer(this)">15</div>
+
 </div>
 </div>
 
 <!-- STATS -->
 <div id="stats" class="section">
-  <h2>Match Stats</h2>
-  <button onclick="sharePage()">Share</button>
+<h2>Match Stats</h2>
+<button onclick="sharePage()">Share</button>
 
-  <h1 id="scoreboard">0-00 | 0-00</h1>
+<h1 id="scoreboard">0-00 | 0-00</h1>
 
-  <div id="homeStats"></div>
-  <hr>
-  <div id="awayStats"></div>
+<div id="homeStats"></div>
+<hr>
+<div id="awayStats"></div>
 </div>
 
 <!-- HISTORY -->
 <div id="history" class="section">
-  <h2>Match History</h2>
-  <button onclick="saveMatch()">Save Match</button>
-  <div id="historyList"></div>
+<h2>Match History</h2>
+<button onclick="saveMatch()">Save Match</button>
+<div id="historyList"></div>
 </div>
 
 <script>
@@ -224,55 +252,48 @@ function editPlayer(el){
   if(name) el.innerText = name;
 }
 
-/* CONFIG */
+/* STATS CONFIG */
 const statConfig = {
-  home: [
-    { key:"goals",label:"Goals",highlight:true },
-    { key:"points",label:"Points",highlight:true },
-    { key:"wides",label:"Wides" },
-    { key:"fouls",label:"Fouls" },
-    { key:"passes",label:"Passes" },
-    { key:"turnovers",label:"Turnovers" }
+  home:[
+    {key:"goals",label:"Goals",highlight:true},
+    {key:"points",label:"Points",highlight:true},
+    {key:"wides",label:"Wides"},
+    {key:"fouls",label:"Fouls"},
+    {key:"passes",label:"Passes"},
+    {key:"turnovers",label:"Turnovers"}
   ],
-  away: [
-    { key:"goals",label:"Goals",highlight:true },
-    { key:"points",label:"Points",highlight:true }
+  away:[
+    {key:"goals",label:"Goals",highlight:true},
+    {key:"points",label:"Points",highlight:true}
   ]
 };
 
-let stats = { home:{}, away:{} };
+let stats={home:{},away:{}};
 
-/* INIT */
 function initStats(){
   statConfig.home.forEach(s=>stats.home[s.key]=0);
   statConfig.away.forEach(s=>stats.away[s.key]=0);
 }
 
-/* RENDER */
 function renderStats(){
   renderTeam("home","Colmcille","homeStats");
   renderTeam("away","Team B","awayStats");
 }
 
 function renderTeam(team,title,id){
-  const el = document.getElementById(id);
-  el.innerHTML = `
-    <div class="stats-container">
-      <div class="team-title">${title}</div>
-      ${statConfig[team].map(s=>`
-        <div class="stat-row ${s.highlight?'highlight':''}">
-          <div>${s.label}</div>
-          <div class="stat-controls">
-            <button class="btn-minus" onclick="updateStat('${team}','${s.key}',-1)">−</button>
-            <span id="${team}_${s.key}">${stats[team][s.key]}</span>
-            <button class="btn-plus" onclick="updateStat('${team}','${s.key}',1)">+</button>
-          </div>
-        </div>
-      `).join("")}
-    </div>`;
+  let el=document.getElementById(id);
+  el.innerHTML=statConfig[team].map(s=>`
+    <div class="stat-row ${s.highlight?'highlight':''}">
+      <div>${s.label}</div>
+      <div class="stat-controls">
+        <button class="btn-minus" onclick="updateStat('${team}','${s.key}',-1)">−</button>
+        <span id="${team}_${s.key}">${stats[team][s.key]}</span>
+        <button class="btn-plus" onclick="updateStat('${team}','${s.key}',1)">+</button>
+      </div>
+    </div>
+  `).join("");
 }
 
-/* UPDATE */
 function updateStat(team,key,val){
   stats[team][key]=Math.max(0,stats[team][key]+val);
   document.getElementById(`${team}_${key}`).innerText=stats[team][key];
@@ -280,7 +301,6 @@ function updateStat(team,key,val){
   saveData();
 }
 
-/* SCORE */
 function updateScore(){
   let h=stats.home.goals*3+stats.home.points;
   let a=stats.away.goals*3+stats.away.points;
@@ -340,10 +360,8 @@ function renderHistory(){
     <div class="history-item">
       <div class="history-title">${m.score}</div>
       <div>${m.date}</div>
-      <div class="history-buttons">
-        <button onclick="loadMatch(${i})">Load</button>
-        <button onclick="deleteMatch(${i})">Delete</button>
-      </div>
+      <button onclick="loadMatch(${i})">Load</button>
+      <button onclick="deleteMatch(${i})">Delete</button>
     </div>
   `).join("");
 }
