@@ -3,72 +3,94 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>GAA Match Tracker</title>
 
 <style>
+
 body {
   font-family: Arial;
   margin: 0;
-  text-align: center;
   background: white;
+  text-align: center;
 }
 
-/* Tabs */
-.tabs { display: flex; background: #333; }
+/* TABS */
+.tabs {
+  display: flex;
+  width: 100%;
+  background: #333;
+}
+
 .tab {
   flex: 1;
-  padding: 12px;
+  padding: 16px;
   color: white;
+  font-size: 18px;
   cursor: pointer;
 }
+
 .tab.active { background: #555; }
 
-/* Sections */
-.section { display: none; padding: 10px; }
+/* SECTIONS */
+.section {
+  display: none;
+  padding: 10px;
+}
+
 .section.active { display: block; }
 
-/* Pitch (UNCHANGED) */
+/* ✅ FULL WIDTH PITCH FIX */
 .pitch {
   position: relative;
-  width: 95%;
-  max-width: 420px;
-  height: 420px;
+  width: 95vw;        /* FULL WIDTH */
+  height: 70vh;       /* BIG HEIGHT */
   margin: 10px auto;
-  border: 2px solid #333;
+  border: 3px solid #333;
 }
+
 .green { background: green; }
 .blue { background: #1e90ff; }
 
-/* Players */
+/* PLAYERS BIGGER */
 .player {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 45px;
-  height: 45px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.4);
-  line-height: 45px;
-  font-size: 14px;
+  background: rgba(255,255,255,0.5);
+  line-height: 55px;
+  font-size: 16px;
   font-weight: bold;
 }
 
-/* ✅ FIXED STATS LAYOUT */
+/* STATS */
 .stat-row {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  margin: 8px 0;
-  font-size: 16px;
+  gap: 12px;
+  margin: 12px 0;
+  font-size: 18px;
 }
 
 .stat-row button {
-  width: 35px;
-  height: 35px;
+  width: 45px;
+  height: 45px;
+  font-size: 18px;
 }
 
-h1 { font-size: 30px; }
-h2 { font-size: 22px; }
+/* TEXT */
+h1 { font-size: 34px; }
+h2 { font-size: 26px; }
+
+button {
+  padding: 10px 16px;
+  font-size: 16px;
+  margin: 10px 0;
+}
 
 </style>
 </head>
@@ -91,24 +113,24 @@ h2 { font-size: 22px; }
 
 <div class="player" onclick="editPlayer(this)" style="top:92%; left:50%">1</div>
 
-<div class="player" onclick="editPlayer(this)" style="top:78%; left:25%">2</div>
-<div class="player" onclick="editPlayer(this)" style="top:78%; left:50%">3</div>
-<div class="player" onclick="editPlayer(this)" style="top:78%; left:75%">4</div>
+<div class="player" style="top:78%; left:25%" onclick="editPlayer(this)">2</div>
+<div class="player" style="top:78%; left:50%" onclick="editPlayer(this)">3</div>
+<div class="player" style="top:78%; left:75%" onclick="editPlayer(this)">4</div>
 
-<div class="player" onclick="editPlayer(this)" style="top:62%; left:25%">5</div>
-<div class="player" onclick="editPlayer(this)" style="top:62%; left:50%">6</div>
-<div class="player" onclick="editPlayer(this)" style="top:62%; left:75%">7</div>
+<div class="player" style="top:62%; left:25%" onclick="editPlayer(this)">5</div>
+<div class="player" style="top:62%; left:50%" onclick="editPlayer(this)">6</div>
+<div class="player" style="top:62%; left:75%" onclick="editPlayer(this)">7</div>
 
-<div class="player" onclick="editPlayer(this)" style="top:46%; left:40%">8</div>
-<div class="player" onclick="editPlayer(this)" style="top:46%; left:60%">9</div>
+<div class="player" style="top:46%; left:40%" onclick="editPlayer(this)">8</div>
+<div class="player" style="top:46%; left:60%" onclick="editPlayer(this)">9</div>
 
-<div class="player" onclick="editPlayer(this)" style="top:30%; left:25%">10</div>
-<div class="player" onclick="editPlayer(this)" style="top:30%; left:50%">11</div>
-<div class="player" onclick="editPlayer(this)" style="top:30%; left:75%">12</div>
+<div class="player" style="top:30%; left:25%" onclick="editPlayer(this)">10</div>
+<div class="player" style="top:30%; left:50%" onclick="editPlayer(this)">11</div>
+<div class="player" style="top:30%; left:75%" onclick="editPlayer(this)">12</div>
 
-<div class="player" onclick="editPlayer(this)" style="top:14%; left:25%">13</div>
-<div class="player" onclick="editPlayer(this)" style="top:14%; left:50%">14</div>
-<div class="player" onclick="editPlayer(this)" style="top:14%; left:75%">15</div>
+<div class="player" style="top:14%; left:25%" onclick="editPlayer(this)">13</div>
+<div class="player" style="top:14%; left:50%" onclick="editPlayer(this)">14</div>
+<div class="player" style="top:14%; left:75%" onclick="editPlayer(this)">15</div>
 
 </div>
 </div>
@@ -121,24 +143,24 @@ h2 { font-size: 22px; }
 
 <div class="player" onclick="editPlayer(this)" style="top:92%; left:50%">1</div>
 
-<div class="player" onclick="editPlayer(this)" style="top:78%; left:25%">2</div>
-<div class="player" onclick="editPlayer(this)" style="top:78%; left:50%">3</div>
-<div class="player" onclick="editPlayer(this)" style="top:78%; left:75%">4</div>
+<div class="player" style="top:78%; left:25%" onclick="editPlayer(this)">2</div>
+<div class="player" style="top:78%; left:50%" onclick="editPlayer(this)">3</div>
+<div class="player" style="top:78%; left:75%" onclick="editPlayer(this)">4</div>
 
-<div class="player" onclick="editPlayer(this)" style="top:62%; left:25%">5</div>
-<div class="player" onclick="editPlayer(this)" style="top:62%; left:50%">6</div>
-<div class="player" onclick="editPlayer(this)" style="top:62%; left:75%">7</div>
+<div class="player" style="top:62%; left:25%" onclick="editPlayer(this)">5</div>
+<div class="player" style="top:62%; left:50%" onclick="editPlayer(this)">6</div>
+<div class="player" style="top:62%; left:75%" onclick="editPlayer(this)">7</div>
 
-<div class="player" onclick="editPlayer(this)" style="top:46%; left:40%">8</div>
-<div class="player" onclick="editPlayer(this)" style="top:46%; left:60%">9</div>
+<div class="player" style="top:46%; left:40%" onclick="editPlayer(this)">8</div>
+<div class="player" style="top:46%; left:60%" onclick="editPlayer(this)">9</div>
 
-<div class="player" onclick="editPlayer(this)" style="top:30%; left:25%">10</div>
-<div class="player" onclick="editPlayer(this)" style="top:30%; left:50%">11</div>
-<div class="player" onclick="editPlayer(this)" style="top:30%; left:75%">12</div>
+<div class="player" style="top:30%; left:25%" onclick="editPlayer(this)">10</div>
+<div class="player" style="top:30%; left:50%" onclick="editPlayer(this)">11</div>
+<div class="player" style="top:30%; left:75%" onclick="editPlayer(this)">12</div>
 
-<div class="player" onclick="editPlayer(this)" style="top:14%; left:25%">13</div>
-<div class="player" onclick="editPlayer(this)" style="top:14%; left:50%">14</div>
-<div class="player" onclick="editPlayer(this)" style="top:14%; left:75%">15</div>
+<div class="player" style="top:14%; left:25%" onclick="editPlayer(this)">13</div>
+<div class="player" style="top:14%; left:50%" onclick="editPlayer(this)">14</div>
+<div class="player" style="top:14%; left:75%" onclick="editPlayer(this)">15</div>
 
 </div>
 </div>
@@ -215,15 +237,13 @@ function showTab(id,el){
   el.classList.add('active');
 }
 
-/* EDIT TEAM NAME */
 function editTeamName(el){
   let name = prompt("Enter team name:", el.innerText);
   if(name) el.innerText = name;
 }
 
-/* EDIT PLAYER */
 function editPlayer(el){
-  let name = prompt("Enter player name/number:", el.innerText);
+  let name = prompt("Edit player:", el.innerText);
   if(name) el.innerText = name;
 }
 
