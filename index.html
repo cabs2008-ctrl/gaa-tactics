@@ -38,20 +38,24 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 .subs {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 10px;
+  margin: 12px auto;
+  width: 95%;
+  max-width: 420px;
 }
 
 .sub {
-  width: 50px;
-  height: 50px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.1);
+  background: rgba(255,255,255,0.7);
   font-size: 11px;
   display:flex;
   flex-direction:column;
   justify-content:center;
+  align-items:center;
 }
 
 .stat-row {
@@ -96,6 +100,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
 <button class="top-btn" onclick="shareMatch()">Share</button>
 <div class="pitch green" id="homePitch"></div>
+<h4>Subs</h4>
 <div class="subs" id="homeSubs"></div>
 </div>
 
@@ -105,6 +110,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
 <button class="top-btn" onclick="shareMatch()">Share</button>
 <div class="pitch blue" id="awayPitch"></div>
+<h4>Subs</h4>
 <div class="subs" id="awaySubs"></div>
 </div>
 
@@ -155,6 +161,16 @@ if(!data.home) data.home={name:"Home",players:Array.from({length:15},()=>""),sub
 if(!data.away) data.away={name:"Away",players:Array.from({length:15},()=>""),subs:Array.from({length:5},()=> "")};
 
 function saveData(){ localStorage.setItem("gaaData",JSON.stringify(data)); }
+
+/* TEAM NAME EDIT */
+function editTeamName(team, el){
+  let name = prompt("Team Name:", data[team].name);
+  if(name !== null && name.trim() !== ""){
+    data[team].name = name;
+    el.innerText = name;
+    saveData();
+  }
+}
 
 /* PLAYERS */
 function renderPitch(team){
@@ -256,7 +272,7 @@ updateScore();
 function updateScore(){
 let h=stats.home.goals*3+stats.home.points;
 let a=stats.away.goals*3+stats.away.points;
-scoreboard.innerText=`${stats.home.goals}-${stats.home.points} (${h}) | ${stats.away.goals}-${stats.away.points} (${a})`;
+scoreboard.innerText=`${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) | ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})`;
 }
 
 /* CLOCK */
@@ -299,6 +315,9 @@ else{prompt("Copy:",text);}
 }
 
 /* INIT */
+document.querySelector("#home h2").innerText = data.home.name;
+document.querySelector("#away h2").innerText = data.away.name;
+
 renderPitch("home");
 renderPitch("away");
 renderSubs("home");
