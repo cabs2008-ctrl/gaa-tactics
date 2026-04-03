@@ -41,7 +41,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
   display:flex; flex-direction:column; justify-content:center; align-items:center;
 }
 
-/* ✅ FIXED STATS STYLE */
 .stat-row {
   display: flex;
   justify-content: space-between;
@@ -154,15 +153,40 @@ renderPitch(team);
 renderSubs(team);
 }
 
+/* ✅ UPDATED FUNCTION (EDIT + DELETE ADDED) */
 function renderTeams(){
 let list=getTeams();
 teamList.innerHTML=list.map((t,i)=>`
 <div class="history-item">
 <b>${t.name}</b><br>
+
 <button onclick="loadTeam('home',${i})">Load Home</button>
 <button onclick="loadTeam('away',${i})">Load Away</button>
+<button onclick="editSavedTeam(${i})">Edit</button>
+<button onclick="deleteSavedTeam(${i})">Delete</button>
+
 </div>`).join("");
 }
+
+/* ✅ NEW FUNCTIONS */
+function deleteSavedTeam(i){
+let list=getTeams();
+list.splice(i,1);
+localStorage.setItem("gaaTeams",JSON.stringify(list));
+renderTeams();
+}
+
+function editSavedTeam(i){
+let list=getTeams();
+let name=prompt("Edit Team Name:", list[i].name);
+if(name){
+  list[i].name = name;
+  localStorage.setItem("gaaTeams",JSON.stringify(list));
+  renderTeams();
+}
+}
+
+/* EVERYTHING ELSE UNCHANGED BELOW */
 
 /* TABS */
 function showTab(id,el){
