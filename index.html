@@ -143,39 +143,8 @@ const positions = [
 let data = JSON.parse(localStorage.getItem("gaaData")||"{}");
 if(!data.home) data.home={name:"Home",players:Array(15).fill(""),subs:Array(5).fill("")};
 if(!data.away) data.away={name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")};
-function saveData(){ localStorage.setItem("gaaData",JSON.stringify(data)); }
 
-/* TEAM SAVE */
-function getTeams(){ return JSON.parse(localStorage.getItem("gaaTeams")||"[]"); }
-function saveTeam(team){
-let list=getTeams();
-list.unshift({...data[team]});
-localStorage.setItem("gaaTeams",JSON.stringify(list));
-renderTeams();
-}
-function loadTeam(team,i){
-let list=getTeams();
-data[team]=JSON.parse(JSON.stringify(list[i]));
-saveData();
-renderPitch(team);
-renderSubs(team);
-}
-function deleteTeam(i){
-let list=getTeams();
-list.splice(i,1);
-localStorage.setItem("gaaTeams",JSON.stringify(list));
-renderTeams();
-}
-function renderTeams(){
-let list=getTeams();
-teamList.innerHTML=list.map((t,i)=>`
-<div class="history-item">
-<b>${t.name}</b><br>
-<button onclick="loadTeam('home',${i})">Load Home</button>
-<button onclick="loadTeam('away',${i})">Load Away</button>
-<button onclick="deleteTeam(${i})">Delete</button>
-</div>`).join("");
-}
+function saveData(){ localStorage.setItem("gaaData",JSON.stringify(data)); }
 
 /* TEAM NAME */
 function editTeamName(team, el){
@@ -183,36 +152,62 @@ let name=prompt("Team Name:",data[team].name);
 if(name){data[team].name=name;el.innerText=name;saveData();}
 }
 
-/* PLAYERS + SUBS (unchanged swap logic) */
+/* SWAP MODE */
 let swapMode=false,selectedPlayer=null;
 function toggleSwapMode(){ swapMode=!swapMode; selectedPlayer=null; }
 
+/* PLAYERS */
 function renderPitch(team){
 document.getElementById(team+"Pitch").innerHTML=
 positions.map((p,i)=>`
-<div class="player" style="top:${p[0]}%;left:${p[1]}">${i+1}<br>${data[team].players[i]||""}</div>`).join("");
+<div class="player ${selectedPlayer&&selectedPlayer.team===team&&selectedPlayer.index===i?'selected':''}"
+style="top:${p[0]}%;left:${p[1]}%"
+onclick="${swapMode?`selectPlayer('${team}',${i})`:`editPlayer('${team}',${i})`}">
+${i+1}<br>${data[team].players[i]||""}
+</div>`).join("");
 }
 
+function editPlayer(team,i){
+let n=prompt("Player Name:",data[team].players[i]);
+if(n!==null){data[team].players[i]=n;saveData();renderPitch(team);}
+}
+
+function selectPlayer(team,i){
+selectedPlayer={team,index:i};
+renderPitch(team);
+}
+
+/* SUBS */
 function renderSubs(team){
 document.getElementById(team+"Subs").innerHTML=
-data[team].subs.map((s,i)=>`<div class="sub">${i+16}<br>${s||""}</div>`).join("");
+data[team].subs.map((s,i)=>`
+<div class="sub"
+onclick="${swapMode?`swapWithSub('${team}',${i})`:`editSub('${team}',${i})`}">
+${i+16}<br>${s||""}
+</div>`).join("");
 }
 
-/* ===== STATS RESTORED ===== */
-const homeStatsList=[
-{key:"goals",label:"Goals"},{key:"points",label:"Points"},
-{key:"wides",label:"Wides"},{key:"fouls",label:"Fouls"},
-{key:"turnovers",label:"Turnovers"},{key:"passes",label:"Passes"},
-{key:"tackles",label:"Tackles"}
-];
-const awayStatsList=[
-{key:"goals",label:"Goals"},{key:"points",label:"Points"}
-];
+function editSub(team,i){
+let n=prompt("Sub Name:",data[team].subs[i]);
+if(n!==null){data[team].subs[i]=n;saveData();renderSubs(team);}
+}
 
-let stats={
-home:Object.fromEntries(homeStatsList.map(s=>[s.key,0])),
-away:Object.fromEntries(awayStatsList.map(s=>[s.key,0]))
-};
+function swapWithSub(team,i){
+if(!selectedPlayer||selectedPlayer.team!==team)return;
+let temp=data[team].players[selectedPlayer.index];
+data[team].players[selectedPlayer.index]=data[team].subs[i];
+data[team].subs[i]=temp;
+selectedPlayer=null;
+saveData();
+renderPitch(team);
+renderSubs(team);
+}
+
+/* STATS (RESTORED) */
+const homeStatsList=[{key:"goals",label:"Goals"},{key:"points",label:"Points"}];
+const awayStatsList=[{key:"goals",label:"Goals"},{key:"points",label:"Points"}];
+
+let stats={home:{goals:0,points:0},away:{goals:0,points:0}};
 
 function renderStats(){
 homeStats.innerHTML=homeStatsList.map(s=>`
@@ -241,9 +236,7 @@ updateScore();
 }
 
 function updateScore(){
-let h=stats.home.goals*3+stats.home.points;
-let a=stats.away.goals*3+stats.away.points;
-scoreboard.innerText=`${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) | ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})`;
+scoreboard.innerText=`${data.home.name} ${stats.home.goals}-${stats.home.points} | ${data.away.name} ${stats.away.goals}-${stats.away.points}`;
 }
 
 /* CLOCK */
@@ -253,34 +246,6 @@ function pauseClock(){ clearInterval(timer); timer=null; }
 function resetClock(){ pauseClock(); sec=0; updateClock(); }
 function updateClock(){
 matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");
-}
-
-/* HISTORY */
-function getHistory(){ return JSON.parse(localStorage.getItem("gaaHistory")||"[]"); }
-function saveMatch(){
-let h=getHistory();
-h.unshift({score:scoreboard.innerText,date:new Date().toLocaleString()});
-localStorage.setItem("gaaHistory",JSON.stringify(h));
-renderHistory();
-}
-function renderHistory(){
-let h=getHistory();
-historyList.innerHTML=h.map(m=>`<div class="history-item">${m.score}<br>${m.date}</div>`).join("");
-}
-
-/* SHARE */
-function shareMatch(){
-let text=scoreboard.innerText||"No score yet";
-if(navigator.share){navigator.share({text});}
-else{prompt("Copy:",text);}
-}
-
-/* TABS */
-function showTab(id,el){
-document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-el.classList.add('active');
 }
 
 /* INIT */
@@ -294,8 +259,6 @@ renderSubs("away");
 renderStats();
 updateScore();
 updateClock();
-renderTeams();
-renderHistory();
 
 </script>
 
