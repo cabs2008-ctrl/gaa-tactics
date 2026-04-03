@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>GAA Match Tracker</title>
 
 <style>
 body {
   font-family: Arial;
   margin: 0;
-  background: white;
   text-align: center;
 }
 
@@ -22,9 +20,9 @@ body {
 .tabs button {
   flex: 1;
   padding: 15px;
+  border: none;
   color: white;
   background: #333;
-  border: none;
   cursor: pointer;
 }
 
@@ -32,24 +30,34 @@ body {
   background: #4CAF50;
 }
 
-.tab-content {
+.tab {
   display: none;
   padding: 20px;
 }
 
-.tab-content.active {
+.tab.active {
   display: block;
 }
 
-.scoreboard {
+.score {
   font-size: 28px;
   margin: 20px 0;
 }
 
-button {
+.clock {
+  font-size: 24px;
+  margin: 10px 0;
+}
+
+button.action {
   padding: 10px;
   margin: 5px;
-  font-size: 16px;
+}
+
+input.player {
+  padding: 5px;
+  margin: 3px;
+  width: 120px;
 }
 </style>
 </head>
@@ -57,100 +65,195 @@ button {
 <body>
 
 <div class="tabs">
-  <button class="tablink active" onclick="openTab(event,'match')">Match</button>
-  <button class="tablink" onclick="openTab(event,'stats')">Stats</button>
+  <button id="matchTabBtn" class="active">Match</button>
+  <button id="statsTabBtn">Stats</button>
 </div>
 
 <!-- MATCH TAB -->
-<div id="match" class="tab-content active">
+<div id="matchTab" class="tab active">
 
   <h2>Score</h2>
 
-  <div class="scoreboard">
+  <div class="score">
     Home: <span id="homeScore">0</span> |
     Away: <span id="awayScore">0</span>
   </div>
 
+  <!-- CLOCK -->
+  <div class="clock" id="clockDisplay">00:00</div>
+  <button class="action" onclick="startClock()">Start</button>
+  <button class="action" onclick="pauseClock()">Pause</button>
+  <button class="action" onclick="resetClock()">Reset Clock</button>
+
   <h3>Home Team</h3>
-  <button onclick="addScore('home',1)">+1 Point</button>
-  <button onclick="addScore('home',3)">+1 Goal</button>
+  <button class="action" onclick="addScore('home',1)">+1 Point</button>
+  <button class="action" onclick="addScore('home',3)">+1 Goal</button>
+
+  <!-- HOME PLAYERS -->
+  <div>
+    <input class="player" placeholder="Player 1">
+    <input class="player" placeholder="Player 2">
+    <input class="player" placeholder="Player 3">
+  </div>
+
+  <!-- HOME SUBS -->
+  <h4>Subs</h4>
+  <div>
+    <input class="player" placeholder="Sub 1">
+    <input class="player" placeholder="Sub 2">
+    <input class="player" placeholder="Sub 3">
+  </div>
 
   <h3>Away Team</h3>
-  <button onclick="addScore('away',1)">+1 Point</button>
-  <button onclick="addScore('away',3)">+1 Goal</button>
+  <button class="action" onclick="addScore('away',1)">+1 Point</button>
+  <button class="action" onclick="addScore('away',3)">+1 Goal</button>
+
+  <!-- AWAY PLAYERS -->
+  <div>
+    <input class="player" placeholder="Player 1">
+    <input class="player" placeholder="Player 2">
+    <input class="player" placeholder="Player 3">
+  </div>
+
+  <!-- AWAY SUBS -->
+  <h4>Subs</h4>
+  <div>
+    <input class="player" placeholder="Sub 1">
+    <input class="player" placeholder="Sub 2">
+    <input class="player" placeholder="Sub 3">
+  </div>
+
+  <br><br>
+  <button class="action" onclick="resetScores()">Reset Scores</button>
 
 </div>
 
 <!-- STATS TAB -->
-<div id="stats" class="tab-content">
+<div id="statsTab" class="tab">
 
   <h2>Stats</h2>
 
   <h3>Home Team</h3>
   Fouls: <span id="homeFouls">0</span>
-  <button onclick="addStat('homeFouls')">+</button><br>
+  <button class="action" onclick="addStat('homeFouls')">+</button><br>
 
   Wides: <span id="homeWides">0</span>
-  <button onclick="addStat('homeWides')">+</button><br>
+  <button class="action" onclick="addStat('homeWides')">+</button><br>
 
   Turnovers: <span id="homeTurnovers">0</span>
-  <button onclick="addStat('homeTurnovers')">+</button><br>
+  <button class="action" onclick="addStat('homeTurnovers')">+</button><br>
 
   Tackles: <span id="homeTackles">0</span>
-  <button onclick="addStat('homeTackles')">+</button><br>
+  <button class="action" onclick="addStat('homeTackles')">+</button><br>
 
   Passes: <span id="homePasses">0</span>
-  <button onclick="addStat('homePasses')">+</button>
+  <button class="action" onclick="addStat('homePasses')">+</button>
 
   <h3>Away Team</h3>
   Fouls: <span id="awayFouls">0</span>
-  <button onclick="addStat('awayFouls')">+</button><br>
+  <button class="action" onclick="addStat('awayFouls')">+</button><br>
 
   Wides: <span id="awayWides">0</span>
-  <button onclick="addStat('awayWides')">+</button><br>
+  <button class="action" onclick="addStat('awayWides')">+</button><br>
 
   Turnovers: <span id="awayTurnovers">0</span>
-  <button onclick="addStat('awayTurnovers')">+</button><br>
+  <button class="action" onclick="addStat('awayTurnovers')">+</button><br>
 
   Tackles: <span id="awayTackles">0</span>
-  <button onclick="addStat('awayTackles')">+</button><br>
+  <button class="action" onclick="addStat('awayTackles')">+</button><br>
 
   Passes: <span id="awayPasses">0</span>
-  <button onclick="addStat('awayPasses')">+</button>
+  <button class="action" onclick="addStat('awayPasses')">+</button>
+
+  <br><br>
+  <button class="action" onclick="resetStats()">Reset Stats</button>
 
 </div>
 
 <script>
 
-let scores = {
-  home: 0,
-  away: 0
-};
+/* SCORE */
+let scores = { home: 0, away: 0 };
 
 function addScore(team, value) {
   scores[team] += value;
-  document.getElementById(team + "Score").innerText = scores[team];
+  document.getElementById(team + "Score").textContent = scores[team];
 }
 
-function addStat(stat) {
-  let el = document.getElementById(stat);
-  el.innerText = parseInt(el.innerText) + 1;
+function resetScores() {
+  scores.home = 0;
+  scores.away = 0;
+  document.getElementById("homeScore").textContent = 0;
+  document.getElementById("awayScore").textContent = 0;
 }
 
-function openTab(evt, tabName) {
-  let tabcontent = document.getElementsByClassName("tab-content");
-  for (let i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].classList.remove("active");
-  }
-
-  let tablinks = document.getElementsByClassName("tablink");
-  for (let i = 0; i < tablinks.length; i++) {
-    tablinks[i].classList.remove("active");
-  }
-
-  document.getElementById(tabName).classList.add("active");
-  evt.currentTarget.classList.add("active");
+/* STATS */
+function addStat(id) {
+  let el = document.getElementById(id);
+  el.textContent = parseInt(el.textContent) + 1;
 }
+
+function resetStats() {
+  const stats = [
+    "homeFouls","homeWides","homeTurnovers","homeTackles","homePasses",
+    "awayFouls","awayWides","awayTurnovers","awayTackles","awayPasses"
+  ];
+
+  stats.forEach(id => {
+    document.getElementById(id).textContent = 0;
+  });
+}
+
+/* CLOCK */
+let seconds = 0;
+let interval = null;
+
+function updateClock() {
+  let mins = Math.floor(seconds / 60);
+  let secs = seconds % 60;
+  document.getElementById("clockDisplay").textContent =
+    String(mins).padStart(2, '0') + ":" + String(secs).padStart(2, '0');
+}
+
+function startClock() {
+  if (interval) return;
+  interval = setInterval(() => {
+    seconds++;
+    updateClock();
+  }, 1000);
+}
+
+function pauseClock() {
+  clearInterval(interval);
+  interval = null;
+}
+
+function resetClock() {
+  pauseClock();
+  seconds = 0;
+  updateClock();
+}
+
+/* TABS */
+const matchBtn = document.getElementById("matchTabBtn");
+const statsBtn = document.getElementById("statsTabBtn");
+
+const matchTab = document.getElementById("matchTab");
+const statsTab = document.getElementById("statsTab");
+
+matchBtn.onclick = () => {
+  matchTab.classList.add("active");
+  statsTab.classList.remove("active");
+  matchBtn.classList.add("active");
+  statsBtn.classList.remove("active");
+};
+
+statsBtn.onclick = () => {
+  statsTab.classList.add("active");
+  matchTab.classList.remove("active");
+  statsBtn.classList.add("active");
+  matchBtn.classList.remove("active");
+};
 
 </script>
 
