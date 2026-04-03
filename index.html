@@ -3,209 +3,159 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>GAA Match Tracker</title>
 
 <style>
-body { font-family: Arial; margin: 0; text-align: center; }
-.tabs { display: flex; background: #333; }
-.tab { flex: 1; padding: 14px; color: white; cursor: pointer; }
-.tab.active { background: #555; }
-.section { display: none; padding: 10px; }
-.section.active { display: block; }
-
-.pitch {
-  position: relative;
-  width: 95vw;
-  height: 70vh;
-  margin: 10px auto;
-  border: 3px solid #333;
-}
-.green { background: green; }
-.blue { background: #1e90ff; }
-
-.player {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.7);
-  font-size: 12px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
+body {
+  font-family: Arial;
+  margin: 0;
+  background: white;
+  text-align: center;
 }
 
-.subs {
+.tabs {
   display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 10px;
+  background: #333;
 }
 
-.sub {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.1);
-  font-size: 11px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-}
-
-.stat-row {
-  display: flex;
-  justify-content: space-between;
-  margin: 10px auto;
-  padding: 12px;
-  width: 92%;
-  max-width: 420px;
-  background: #f4f4f4;
-  border-radius: 14px;
-}
-
-.btn-minus,.btn-plus {
-  width: 35px;
-  height: 35px;
+.tabs button {
+  flex: 1;
+  padding: 15px;
+  color: white;
+  background: #333;
   border: none;
-  border-radius: 10px;
-  font-size: 18px;
+  cursor: pointer;
 }
-.btn-minus { background:#ff4d4d;color:white; }
-.btn-plus { background:#28a745;color:white; }
 
-.clock { font-size: 26px; font-weight: bold; }
-.history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
-.top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
+.tabs button.active {
+  background: #4CAF50;
+}
+
+.tab-content {
+  display: none;
+  padding: 20px;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.scoreboard {
+  font-size: 28px;
+  margin: 20px 0;
+}
+
+button {
+  padding: 10px;
+  margin: 5px;
+  font-size: 16px;
+}
+
+.stats button {
+  display: inline-block;
+}
 </style>
 </head>
 
 <body>
 
 <div class="tabs">
-  <div class="tab active" onclick="showTab('home',this)">Home</div>
-  <div class="tab" onclick="showTab('away',this)">Away</div>
-  <div class="tab" onclick="showTab('stats',this)">Stats</div>
-  <div class="tab" onclick="showTab('history',this)">History</div>
+  <button class="tablink active" onclick="openTab(event,'match')">Match</button>
+  <button class="tablink" onclick="openTab(event,'stats')">Stats</button>
 </div>
 
-<!-- HOME -->
-<div id="home" class="section active">
-<h2 onclick="editTeamName('home',this)">Home</h2>
-<button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
-<button class="top-btn" onclick="shareMatch()">Share</button>
-<div class="pitch green" id="homePitch"></div>
-<div class="subs" id="homeSubs"></div>
+<!-- MATCH TAB -->
+<div id="match" class="tab-content active">
+
+  <h2>Score</h2>
+
+  <div class="scoreboard">
+    Home: <span id="homeScore">0</span> |
+    Away: <span id="awayScore">0</span>
+  </div>
+
+  <h3>Home Team</h3>
+  <button onclick="addScore('home',1)">+1 Point</button>
+  <button onclick="addScore('home',3)">+1 Goal</button>
+
+  <h3>Away Team</h3>
+  <button onclick="addScore('away',1)">+1 Point</button>
+  <button onclick="addScore('away',3)">+1 Goal</button>
+
 </div>
 
-<!-- AWAY -->
-<div id="away" class="section">
-<h2 onclick="editTeamName('away',this)">Away</h2>
-<button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
-<button class="top-btn" onclick="shareMatch()">Share</button>
-<div class="pitch blue" id="awayPitch"></div>
-<div class="subs" id="awaySubs"></div>
-</div>
+<!-- STATS TAB -->
+<div id="stats" class="tab-content">
 
-<!-- STATS -->
-<div id="stats" class="section">
-<h2>Match Stats</h2>
-<button class="top-btn" onclick="shareMatch()">Share</button>
-<button class="top-btn" onclick="resetStats()">Reset Stats</button>
+  <h2>Stats</h2>
 
-<h1 id="scoreboard"></h1>
+  <div class="stats">
+    <h3>Home Team</h3>
+    Fouls: <span id="homeFouls">0</span>
+    <button onclick="addStat('homeFouls')">+</button><br>
 
-<div class="clock" id="matchClock">00:00</div>
-<button onclick="startClock()">Start</button>
-<button onclick="pauseClock()">Pause</button>
-<button onclick="resetClock()">Reset</button>
+    Wides: <span id="homeWides">0</span>
+    <button onclick="addStat('homeWides')">+</button><br>
 
-<h3>Home</h3>
-<div id="homeStats"></div>
+    Turnovers: <span id="homeTurnovers">0</span>
+    <button onclick="addStat('homeTurnovers')">+</button><br>
 
-<hr>
+    Tackles: <span id="homeTackles">0</span>
+    <button onclick="addStat('homeTackles')">+</button><br>
 
-<h3>Away</h3>
-<div id="awayStats"></div>
-</div>
+    Passes: <span id="homePasses">0</span>
+    <button onclick="addStat('homePasses')">+</button>
 
-<!-- HISTORY -->
-<div id="history" class="section">
-<h2>Match History</h2>
-<button class="top-btn" onclick="saveMatch()">Save Match</button>
-<button class="top-btn" onclick="shareMatch()">Share</button>
-<div id="historyList"></div>
+    <h3>Away Team</h3>
+    Fouls: <span id="awayFouls">0</span>
+    <button onclick="addStat('awayFouls')">+</button><br>
+
+    Wides: <span id="awayWides">0</span>
+    <button onclick="addStat('awayWides')">+</button><br>
+
+    Turnovers: <span id="awayTurnovers">0</span>
+    <button onclick="addStat('awayTurnovers')">+</button><br>
+
+    Tackles: <span id="awayTackles">0</span>
+    <button onclick="addStat('awayTackles')">+</button><br>
+
+    Passes: <span id="awayPasses">0</span>
+    <button onclick="addStat('awayPasses')">+</button>
+  </div>
+
 </div>
 
 <script>
 
-/* ===== KEEP ALL YOUR ORIGINAL CODE HERE ===== */
-/* (players, subs, tabs, clock, history, etc. unchanged) */
-
-/* ===== STATS (UNCHANGED) ===== */
-const homeStatsList = [
-{key:"goals",label:"Goals"},
-{key:"points",label:"Points"},
-{key:"wides",label:"Wides"},
-{key:"fouls",label:"Fouls"},
-{key:"turnovers",label:"Turnovers"},
-{key:"passes",label:"Passes"},
-{key:"tackles",label:"Tackles"}
-];
-
-const awayStatsList = [
-{key:"goals",label:"Goals"},
-{key:"points",label:"Points"}
-];
-
-let stats = {
-home:Object.fromEntries(homeStatsList.map(s=>[s.key,0])),
-away:Object.fromEntries(awayStatsList.map(s=>[s.key,0]))
+let scores = {
+  home: 0,
+  away: 0
 };
 
-function renderStats(){
-document.getElementById("homeStats").innerHTML=
-homeStatsList.map(s=>`
-<div class="stat-row">
-<div>${s.label}</div>
-<div>
-<button class="btn-minus" onclick="updateStat('home','${s.key}',-1)">-</button>
-<span id="home_${s.key}">${stats.home[s.key]}</span>
-<button class="btn-plus" onclick="updateStat('home','${s.key}',1)">+</button>
-</div>
-</div>`).join("");
-
-document.getElementById("awayStats").innerHTML=
-awayStatsList.map(s=>`
-<div class="stat-row">
-<div>${s.label}</div>
-<div>
-<button class="btn-minus" onclick="updateStat('away','${s.key}',-1)">-</button>
-<span id="away_${s.key}">${stats.away[s.key]}</span>
-<button class="btn-plus" onclick="updateStat('away','${s.key}',1)">+</button>
-</div>
-</div>`).join("");
+function addScore(team, value) {
+  scores[team] += value;
+  document.getElementById(team + "Score").innerText = scores[team];
 }
 
-function updateStat(team,key,val){
-stats[team][key]=Math.max(0,stats[team][key]+val);
-document.getElementById(`${team}_${key}`).innerText=stats[team][key];
-updateScore();
+function addStat(stat) {
+  let el = document.getElementById(stat);
+  el.innerText = parseInt(el.innerText) + 1;
 }
 
-function updateScore(){
-let h=stats.home.goals*3+stats.home.points;
-let a=stats.away.goals*3+stats.away.points;
-scoreboard.innerText=`${stats.home.goals}-${stats.home.points} (${h}) | ${stats.away.goals}-${stats.away.points} (${a})`;
-}
+function openTab(evt, tabName) {
+  let tabcontent = document.getElementsByClassName("tab-content");
+  for (let i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].classList.remove("active");
+  }
 
-/* ✅ ONLY NEW FUNCTION */
-function resetStats(){
-Object.keys(stats.home).forEach(k=>stats.home[k]=0);
-Object.keys(stats.away).forEach(k=>stats.away[k]=0);
-renderStats();
-updateScore();
+  let tablinks = document.getElementsByClassName("tablink");
+  for (let i = 0; i < tablinks.length; i++) {
+    tablinks[i].classList.remove("active");
+  }
+
+  document.getElementById(tabName).classList.add("active");
+  evt.currentTarget.classList.add("active");
 }
 
 </script>
