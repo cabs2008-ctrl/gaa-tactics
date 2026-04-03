@@ -36,6 +36,10 @@ body { font-family: Arial; margin: 0; text-align: center; }
   justify-content:center;
 }
 
+.player.selected {
+  border: 3px solid yellow;
+}
+
 .subs {
   display: flex;
   flex-wrap: wrap;
@@ -172,32 +176,48 @@ function editTeamName(team, el){
   }
 }
 
+/* SUB SWAP LOGIC */
+let selectedPlayer = null;
+
+function selectPlayer(team, index){
+  selectedPlayer = {team, index};
+  renderPitch(team);
+}
+
+function swapWithSub(team, subIndex){
+  if(!selectedPlayer || selectedPlayer.team !== team) return;
+
+  let playerIndex = selectedPlayer.index;
+
+  let temp = data[team].players[playerIndex];
+  data[team].players[playerIndex] = data[team].subs[subIndex];
+  data[team].subs[subIndex] = temp;
+
+  selectedPlayer = null;
+
+  saveData();
+  renderPitch(team);
+  renderSubs(team);
+}
+
 /* PLAYERS */
 function renderPitch(team){
   document.getElementById(team+"Pitch").innerHTML =
     positions.map((p,i)=>`
-      <div class="player" style="top:${p[0]}%;left:${p[1]}%" onclick="editPlayer('${team}',${i})">
+      <div class="player ${selectedPlayer && selectedPlayer.team===team && selectedPlayer.index===i ? 'selected' : ''}" 
+      style="top:${p[0]}%;left:${p[1]}%" 
+      onclick="selectPlayer('${team}',${i})">
         ${i+1}<br>${data[team].players[i]||""}
       </div>`).join("");
-}
-
-function editPlayer(team,i){
-  let n=prompt("Player Name:",data[team].players[i]);
-  if(n!==null){ data[team].players[i]=n; saveData(); renderPitch(team); }
 }
 
 /* SUBS */
 function renderSubs(team){
   document.getElementById(team+"Subs").innerHTML =
     data[team].subs.map((s,i)=>`
-      <div class="sub" onclick="editSub('${team}',${i})">
+      <div class="sub" onclick="swapWithSub('${team}',${i})">
         ${i+16}<br>${s||""}
       </div>`).join("");
-}
-
-function editSub(team,i){
-  let n=prompt("Sub Name:",data[team].subs[i]);
-  if(n!==null){ data[team].subs[i]=n; saveData(); renderSubs(team); }
 }
 
 /* RESET */
