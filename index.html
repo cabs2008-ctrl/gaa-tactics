@@ -20,8 +20,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 .player {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 55px;
-  height: 55px;
+  width: 55px; height: 55px;
   border-radius: 50%;
   background: rgba(255,255,255,0.7);
   font-size: 12px;
@@ -34,28 +33,27 @@ body { font-family: Arial; margin: 0; text-align: center; }
 }
 
 .sub {
-  width: 55px; height: 55px; border-radius: 50%;
+  width: 55px; height: 55px;
+  border-radius: 50%;
   background: rgba(255,255,255,0.7);
   font-size: 11px;
   display:flex; flex-direction:column; justify-content:center; align-items:center;
 }
 
 .stat-row {
-  display: flex; justify-content: space-between; align-items: center;
-  margin: 10px auto; padding: 12px;
-  width: 92%; max-width: 420px;
-  background: #f4f4f4; border-radius: 14px;
+  display:flex; justify-content:space-between; align-items:center;
+  margin:10px auto; padding:12px;
+  width:92%; max-width:420px;
+  background:#f4f4f4; border-radius:14px;
 }
 
 .btn-minus,.btn-plus {
-  width: 35px; height: 35px;
-  border: none; border-radius: 10px;
-  font-size: 18px;
+  width:35px;height:35px;border:none;border-radius:10px;font-size:18px;
 }
-.btn-minus { background:#ff4d4d;color:white; }
-.btn-plus { background:#28a745;color:white; }
+.btn-minus{background:#ff4d4d;color:white;}
+.btn-plus{background:#28a745;color:white;}
 
-.clock { font-size: 26px; font-weight: bold; }
+.clock { font-size:26px;font-weight:bold; }
 .history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
 .top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
 </style>
@@ -76,7 +74,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button class="top-btn" onclick="toggleSwapMode()">Swap Mode</button>
 <button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('home')">Save Team</button>
-<button class="top-btn" onclick="shareMatch()">Share</button>
 <div class="pitch green" id="homePitch"></div>
 <h4>Subs</h4>
 <div class="subs" id="homeSubs"></div>
@@ -88,7 +85,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button class="top-btn" onclick="toggleSwapMode()">Swap Mode</button>
 <button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('away')">Save Team</button>
-<button class="top-btn" onclick="shareMatch()">Share</button>
 <div class="pitch blue" id="awayPitch"></div>
 <h4>Subs</h4>
 <div class="subs" id="awaySubs"></div>
@@ -102,9 +98,10 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-/* TEAM STORAGE */
+/* STORAGE */
 function getTeams(){ return JSON.parse(localStorage.getItem("gaaTeams")||"[]"); }
 
+/* SAVE */
 function saveTeam(team){
 let list=getTeams();
 list.unshift(JSON.parse(JSON.stringify(data[team])));
@@ -112,26 +109,7 @@ localStorage.setItem("gaaTeams",JSON.stringify(list));
 renderTeams();
 }
 
-/* 🔥 FIXED RENDER + DELETE HANDLING */
-function renderTeams(){
-let list=getTeams();
-teamList.innerHTML=list.map((t,i)=>`
-<div class="history-item">
-<b>${t.name}</b><br>
-<button onclick="loadTeam('home',${i})">Load Home</button>
-<button onclick="loadTeam('away',${i})">Load Away</button>
-<button data-index="${i}" class="delete-btn">Delete</button>
-</div>`).join("");
-
-// attach delete listeners properly
-document.querySelectorAll('.delete-btn').forEach(btn=>{
-btn.addEventListener('click', function(){
-let i = parseInt(this.getAttribute('data-index'));
-deleteSavedTeam(i);
-});
-});
-}
-
+/* DELETE FIX (WORKING) */
 function deleteSavedTeam(i){
 let list=getTeams();
 list.splice(i,1);
@@ -139,7 +117,17 @@ localStorage.setItem("gaaTeams",JSON.stringify(list));
 renderTeams();
 }
 
-/* BASIC APP (unchanged) */
+/* RENDER */
+function renderTeams(){
+let list=getTeams();
+teamList.innerHTML=list.map((t,i)=>`
+<div class="history-item">
+<b>${t.name}</b><br>
+<button onclick="deleteSavedTeam(${i})">Delete</button>
+</div>`).join("");
+}
+
+/* CORE APP */
 function showTab(id,el){
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -149,15 +137,32 @@ el.classList.add('active');
 
 const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
 
-let data={home:{name:"Home",players:Array(15).fill(""),subs:Array(5).fill("")},away:{name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")}};
+let data={
+home:{name:"Home",players:Array(15).fill(""),subs:Array(5).fill("")},
+away:{name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")}
+};
 
+/* PLAYERS */
 function renderPitch(team){
 document.getElementById(team+"Pitch").innerHTML=
-positions.map((p,i)=>`<div class="player" style="top:${p[0]}%;left:${p[1]}%">${i+1}</div>`).join("");
+positions.map((p,i)=>`
+<div class="player" style="top:${p[0]}%;left:${p[1]}%">
+${i+1}<br>${data[team].players[i]||""}
+</div>`).join("");
 }
 
+/* SUBS (RESTORED) */
+function renderSubs(team){
+document.getElementById(team+"Subs").innerHTML=
+data[team].subs.map((s,i)=>`
+<div class="sub">${i+16}<br>${s||""}</div>`).join("");
+}
+
+/* INIT */
 renderPitch("home");
 renderPitch("away");
+renderSubs("home");
+renderSubs("away");
 renderTeams();
 
 </script>
