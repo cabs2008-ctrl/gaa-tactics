@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -117,160 +117,36 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-/* STORAGE FIX */
-function getTeams(){
-return JSON.parse(localStorage.getItem("gaaTeams")||"[]");
-}
+/* (ALL YOUR EXISTING CODE REMAINS THE SAME ABOVE THIS POINT) */
 
-function saveTeam(team){
-let list=getTeams();
-list.unshift(JSON.parse(JSON.stringify(data[team])));
-localStorage.setItem("gaaTeams",JSON.stringify(list));
-renderTeams();
-}
-
-function loadTeam(team,i){
-let list=getTeams();
-data[team]=JSON.parse(JSON.stringify(list[i]));
-renderPitch(team);
-renderSubs(team);
-}
-
-function deleteSavedTeam(i){
-let list=getTeams();
-list.splice(i,1);
-localStorage.setItem("gaaTeams",JSON.stringify(list));
-renderTeams();
-}
-
-function renderTeams(){
-let list=getTeams();
-teamList.innerHTML=list.map((t,i)=>`
-<div class="history-item">
-<b>${t.name}</b><br>
-<button onclick="loadTeam('home',${i})">Load Home</button>
-<button onclick="loadTeam('away',${i})">Load Away</button>
-<button onclick="deleteSavedTeam(${i})">Delete</button>
-</div>`).join("");
-}
-
-/* REST OF APP UNCHANGED */
-
-function showTab(id,el){
-document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-el.classList.add('active');
-}
-
-const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
-
-let data={
-home:{name:"Home",players:Array(15).fill(""),subs:Array(5).fill("")},
-away:{name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")}
-};
-
-function editTeamName(team,el){
-let n=prompt("Team Name:",data[team].name);
-if(n){data[team].name=n;el.innerText=n;}
-}
-
-function renderPitch(team){
-document.getElementById(team+"Pitch").innerHTML=
-positions.map((p,i)=>`
-<div class="player" style="top:${p[0]}%;left:${p[1]}%" onclick="editPlayer('${team}',${i})">
-${i+1}<br>${data[team].players[i]||""}
-</div>`).join("");
-}
-
-function editPlayer(team,i){
-let n=prompt("Player Name:",data[team].players[i]);
-if(n!==null){data[team].players[i]=n;renderPitch(team);renderSubs(team);}
-}
-
-function renderSubs(team){
-document.getElementById(team+"Subs").innerHTML=
-data[team].subs.map((s,i)=>`
-<div class="sub" onclick="editSub('${team}',${i})">
-${i+16}<br>${s||""}
-</div>`).join("");
-}
-
-function editSub(team,i){
-let n=prompt("Sub Name:",data[team].subs[i]);
-if(n!==null){data[team].subs[i]=n;renderSubs(team);}
-}
-
-function resetTeam(team){
-if(!confirm("Reset team?")) return;
-data[team].players=Array(15).fill("");
-data[team].subs=Array(5).fill("");
-renderPitch(team);
-renderSubs(team);
-}
-
+/* ✅ FINAL SHARE FIX */
 function shareMatch(){
-let text=data.home.name+" vs "+data.away.name;
-if(navigator.share){navigator.share({text});}
-else{prompt("Copy:",text);}
+
+function buildTeam(team){
+  let players = data[team].players.map((p,i)=>`${i+1}. ${p||"-"}`).join("\n");
+  let subs = data[team].subs.map((s,i)=>`${i+16}. ${s||"-"}`).join("\n");
+
+  return `${data[team].name}\n\nPlayers:\n${players}\n\nSubs:\n${subs}`;
 }
 
-/* STATS */
-let stats={home:{goals:0,points:0,wides:0,fouls:0,turnovers:0,tackles:0},away:{goals:0,points:0}};
+let text =
+buildTeam("home") +
+"\n\n------------------\n\n" +
+buildTeam("away");
 
-function renderStats(){
-homeStats.innerHTML=`
-${row('home','goals','Goals')}
-${row('home','points','Points')}
-${row('home','wides','Wides')}
-${row('home','fouls','Fouls')}
-${row('home','turnovers','Turnovers')}
-${row('home','tackles','Tackles')}
-`;
-awayStats.innerHTML=`
-${row('away','goals','Goals')}
-${row('away','points','Points')}
-`;
+/* 🔥 FIX: force WhatsApp compatibility */
+if(navigator.share){
+  navigator.share({
+    title: "Team Sheet",
+    text: text
+  });
+}else{
+  // WhatsApp direct fallback
+  let url = "https://wa.me/?text=" + encodeURIComponent(text);
+  window.open(url, "_blank");
 }
 
-function row(team,key,label){
-return `<div class="stat-row">
-<div>${label}</div>
-<div>
-<button class="btn-minus" onclick="updateStat('${team}','${key}',-1)">-</button>
-<span style="margin:0 10px;font-weight:bold;" id="${team}_${key}">${stats[team][key]}</span>
-<button class="btn-plus" onclick="updateStat('${team}','${key}',1)">+</button>
-</div>
-</div>`;
 }
-
-function updateStat(team,key,val){
-stats[team][key]=Math.max(0,stats[team][key]+val);
-document.getElementById(`${team}_${key}`).innerText=stats[team][key];
-updateScore();
-}
-
-function updateScore(){
-let h=stats.home.goals*3+stats.home.points;
-let a=stats.away.goals*3+stats.away.points;
-scoreboard.innerText=`${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) | ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})`;
-}
-
-let sec=0,timer=null;
-function startClock(){if(!timer)timer=setInterval(()=>{sec++;updateClock();},1000);}
-function pauseClock(){clearInterval(timer);timer=null;}
-function resetClock(){pauseClock();sec=0;updateClock();}
-function updateClock(){matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
-
-/* INIT */
-renderPitch("home");
-renderPitch("away");
-renderSubs("home");
-renderSubs("away");
-renderStats();
-updateScore();
-updateClock();
-renderTeams();
 
 </script>
 
