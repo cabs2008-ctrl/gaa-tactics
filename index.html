@@ -153,7 +153,7 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* ✅ UPDATED FUNCTION (EDIT + DELETE ADDED) */
+/* ✅ UPDATED: Edit Squad added */
 function renderTeams(){
 let list=getTeams();
 teamList.innerHTML=list.map((t,i)=>`
@@ -162,13 +162,13 @@ teamList.innerHTML=list.map((t,i)=>`
 
 <button onclick="loadTeam('home',${i})">Load Home</button>
 <button onclick="loadTeam('away',${i})">Load Away</button>
-<button onclick="editSavedTeam(${i})">Edit</button>
+<button onclick="editSavedTeam(${i})">Edit Name</button>
+<button onclick="editTeamSquad(${i})">Edit Squad</button>
 <button onclick="deleteSavedTeam(${i})">Delete</button>
 
 </div>`).join("");
 }
 
-/* ✅ NEW FUNCTIONS */
 function deleteSavedTeam(i){
 let list=getTeams();
 list.splice(i,1);
@@ -186,9 +186,30 @@ if(name){
 }
 }
 
-/* EVERYTHING ELSE UNCHANGED BELOW */
+/* ✅ NEW FUNCTION */
+function editTeamSquad(i){
+let list=getTeams();
+let team=list[i];
 
-/* TABS */
+let newName=prompt("Team Name:", team.name);
+if(newName!==null) team.name=newName;
+
+for(let p=0;p<15;p++){
+  let name=prompt(`Player ${p+1}:`, team.players[p]);
+  if(name!==null) team.players[p]=name;
+}
+
+for(let s=0;s<team.subs.length;s++){
+  let name=prompt(`Sub ${s+16}:`, team.subs[s]);
+  if(name!==null) team.subs[s]=name;
+}
+
+localStorage.setItem("gaaTeams",JSON.stringify(list));
+renderTeams();
+}
+
+/* REST UNCHANGED */
+
 function showTab(id,el){
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -196,26 +217,21 @@ document.getElementById(id).classList.add('active');
 el.classList.add('active');
 }
 
-/* POSITIONS */
 const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
 
-/* DATA */
 let data=JSON.parse(localStorage.getItem("gaaData")||"{}");
 if(!data.home) data.home={name:"Home",players:Array(15).fill(""),subs:Array(5).fill("")};
 if(!data.away) data.away={name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")};
 function saveData(){localStorage.setItem("gaaData",JSON.stringify(data));}
 
-/* TEAM NAME */
 function editTeamName(team,el){
 let n=prompt("Team Name:",data[team].name);
 if(n){data[team].name=n;el.innerText=n;saveData();}
 }
 
-/* SWAP */
 let swapMode=false,selectedPlayer=null;
 function toggleSwapMode(){swapMode=!swapMode;selectedPlayer=null;}
 
-/* PLAYERS */
 function renderPitch(team){
 document.getElementById(team+"Pitch").innerHTML=
 positions.map((p,i)=>`
@@ -233,7 +249,6 @@ if(n!==null){data[team].players[i]=n;saveData();renderPitch(team);}
 
 function selectPlayer(team,i){selectedPlayer={team,index:i};}
 
-/* SUBS */
 function renderSubs(team){
 document.getElementById(team+"Subs").innerHTML=
 data[team].subs.map((s,i)=>`
@@ -259,7 +274,6 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* RESET */
 function resetTeam(team){
 if(!confirm("Reset team?"))return;
 data[team].players=Array(15).fill("");
@@ -269,7 +283,6 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* STATS */
 let stats={home:{goals:0,points:0,wides:0,fouls:0,turnovers:0,tackles:0},away:{goals:0,points:0}};
 
 function renderStats(){
@@ -281,7 +294,6 @@ ${row('home','fouls','Fouls')}
 ${row('home','turnovers','Turnovers')}
 ${row('home','tackles','Tackles')}
 `;
-
 awayStats.innerHTML=`
 ${row('away','goals','Goals')}
 ${row('away','points','Points')}
@@ -313,26 +325,22 @@ let a=stats.away.goals*3+stats.away.points;
 scoreboard.innerText=`${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) | ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})`;
 }
 
-/* CLOCK */
 let sec=0,timer=null;
 function startClock(){if(!timer)timer=setInterval(()=>{sec++;updateClock();},1000);}
 function pauseClock(){clearInterval(timer);timer=null;}
 function resetClock(){pauseClock();sec=0;updateClock();}
 function updateClock(){matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
 
-/* HISTORY */
 function getHistory(){return JSON.parse(localStorage.getItem("gaaHistory")||"[]");}
 function saveMatch(){let h=getHistory();h.unshift({score:scoreboard.innerText,date:new Date().toLocaleString()});localStorage.setItem("gaaHistory",JSON.stringify(h));renderHistory();}
 function renderHistory(){let h=getHistory();historyList.innerHTML=h.map(m=>`<div class="history-item">${m.score}<br>${m.date}</div>`).join("");}
 
-/* SHARE */
 function shareMatch(){
 let text=scoreboard.innerText||"No score yet";
 if(navigator.share){navigator.share({text});}
 else{prompt("Copy:",text);}
 }
 
-/* INIT */
 document.querySelector("#home h2").innerText=data.home.name;
 document.querySelector("#away h2").innerText=data.away.name;
 
