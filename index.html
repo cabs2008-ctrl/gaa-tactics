@@ -58,7 +58,7 @@ button {
 </div>
 
 <!-- MATCH TAB -->
-<div id="match" class="tab-content" style="display:block;">
+<div id="match" class="tab-content">
 
   <h2>Score</h2>
 
@@ -134,18 +134,22 @@ function addStat(stat) {
 }
 
 function openTab(evt, tabName) {
-  document.getElementById("match").style.display = "none";
-  document.getElementById("stats").style.display = "none";
-
-  document.getElementById(tabName).style.display = "block";
-
-  let buttons = document.getElementsByClassName("tablink");
-  for (let i = 0; i < buttons.length; i++) {
-    buttons[i].classList.remove("active");
+  let tabcontent = document.getElementsByClassName("tab-content");
+  for (let i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
   }
 
+  let tablinks = document.getElementsByClassName("tablink");
+  for (let i = 0; i < tablinks.length; i++) {
+    tablinks[i].classList.remove("active");
+  }
+
+  document.getElementById(tabName).style.display = "block";
   evt.currentTarget.classList.add("active");
 }
+
+// default tab on load
+document.getElementById("match").style.display = "block";
 
 </script>
 
