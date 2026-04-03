@@ -40,6 +40,20 @@ body { font-family: Arial; margin: 0; text-align: center; }
   display:flex; flex-direction:column; justify-content:center; align-items:center;
 }
 
+.stat-row {
+  display:flex; justify-content:space-between; align-items:center;
+  margin:10px auto; padding:12px;
+  width:92%; max-width:420px;
+  background:#f4f4f4; border-radius:14px;
+}
+
+.btn-minus,.btn-plus {
+  width:35px;height:35px;border:none;border-radius:10px;font-size:18px;
+}
+.btn-minus{background:#ff4d4d;color:white;}
+.btn-plus{background:#28a745;color:white;}
+
+.clock { font-size:26px;font-weight:bold; }
 .history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
 .top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
 </style>
@@ -50,6 +64,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div class="tabs">
   <div class="tab active" onclick="showTab('home',this)">Home</div>
   <div class="tab" onclick="showTab('away',this)">Away</div>
+  <div class="tab" onclick="showTab('stats',this)">Stats</div>
   <div class="tab" onclick="showTab('history',this)">History</div>
 </div>
 
@@ -59,9 +74,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('home')">Save Team</button>
 <button class="top-btn" onclick="shareMatch()">Share</button>
-
 <div class="pitch green" id="homePitch"></div>
-
 <h4>Subs</h4>
 <div class="subs" id="homeSubs"></div>
 </div>
@@ -72,11 +85,28 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('away')">Save Team</button>
 <button class="top-btn" onclick="shareMatch()">Share</button>
-
 <div class="pitch blue" id="awayPitch"></div>
-
 <h4>Subs</h4>
 <div class="subs" id="awaySubs"></div>
+</div>
+
+<!-- ✅ STATS RESTORED -->
+<div id="stats" class="section">
+<h2>Match Stats</h2>
+<h1 id="scoreboard"></h1>
+
+<div class="clock" id="matchClock">00:00</div>
+<button onclick="startClock()">Start</button>
+<button onclick="pauseClock()">Pause</button>
+<button onclick="resetClock()">Reset</button>
+
+<h3>Home</h3>
+<div id="homeStats"></div>
+
+<hr>
+
+<h3>Away</h3>
+<div id="awayStats"></div>
 </div>
 
 <!-- HISTORY -->
@@ -114,20 +144,14 @@ if(n){data[team].name=n;el.innerText=n;}
 function renderPitch(team){
 document.getElementById(team+"Pitch").innerHTML=
 positions.map((p,i)=>`
-<div class="player"
-style="top:${p[0]}%;left:${p[1]}%"
-onclick="editPlayer('${team}',${i})">
+<div class="player" style="top:${p[0]}%;left:${p[1]}%" onclick="editPlayer('${team}',${i})">
 ${i+1}<br>${data[team].players[i]||""}
 </div>`).join("");
 }
 
 function editPlayer(team,i){
 let n=prompt("Player Name:",data[team].players[i]);
-if(n!==null){
-data[team].players[i]=n;
-renderPitch(team);
-renderSubs(team);
-}
+if(n!==null){data[team].players[i]=n;renderPitch(team);renderSubs(team);}
 }
 
 /* SUBS */
@@ -141,10 +165,7 @@ ${i+16}<br>${s||""}
 
 function editSub(team,i){
 let n=prompt("Sub Name:",data[team].subs[i]);
-if(n!==null){
-data[team].subs[i]=n;
-renderSubs(team);
-}
+if(n!==null){data[team].subs[i]=n;renderSubs(team);}
 }
 
 /* RESET */
@@ -158,52 +179,68 @@ renderSubs(team);
 
 /* SHARE */
 function shareMatch(){
-let text = data.home.name + " vs " + data.away.name;
+let text=data.home.name+" vs "+data.away.name;
 if(navigator.share){navigator.share({text});}
 else{prompt("Copy:",text);}
 }
 
-/* STORAGE */
-function getTeams(){ return JSON.parse(localStorage.getItem("gaaTeams")||"[]"); }
+/* STATS */
+let stats={home:{goals:0,points:0,wides:0,fouls:0,turnovers:0,tackles:0},away:{goals:0,points:0}};
 
-function saveTeam(team){
-let list=getTeams();
-list.unshift(JSON.parse(JSON.stringify(data[team])));
-localStorage.setItem("gaaTeams",JSON.stringify(list));
-renderTeams();
+function renderStats(){
+homeStats.innerHTML=`
+${row('home','goals','Goals')}
+${row('home','points','Points')}
+${row('home','wides','Wides')}
+${row('home','fouls','Fouls')}
+${row('home','turnovers','Turnovers')}
+${row('home','tackles','Tackles')}
+`;
+
+awayStats.innerHTML=`
+${row('away','goals','Goals')}
+${row('away','points','Points')}
+`;
 }
 
-function deleteSavedTeam(i){
-let list=getTeams();
-list.splice(i,1);
-localStorage.setItem("gaaTeams",JSON.stringify(list));
-renderTeams();
+function row(team,key,label){
+return `<div class="stat-row">
+<div>${label}</div>
+<div>
+<button class="btn-minus" onclick="updateStat('${team}','${key}',-1)">-</button>
+<span style="margin:0 10px;font-weight:bold;" id="${team}_${key}">${stats[team][key]}</span>
+<button class="btn-plus" onclick="updateStat('${team}','${key}',1)">+</button>
+</div>
+</div>`;
 }
 
-function loadTeam(team,i){
-let list=getTeams();
-data[team]=JSON.parse(JSON.stringify(list[i]));
-renderPitch(team);
-renderSubs(team);
+function updateStat(team,key,val){
+stats[team][key]=Math.max(0,stats[team][key]+val);
+document.getElementById(`${team}_${key}`).innerText=stats[team][key];
+updateScore();
 }
 
-function renderTeams(){
-let list=getTeams();
-teamList.innerHTML=list.map((t,i)=>`
-<div class="history-item">
-<b>${t.name}</b><br>
-<button onclick="loadTeam('home',${i})">Load Home</button>
-<button onclick="loadTeam('away',${i})">Load Away</button>
-<button onclick="deleteSavedTeam(${i})">Delete</button>
-</div>`).join("");
+function updateScore(){
+let h=stats.home.goals*3+stats.home.points;
+let a=stats.away.goals*3+stats.away.points;
+scoreboard.innerText=`${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) | ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})`;
 }
+
+/* CLOCK */
+let sec=0,timer=null;
+function startClock(){if(!timer)timer=setInterval(()=>{sec++;updateClock();},1000);}
+function pauseClock(){clearInterval(timer);timer=null;}
+function resetClock(){pauseClock();sec=0;updateClock();}
+function updateClock(){matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
 
 /* INIT */
 renderPitch("home");
 renderPitch("away");
 renderSubs("home");
 renderSubs("away");
-renderTeams();
+renderStats();
+updateScore();
+updateClock();
 
 </script>
 
