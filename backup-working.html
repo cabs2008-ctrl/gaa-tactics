@@ -90,7 +90,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div class="subs" id="awaySubs"></div>
 </div>
 
-<!-- ✅ STATS RESTORED -->
+<!-- STATS -->
 <div id="stats" class="section">
 <h2>Match Stats</h2>
 <h1 id="scoreboard"></h1>
@@ -117,7 +117,45 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-/* TABS */
+/* STORAGE FIX */
+function getTeams(){
+return JSON.parse(localStorage.getItem("gaaTeams")||"[]");
+}
+
+function saveTeam(team){
+let list=getTeams();
+list.unshift(JSON.parse(JSON.stringify(data[team])));
+localStorage.setItem("gaaTeams",JSON.stringify(list));
+renderTeams();
+}
+
+function loadTeam(team,i){
+let list=getTeams();
+data[team]=JSON.parse(JSON.stringify(list[i]));
+renderPitch(team);
+renderSubs(team);
+}
+
+function deleteSavedTeam(i){
+let list=getTeams();
+list.splice(i,1);
+localStorage.setItem("gaaTeams",JSON.stringify(list));
+renderTeams();
+}
+
+function renderTeams(){
+let list=getTeams();
+teamList.innerHTML=list.map((t,i)=>`
+<div class="history-item">
+<b>${t.name}</b><br>
+<button onclick="loadTeam('home',${i})">Load Home</button>
+<button onclick="loadTeam('away',${i})">Load Away</button>
+<button onclick="deleteSavedTeam(${i})">Delete</button>
+</div>`).join("");
+}
+
+/* REST OF APP UNCHANGED */
+
 function showTab(id,el){
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -125,22 +163,18 @@ document.getElementById(id).classList.add('active');
 el.classList.add('active');
 }
 
-/* POSITIONS */
 const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
 
-/* DATA */
 let data={
 home:{name:"Home",players:Array(15).fill(""),subs:Array(5).fill("")},
 away:{name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")}
 };
 
-/* TEAM NAME */
 function editTeamName(team,el){
 let n=prompt("Team Name:",data[team].name);
 if(n){data[team].name=n;el.innerText=n;}
 }
 
-/* PLAYERS */
 function renderPitch(team){
 document.getElementById(team+"Pitch").innerHTML=
 positions.map((p,i)=>`
@@ -154,7 +188,6 @@ let n=prompt("Player Name:",data[team].players[i]);
 if(n!==null){data[team].players[i]=n;renderPitch(team);renderSubs(team);}
 }
 
-/* SUBS */
 function renderSubs(team){
 document.getElementById(team+"Subs").innerHTML=
 data[team].subs.map((s,i)=>`
@@ -168,7 +201,6 @@ let n=prompt("Sub Name:",data[team].subs[i]);
 if(n!==null){data[team].subs[i]=n;renderSubs(team);}
 }
 
-/* RESET */
 function resetTeam(team){
 if(!confirm("Reset team?")) return;
 data[team].players=Array(15).fill("");
@@ -177,7 +209,6 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* SHARE */
 function shareMatch(){
 let text=data.home.name+" vs "+data.away.name;
 if(navigator.share){navigator.share({text});}
@@ -196,7 +227,6 @@ ${row('home','fouls','Fouls')}
 ${row('home','turnovers','Turnovers')}
 ${row('home','tackles','Tackles')}
 `;
-
 awayStats.innerHTML=`
 ${row('away','goals','Goals')}
 ${row('away','points','Points')}
@@ -226,7 +256,6 @@ let a=stats.away.goals*3+stats.away.points;
 scoreboard.innerText=`${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) | ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})`;
 }
 
-/* CLOCK */
 let sec=0,timer=null;
 function startClock(){if(!timer)timer=setInterval(()=>{sec++;updateClock();},1000);}
 function pauseClock(){clearInterval(timer);timer=null;}
@@ -241,6 +270,7 @@ renderSubs("away");
 renderStats();
 updateScore();
 updateClock();
+renderTeams();
 
 </script>
 
