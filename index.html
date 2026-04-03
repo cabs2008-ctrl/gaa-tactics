@@ -37,6 +37,10 @@ body {
   padding: 20px;
 }
 
+.tab-content.active {
+  display: block;
+}
+
 .scoreboard {
   font-size: 28px;
   margin: 20px 0;
@@ -58,7 +62,7 @@ button {
 </div>
 
 <!-- MATCH TAB -->
-<div id="match" class="tab-content">
+<div id="match" class="tab-content active">
 
   <h2>Score</h2>
 
@@ -136,7 +140,7 @@ function addStat(stat) {
 function openTab(evt, tabName) {
   let tabcontent = document.getElementsByClassName("tab-content");
   for (let i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
+    tabcontent[i].classList.remove("active");
   }
 
   let tablinks = document.getElementsByClassName("tablink");
@@ -144,12 +148,9 @@ function openTab(evt, tabName) {
     tablinks[i].classList.remove("active");
   }
 
-  document.getElementById(tabName).style.display = "block";
+  document.getElementById(tabName).classList.add("active");
   evt.currentTarget.classList.add("active");
 }
-
-// default tab on load
-document.getElementById("match").style.display = "block";
 
 </script>
 
