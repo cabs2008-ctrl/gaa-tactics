@@ -37,10 +37,6 @@ body {
   padding: 20px;
 }
 
-.tab-content.active {
-  display: block;
-}
-
 .scoreboard {
   font-size: 28px;
   margin: 20px 0;
@@ -50,10 +46,6 @@ button {
   padding: 10px;
   margin: 5px;
   font-size: 16px;
-}
-
-.stats button {
-  display: inline-block;
 }
 </style>
 </head>
@@ -66,7 +58,7 @@ button {
 </div>
 
 <!-- MATCH TAB -->
-<div id="match" class="tab-content active">
+<div id="match" class="tab-content" style="display:block;">
 
   <h2>Score</h2>
 
@@ -90,39 +82,37 @@ button {
 
   <h2>Stats</h2>
 
-  <div class="stats">
-    <h3>Home Team</h3>
-    Fouls: <span id="homeFouls">0</span>
-    <button onclick="addStat('homeFouls')">+</button><br>
+  <h3>Home Team</h3>
+  Fouls: <span id="homeFouls">0</span>
+  <button onclick="addStat('homeFouls')">+</button><br>
 
-    Wides: <span id="homeWides">0</span>
-    <button onclick="addStat('homeWides')">+</button><br>
+  Wides: <span id="homeWides">0</span>
+  <button onclick="addStat('homeWides')">+</button><br>
 
-    Turnovers: <span id="homeTurnovers">0</span>
-    <button onclick="addStat('homeTurnovers')">+</button><br>
+  Turnovers: <span id="homeTurnovers">0</span>
+  <button onclick="addStat('homeTurnovers')">+</button><br>
 
-    Tackles: <span id="homeTackles">0</span>
-    <button onclick="addStat('homeTackles')">+</button><br>
+  Tackles: <span id="homeTackles">0</span>
+  <button onclick="addStat('homeTackles')">+</button><br>
 
-    Passes: <span id="homePasses">0</span>
-    <button onclick="addStat('homePasses')">+</button>
+  Passes: <span id="homePasses">0</span>
+  <button onclick="addStat('homePasses')">+</button>
 
-    <h3>Away Team</h3>
-    Fouls: <span id="awayFouls">0</span>
-    <button onclick="addStat('awayFouls')">+</button><br>
+  <h3>Away Team</h3>
+  Fouls: <span id="awayFouls">0</span>
+  <button onclick="addStat('awayFouls')">+</button><br>
 
-    Wides: <span id="awayWides">0</span>
-    <button onclick="addStat('awayWides')">+</button><br>
+  Wides: <span id="awayWides">0</span>
+  <button onclick="addStat('awayWides')">+</button><br>
 
-    Turnovers: <span id="awayTurnovers">0</span>
-    <button onclick="addStat('awayTurnovers')">+</button><br>
+  Turnovers: <span id="awayTurnovers">0</span>
+  <button onclick="addStat('awayTurnovers')">+</button><br>
 
-    Tackles: <span id="awayTackles">0</span>
-    <button onclick="addStat('awayTackles')">+</button><br>
+  Tackles: <span id="awayTackles">0</span>
+  <button onclick="addStat('awayTackles')">+</button><br>
 
-    Passes: <span id="awayPasses">0</span>
-    <button onclick="addStat('awayPasses')">+</button>
-  </div>
+  Passes: <span id="awayPasses">0</span>
+  <button onclick="addStat('awayPasses')">+</button>
 
 </div>
 
@@ -144,17 +134,16 @@ function addStat(stat) {
 }
 
 function openTab(evt, tabName) {
-  let tabcontent = document.getElementsByClassName("tab-content");
-  for (let i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].classList.remove("active");
+  document.getElementById("match").style.display = "none";
+  document.getElementById("stats").style.display = "none";
+
+  document.getElementById(tabName).style.display = "block";
+
+  let buttons = document.getElementsByClassName("tablink");
+  for (let i = 0; i < buttons.length; i++) {
+    buttons[i].classList.remove("active");
   }
 
-  let tablinks = document.getElementsByClassName("tablink");
-  for (let i = 0; i < tablinks.length; i++) {
-    tablinks[i].classList.remove("active");
-  }
-
-  document.getElementById(tabName).classList.add("active");
   evt.currentTarget.classList.add("active");
 }
 
