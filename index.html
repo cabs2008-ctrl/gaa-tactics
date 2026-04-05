@@ -124,7 +124,12 @@ return JSON.parse(localStorage.getItem("gaaTeams")||"[]");
 
 function saveTeam(team){
 let list=getTeams();
-list.unshift(JSON.parse(JSON.stringify(data[team])));
+
+let teamData = JSON.parse(JSON.stringify(data[team]));
+teamData.savedAt = new Date().toISOString(); // ✅ added date
+
+list.unshift(teamData);
+
 localStorage.setItem("gaaTeams",JSON.stringify(list));
 renderTeams();
 }
@@ -145,13 +150,21 @@ renderTeams();
 
 function renderTeams(){
 let list=getTeams();
-teamList.innerHTML=list.map((t,i)=>`
+teamList.innerHTML=list.map((t,i)=>{
+
+let date = t.savedAt 
+  ? new Date(t.savedAt).toLocaleString() 
+  : "";
+
+return `
 <div class="history-item">
 <b>${t.name}</b><br>
+${date ? `<small>Saved: ${date}</small><br>` : ""}
 <button onclick="loadTeam('home',${i})">Load Home</button>
 <button onclick="loadTeam('away',${i})">Load Away</button>
 <button onclick="deleteSavedTeam(${i})">Delete</button>
-</div>`).join("");
+</div>`;
+}).join("");
 }
 
 /* REST OF APP UNCHANGED */
