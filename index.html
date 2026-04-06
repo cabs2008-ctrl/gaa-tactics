@@ -37,34 +37,15 @@ body { font-family: Arial; margin: 0; text-align: center; }
   display:flex; flex-direction:column; justify-content:center; align-items:center;
 }
 
-.stat-row {
-  display:flex; justify-content:space-between; align-items:center;
-  margin:10px auto; padding:12px;
-  width:92%; max-width:420px;
-  background:#f4f4f4; border-radius:14px;
-}
-
-.btn-minus,.btn-plus {
-  width:35px;height:35px;border:none;border-radius:10px;font-size:18px;
-}
-.btn-minus{background:#ff4d4d;color:white;}
-.btn-plus{background:#28a745;color:white;}
-
-.clock { font-size:26px;font-weight:bold; }
 .history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
+
 .top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
 
-.scoreboard { display:flex; flex-direction:column; gap:8px; margin:10px auto; max-width:420px; }
-.score-row { display:flex; justify-content:space-between; align-items:center; background:#222; color:white; padding:10px 14px; border-radius:10px; font-weight:bold; }
-.score-row span { font-size:18px; }
-.score-row.win { background:#28a745; }
-.score-row.lose { background:#dc3545; }
-.score-row.draw { background:#555; }
-
-.date-edit {
-  color:#555;
+.meta {
   font-size:12px;
+  color:#555;
   cursor:pointer;
+  margin-top:4px;
 }
 </style>
 </head>
@@ -74,7 +55,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div class="tabs">
   <div class="tab active" onclick="showTab('home',this)">Home</div>
   <div class="tab" onclick="showTab('away',this)">Away</div>
-  <div class="tab" onclick="showTab('stats',this)">Stats</div>
   <div class="tab" onclick="showTab('history',this)">History</div>
 </div>
 
@@ -82,9 +62,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <h2 onclick="editTeamName('home',this)">Home</h2>
 <button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('home')">Save Team</button>
-<button class="top-btn" onclick="shareMatch()">Share</button>
 <div class="pitch green" id="homePitch"></div>
-<h4>Subs</h4>
 <div class="subs" id="homeSubs"></div>
 </div>
 
@@ -92,26 +70,8 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <h2 onclick="editTeamName('away',this)">Away</h2>
 <button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('away')">Save Team</button>
-<button class="top-btn" onclick="shareMatch()">Share</button>
 <div class="pitch blue" id="awayPitch"></div>
-<h4>Subs</h4>
 <div class="subs" id="awaySubs"></div>
-</div>
-
-<div id="stats" class="section">
-<h2>Match Stats</h2>
-<h1 id="scoreboard"></h1>
-
-<div class="clock" id="matchClock">00:00</div>
-<button onclick="startClock()">Start</button>
-<button onclick="pauseClock()">Pause</button>
-<button onclick="resetClock()">Reset</button>
-
-<h3>Home</h3>
-<div id="homeStats"></div>
-<hr>
-<h3>Away</h3>
-<div id="awayStats"></div>
 </div>
 
 <div id="history" class="section">
@@ -127,19 +87,48 @@ function getTeams(){ return JSON.parse(localStorage.getItem("gaaTeams")||"[]"); 
 function saveTeam(team){
 let list=getTeams();
 let teamData = JSON.parse(JSON.stringify(data[team]));
+
+// keep existing if present
 teamData.savedAt = new Date().toISOString();
+teamData.opponent = data[team].opponent || "";
+teamData.venue = data[team].venue || "";
+
 list.unshift(teamData);
 localStorage.setItem("gaaTeams",JSON.stringify(list));
 renderTeams();
 }
 
-/* ✅ EDIT DATE */
+/* EDIT DATE */
 function editDate(i){
 let list=getTeams();
 let current = list[i].savedAt ? new Date(list[i].savedAt).toLocaleString() : "";
 let newDate = prompt("Edit Date:", current);
 if(newDate){
   list[i].savedAt = new Date(newDate).toISOString();
+  localStorage.setItem("gaaTeams",JSON.stringify(list));
+  renderTeams();
+}
+}
+
+/* ✅ EDIT OPPONENT */
+function editOpponent(i){
+let list=getTeams();
+let current = list[i].opponent || "";
+let val = prompt("Opponent:", current);
+if(val !== null){
+  list[i].opponent = val;
+  localStorage.setItem("gaaTeams",JSON.stringify(list));
+  renderTeams();
+}
+}
+
+/* ✅ EDIT VENUE */
+function editVenue(i){
+let list=getTeams();
+let current = list[i].venue || "";
+let val = prompt("Venue:", current);
+if(val !== null){
+  list[i].venue = val;
   localStorage.setItem("gaaTeams",JSON.stringify(list));
   renderTeams();
 }
@@ -162,11 +151,19 @@ renderTeams();
 function renderTeams(){
 let list=getTeams();
 teamList.innerHTML=list.map((t,i)=>{
+
 let date = t.savedAt ? new Date(t.savedAt).toLocaleString() : "No date";
+let opponent = t.opponent || "Tap to add opponent";
+let venue = t.venue || "Tap to add venue";
+
 return `
 <div class="history-item">
-<b>${t.name}</b><br>
-<div class="date-edit" onclick="editDate(${i})">📅 ${date}</div>
+<b>${t.name}</b>
+
+<div class="meta" onclick="editDate(${i})">📅 ${date}</div>
+<div class="meta" onclick="editOpponent(${i})">⚔️ ${opponent}</div>
+<div class="meta" onclick="editVenue(${i})">📍 ${venue}</div>
+
 <button onclick="loadTeam('home',${i})">Load Home</button>
 <button onclick="loadTeam('away',${i})">Load Away</button>
 <button onclick="deleteSavedTeam(${i})">Delete</button>
@@ -174,7 +171,8 @@ return `
 }).join("");
 }
 
-/* REST OF YOUR CODE UNCHANGED */
+/* UI */
+
 function showTab(id,el){
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -185,8 +183,8 @@ el.classList.add('active');
 const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
 
 let data={
-home:{name:"Home",players:Array(15).fill(""),subs:Array(5).fill("")},
-away:{name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")}
+home:{name:"Home",players:Array(15).fill(""),subs:Array(5).fill(""),opponent:"",venue:""},
+away:{name:"Away",players:Array(15).fill(""),subs:Array(5).fill(""),opponent:"",venue:""}
 };
 
 function editTeamName(team,el){
