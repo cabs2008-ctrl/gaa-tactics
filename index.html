@@ -104,6 +104,9 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div id="stats" class="section">
 <h2>Match Stats</h2>
 
+<!-- ✅ ADDED SHARE BUTTON ONLY -->
+<button class="top-btn" onclick="shareMatch()">Share</button>
+
 <div id="scoreboard"></div>
 
 <div class="clock" id="matchClock">00:00</div>
@@ -128,7 +131,8 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-/* STORAGE */
+/* (UNCHANGED JS BELOW) */
+
 function getTeams(){ return JSON.parse(localStorage.getItem("gaaTeams")||"[]"); }
 
 function saveTeam(team){
@@ -166,7 +170,6 @@ ${new Date(t.savedAt).toLocaleString()}<br>
 </div>`).join("");
 }
 
-/* UI */
 function showTab(id,el){
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -174,7 +177,6 @@ document.getElementById(id).classList.add('active');
 el.classList.add('active');
 }
 
-/* TEAM */
 const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
 
 let data={
@@ -221,13 +223,11 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* SHARE */
 function shareMatch(){
 let text=data.home.name+" vs "+data.away.name;
 navigator.share ? navigator.share({text}) : alert(text);
 }
 
-/* STATS */
 let stats={home:{goals:0,points:0},away:{goals:0,points:0}};
 
 function renderStats(){
@@ -251,7 +251,6 @@ document.getElementById(`${team}_${key}`).innerText=stats[team][key];
 updateScore();
 }
 
-/* SCOREBOARD */
 function updateScore(){
 let h=stats.home.goals*3+stats.home.points;
 let a=stats.away.goals*3+stats.away.points;
@@ -274,14 +273,12 @@ scoreboard.innerHTML=`
 </div>`;
 }
 
-/* CLOCK */
 let sec=0,timer=null;
 function startClock(){if(!timer)timer=setInterval(()=>{sec++;updateClock();},1000);}
 function pauseClock(){clearInterval(timer);timer=null;}
 function resetClock(){pauseClock();sec=0;updateClock();}
 function updateClock(){matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
 
-/* INIT */
 renderPitch("home");
 renderPitch("away");
 renderSubs("home");
