@@ -215,20 +215,29 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* ✅ FULL SHARE FIX (teams included) */
+/* ✅ PITCH STYLE SHARE */
 function shareMatch(){
 
-function formatTeam(team){
-  let players = data[team].players.map((p,i)=>`${i+1}. ${p||"-"}`).join("\n");
-  let subs = data[team].subs.map((s,i)=>`${i+16}. ${s||"-"}`).join("\n");
+function formatPitch(team){
+  let p = data[team].players;
 
   return `${data[team].name}
 
-Starting:
-${players}
+           ${p[0]||"-"}
 
-Subs:
-${subs}`;
+   ${p[1]||"-"}   ${p[2]||"-"}   ${p[3]||"-"}
+
+   ${p[4]||"-"}   ${p[5]||"-"}   ${p[6]||"-"}
+
+      ${p[7]||"-"}       ${p[8]||"-"}
+
+   ${p[9]||"-"}   ${p[10]||"-"}   ${p[11]||"-"}
+
+   ${p[12]||"-"}   ${p[13]||"-"}   ${p[14]||"-"}`;
+}
+
+function formatSubs(team){
+  return data[team].subs.map((s,i)=>`${i+16}. ${s||"-"}`).join("\n");
 }
 
 let homeScore = stats.home.goals + "-" + stats.home.points;
@@ -240,11 +249,17 @@ let awayTotal = stats.away.goals*3 + stats.away.points;
 let text =
 `GAA Match
 
-${formatTeam("home")}
+${formatPitch("home")}
+
+Subs:
+${formatSubs("home")}
 
 ---------------------
 
-${formatTeam("away")}
+${formatPitch("away")}
+
+Subs:
+${formatSubs("away")}
 
 ---------------------
 
@@ -258,7 +273,7 @@ if(navigator.share){
   navigator.share({ title:"GAA Match", text });
 }else{
   navigator.clipboard.writeText(text);
-  alert("Full match details copied!");
+  alert("Pitch-style team shared!");
 }
 }
 
