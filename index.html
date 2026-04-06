@@ -117,19 +117,16 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-/* STORAGE FIX */
+/* STORAGE */
 function getTeams(){
 return JSON.parse(localStorage.getItem("gaaTeams")||"[]");
 }
 
 function saveTeam(team){
 let list=getTeams();
-
 let teamData = JSON.parse(JSON.stringify(data[team]));
 teamData.savedAt = new Date().toISOString();
-
 list.unshift(teamData);
-
 localStorage.setItem("gaaTeams",JSON.stringify(list));
 renderTeams();
 }
@@ -151,11 +148,7 @@ renderTeams();
 function renderTeams(){
 let list=getTeams();
 teamList.innerHTML=list.map((t,i)=>{
-
-let date = t.savedAt 
-  ? new Date(t.savedAt).toLocaleString() 
-  : "";
-
+let date = t.savedAt ? new Date(t.savedAt).toLocaleString() : "";
 return `
 <div class="history-item">
 <b>${t.name}</b><br>
@@ -167,7 +160,7 @@ ${date ? `<small>Saved: ${date}</small><br>` : ""}
 }).join("");
 }
 
-/* REST */
+/* UI */
 
 function showTab(id,el){
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
@@ -222,8 +215,21 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* ✅ FIXED SHARE FUNCTION */
+/* ✅ FULL SHARE FIX (teams included) */
 function shareMatch(){
+
+function formatTeam(team){
+  let players = data[team].players.map((p,i)=>`${i+1}. ${p||"-"}`).join("\n");
+  let subs = data[team].subs.map((s,i)=>`${i+16}. ${s||"-"}`).join("\n");
+
+  return `${data[team].name}
+
+Starting:
+${players}
+
+Subs:
+${subs}`;
+}
 
 let homeScore = stats.home.goals + "-" + stats.home.points;
 let awayScore = stats.away.goals + "-" + stats.away.points;
@@ -232,7 +238,15 @@ let homeTotal = stats.home.goals*3 + stats.home.points;
 let awayTotal = stats.away.goals*3 + stats.away.points;
 
 let text =
-`${data.home.name} vs ${data.away.name}
+`GAA Match
+
+${formatTeam("home")}
+
+---------------------
+
+${formatTeam("away")}
+
+---------------------
 
 Score:
 ${data.home.name} ${homeScore} (${homeTotal})
@@ -241,13 +255,10 @@ ${data.away.name} ${awayScore} (${awayTotal})
 Time: ${matchClock.innerText}`;
 
 if(navigator.share){
-  navigator.share({
-    title: "GAA Match",
-    text: text
-  });
+  navigator.share({ title:"GAA Match", text });
 }else{
   navigator.clipboard.writeText(text);
-  alert("Match details copied!");
+  alert("Full match details copied!");
 }
 }
 
