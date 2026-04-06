@@ -53,7 +53,7 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* ✅ FIXED SHARE (ONLY CHANGE) */
+/* ✅ SHARE (ONLY CHANGE YOU ASKED FOR) */
 function shareMatch(){
 
 let h=stats.home.goals*3+stats.home.points;
@@ -97,6 +97,47 @@ navigator.share({title:"Match Report",text});
 navigator.clipboard.writeText(text);
 alert("Copied to clipboard");
 }
+}
+
+/* ✅ STORAGE (RESTORED — THIS FIXES BLANK SCREEN) */
+function getTeams(){
+return JSON.parse(localStorage.getItem("gaaTeams")||"[]");
+}
+
+function saveTeam(team){
+let list=getTeams();
+let teamData = JSON.parse(JSON.stringify(data[team]));
+teamData.savedAt = new Date().toISOString();
+list.unshift(teamData);
+localStorage.setItem("gaaTeams",JSON.stringify(list));
+renderTeams();
+}
+
+function loadTeam(team,i){
+let list=getTeams();
+data[team]=JSON.parse(JSON.stringify(list[i]));
+renderPitch(team);
+renderSubs(team);
+}
+
+function deleteSavedTeam(i){
+let list=getTeams();
+list.splice(i,1);
+localStorage.setItem("gaaTeams",JSON.stringify(list));
+renderTeams();
+}
+
+function renderTeams(){
+let list=getTeams();
+if(!teamList) return;
+teamList.innerHTML=list.map((t,i)=>`
+<div class="history-item">
+<b>${t.name}</b><br>
+${new Date(t.savedAt).toLocaleString()}<br>
+<button onclick="loadTeam('home',${i})">Load Home</button>
+<button onclick="loadTeam('away',${i})">Load Away</button>
+<button onclick="deleteSavedTeam(${i})">Delete</button>
+</div>`).join("");
 }
 
 /* STATS */
@@ -161,6 +202,7 @@ scoreboard.innerHTML=`
 </div>`;
 }
 
+/* CLOCK */
 let sec=0,timer=null;
 function startClock(){if(!timer)timer=setInterval(()=>{sec++;updateClock();},1000);}
 function pauseClock(){clearInterval(timer);timer=null;}
@@ -175,5 +217,6 @@ renderSubs("away");
 renderStats();
 updateScore();
 updateClock();
+renderTeams();
 
 </script>
