@@ -25,6 +25,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
   background: rgba(255,255,255,0.7);
   font-size: 12px;
   display:flex; flex-direction:column; justify-content:center;
+  cursor:pointer;
 }
 
 .subs { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin:12px auto; }
@@ -34,11 +35,11 @@ body { font-family: Arial; margin: 0; text-align: center; }
   background:rgba(255,255,255,0.7);
   font-size:11px;
   display:flex;flex-direction:column;justify-content:center;align-items:center;
+  cursor:pointer;
 }
 
 .history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
 .top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
-.meta { font-size:12px;color:#555;cursor:pointer;margin-top:4px; }
 
 .stat-row {
   display:flex; justify-content:space-between; align-items:center;
@@ -55,25 +56,12 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 .clock { font-size:26px;font-weight:bold; }
 
-/* ✅ SCOREBOARD RESTORED */
-.scoreboard {
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  margin:10px auto;
-  max-width:420px;
-}
-
+/* SCOREBOARD */
+.scoreboard { display:flex; flex-direction:column; gap:8px; margin:10px auto; max-width:420px; }
 .score-row {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:bold;
-  color:white;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 14px; border-radius:10px; font-weight:bold; color:white;
 }
-
 .score-row.win { background:#28a745; }
 .score-row.lose { background:#dc3545; }
 .score-row.draw { background:#555; }
@@ -90,25 +78,29 @@ body { font-family: Arial; margin: 0; text-align: center; }
   <div class="tab" onclick="showTab('history',this)">History</div>
 </div>
 
+<!-- HOME -->
 <div id="home" class="section active">
 <h2 onclick="editTeamName('home',this)">Home</h2>
 <button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('home')">Save Team</button>
 <button class="top-btn" onclick="shareMatch()">Share</button>
 <div class="pitch green" id="homePitch"></div>
+<h4>Subs</h4>
 <div class="subs" id="homeSubs"></div>
 </div>
 
+<!-- AWAY -->
 <div id="away" class="section">
 <h2 onclick="editTeamName('away',this)">Away</h2>
 <button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('away')">Save Team</button>
 <button class="top-btn" onclick="shareMatch()">Share</button>
 <div class="pitch blue" id="awayPitch"></div>
+<h4>Subs</h4>
 <div class="subs" id="awaySubs"></div>
 </div>
 
-<!-- ✅ FIXED STATS -->
+<!-- STATS -->
 <div id="stats" class="section">
 <h2>Match Stats</h2>
 
@@ -128,12 +120,51 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div id="awayStats"></div>
 </div>
 
+<!-- HISTORY -->
 <div id="history" class="section">
 <h2>Saved Teams</h2>
 <div id="teamList"></div>
 </div>
 
 <script>
+
+/* STORAGE */
+function getTeams(){ return JSON.parse(localStorage.getItem("gaaTeams")||"[]"); }
+
+function saveTeam(team){
+let list=getTeams();
+let teamData = JSON.parse(JSON.stringify(data[team]));
+teamData.savedAt = new Date().toISOString();
+list.unshift(teamData);
+localStorage.setItem("gaaTeams",JSON.stringify(list));
+renderTeams();
+}
+
+function loadTeam(team,i){
+let list=getTeams();
+data[team]=JSON.parse(JSON.stringify(list[i]));
+renderPitch(team);
+renderSubs(team);
+}
+
+function deleteSavedTeam(i){
+let list=getTeams();
+list.splice(i,1);
+localStorage.setItem("gaaTeams",JSON.stringify(list));
+renderTeams();
+}
+
+function renderTeams(){
+let list=getTeams();
+teamList.innerHTML=list.map((t,i)=>`
+<div class="history-item">
+<b>${t.name}</b><br>
+${new Date(t.savedAt).toLocaleString()}<br>
+<button onclick="loadTeam('home',${i})">Load Home</button>
+<button onclick="loadTeam('away',${i})">Load Away</button>
+<button onclick="deleteSavedTeam(${i})">Delete</button>
+</div>`).join("");
+}
 
 /* UI */
 function showTab(id,el){
@@ -151,12 +182,43 @@ home:{name:"Home",players:Array(15).fill(""),subs:Array(5).fill("")},
 away:{name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")}
 };
 
+function editTeamName(team,el){
+let n=prompt("Team Name:",data[team].name);
+if(n){data[team].name=n;el.innerText=n;updateScore();}
+}
+
 function renderPitch(team){
 document.getElementById(team+"Pitch").innerHTML=
 positions.map((p,i)=>`
-<div class="player" style="top:${p[0]}%;left:${p[1]}%">
+<div class="player" style="top:${p[0]}%;left:${p[1]}%" onclick="editPlayer('${team}',${i})">
 ${i+1}<br>${data[team].players[i]||""}
 </div>`).join("");
+}
+
+function editPlayer(team,i){
+let n=prompt("Player Name:",data[team].players[i]);
+if(n!==null){data[team].players[i]=n;renderPitch(team);}
+}
+
+function renderSubs(team){
+document.getElementById(team+"Subs").innerHTML=
+data[team].subs.map((s,i)=>`
+<div class="sub" onclick="editSub('${team}',${i})">
+${i+16}<br>${s||""}
+</div>`).join("");
+}
+
+function editSub(team,i){
+let n=prompt("Sub Name:",data[team].subs[i]);
+if(n!==null){data[team].subs[i]=n;renderSubs(team);}
+}
+
+function resetTeam(team){
+if(!confirm("Reset team?")) return;
+data[team].players=Array(15).fill("");
+data[team].subs=Array(5).fill("");
+renderPitch(team);
+renderSubs(team);
 }
 
 /* SHARE */
@@ -189,7 +251,7 @@ document.getElementById(`${team}_${key}`).innerText=stats[team][key];
 updateScore();
 }
 
-/* ✅ SCOREBOARD LOGIC RESTORED */
+/* SCOREBOARD */
 function updateScore(){
 let h=stats.home.goals*3+stats.home.points;
 let a=stats.away.goals*3+stats.away.points;
@@ -222,9 +284,12 @@ function updateClock(){matchClock.innerText=String(Math.floor(sec/60)).padStart(
 /* INIT */
 renderPitch("home");
 renderPitch("away");
+renderSubs("home");
+renderSubs("away");
 renderStats();
 updateScore();
 updateClock();
+renderTeams();
 
 </script>
 
