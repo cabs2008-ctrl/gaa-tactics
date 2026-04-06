@@ -215,51 +215,58 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* ✅ FULL SHARE FIX (teams included) */
+/* ✅ IMAGE SHARE */
 function shareMatch(){
 
-function formatTeam(team){
-  let players = data[team].players.map((p,i)=>`${i+1}. ${p||"-"}`).join("\n");
-  let subs = data[team].subs.map((s,i)=>`${i+16}. ${s||"-"}`).join("\n");
+let canvas = document.createElement("canvas");
+canvas.width = 600;
+canvas.height = 900;
+let ctx = canvas.getContext("2d");
 
-  return `${data[team].name}
+// background
+ctx.fillStyle = "#2e7d32";
+ctx.fillRect(0,0,600,900);
 
-Starting:
-${players}
+// title
+ctx.fillStyle = "white";
+ctx.font = "bold 24px Arial";
+ctx.textAlign = "center";
+ctx.fillText(data.home.name,300,40);
 
-Subs:
-${subs}`;
-}
+// players
+ctx.font = "12px Arial";
 
-let homeScore = stats.home.goals + "-" + stats.home.points;
-let awayScore = stats.away.goals + "-" + stats.away.points;
+positions.forEach((pos,i)=>{
+  let x = pos[1]/100 * 600;
+  let y = pos[0]/100 * 900;
 
-let homeTotal = stats.home.goals*3 + stats.home.points;
-let awayTotal = stats.away.goals*3 + stats.away.points;
+  ctx.beginPath();
+  ctx.arc(x,y,20,0,Math.PI*2);
+  ctx.fillStyle = "white";
+  ctx.fill();
 
-let text =
-`GAA Match
+  ctx.fillStyle = "black";
+  ctx.fillText(i+1,x,y-5);
+  ctx.fillText(data.home.players[i]||"",x,y+10);
+});
 
-${formatTeam("home")}
+// export
+canvas.toBlob(blob=>{
+  let file = new File([blob],"team.png",{type:"image/png"});
 
----------------------
+  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+    navigator.share({
+      files:[file],
+      title:"Team Sheet"
+    });
+  }else{
+    let a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="team.png";
+    a.click();
+  }
+});
 
-${formatTeam("away")}
-
----------------------
-
-Score:
-${data.home.name} ${homeScore} (${homeTotal})
-${data.away.name} ${awayScore} (${awayTotal})
-
-Time: ${matchClock.innerText}`;
-
-if(navigator.share){
-  navigator.share({ title:"GAA Match", text });
-}else{
-  navigator.clipboard.writeText(text);
-  alert("Full match details copied!");
-}
 }
 
 /* STATS */
