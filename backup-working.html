@@ -25,20 +25,21 @@ body { font-family: Arial; margin: 0; text-align: center; }
   background: rgba(255,255,255,0.7);
   font-size: 12px;
   display:flex; flex-direction:column; justify-content:center;
+  cursor:pointer;
 }
 
-.subs {
-  display: flex; flex-wrap: wrap; justify-content: center;
-  gap: 10px; margin: 12px auto;
-}
+.subs { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin:12px auto; }
 
 .sub {
-  width: 55px; height: 55px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.7);
-  font-size: 11px;
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  width:55px;height:55px;border-radius:50%;
+  background:rgba(255,255,255,0.7);
+  font-size:11px;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  cursor:pointer;
 }
+
+.history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
+.top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
 
 .stat-row {
   display:flex; justify-content:space-between; align-items:center;
@@ -54,37 +55,16 @@ body { font-family: Arial; margin: 0; text-align: center; }
 .btn-plus{background:#28a745;color:white;}
 
 .clock { font-size:26px;font-weight:bold; }
-.history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
-.top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
 
 /* SCOREBOARD */
-.scoreboard {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 10px auto;
-  max-width: 420px;
-}
-
+.scoreboard { display:flex; flex-direction:column; gap:8px; margin:10px auto; max-width:420px; }
 .score-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #222;
-  color: white;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-weight: bold;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 14px; border-radius:10px; font-weight:bold; color:white;
 }
-
-.score-row span {
-  font-size: 18px;
-}
-
-/* ✅ NEW highlight styles */
-.score-row.win { background: #28a745; }
-.score-row.lose { background: #dc3545; }
-.score-row.draw { background: #555; }
+.score-row.win { background:#28a745; }
+.score-row.lose { background:#dc3545; }
+.score-row.draw { background:#555; }
 
 </style>
 </head>
@@ -123,7 +103,8 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <!-- STATS -->
 <div id="stats" class="section">
 <h2>Match Stats</h2>
-<h1 id="scoreboard"></h1>
+
+<div id="scoreboard"></div>
 
 <div class="clock" id="matchClock">00:00</div>
 <button onclick="startClock()">Start</button>
@@ -148,9 +129,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <script>
 
 /* STORAGE */
-function getTeams(){
-return JSON.parse(localStorage.getItem("gaaTeams")||"[]");
-}
+function getTeams(){ return JSON.parse(localStorage.getItem("gaaTeams")||"[]"); }
 
 function saveTeam(team){
 let list=getTeams();
@@ -177,21 +156,17 @@ renderTeams();
 
 function renderTeams(){
 let list=getTeams();
-teamList.innerHTML=list.map((t,i)=>{
-let date = t.savedAt ? new Date(t.savedAt).toLocaleString() : "";
-return `
+teamList.innerHTML=list.map((t,i)=>`
 <div class="history-item">
 <b>${t.name}</b><br>
-${date ? `<small>Saved: ${date}</small><br>` : ""}
+${new Date(t.savedAt).toLocaleString()}<br>
 <button onclick="loadTeam('home',${i})">Load Home</button>
 <button onclick="loadTeam('away',${i})">Load Away</button>
 <button onclick="deleteSavedTeam(${i})">Delete</button>
-</div>`;
-}).join("");
+</div>`).join("");
 }
 
 /* UI */
-
 function showTab(id,el){
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -199,6 +174,7 @@ document.getElementById(id).classList.add('active');
 el.classList.add('active');
 }
 
+/* TEAM */
 const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
 
 let data={
@@ -208,7 +184,7 @@ away:{name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")}
 
 function editTeamName(team,el){
 let n=prompt("Team Name:",data[team].name);
-if(n){data[team].name=n;el.innerText=n;}
+if(n){data[team].name=n;el.innerText=n;updateScore();}
 }
 
 function renderPitch(team){
@@ -221,7 +197,7 @@ ${i+1}<br>${data[team].players[i]||""}
 
 function editPlayer(team,i){
 let n=prompt("Player Name:",data[team].players[i]);
-if(n!==null){data[team].players[i]=n;renderPitch(team);renderSubs(team);}
+if(n!==null){data[team].players[i]=n;renderPitch(team);}
 }
 
 function renderSubs(team){
@@ -245,66 +221,18 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* SHARE (unchanged image version) */
+/* SHARE */
 function shareMatch(){
-let canvas = document.createElement("canvas");
-canvas.width = 600;
-canvas.height = 900;
-let ctx = canvas.getContext("2d");
-
-ctx.fillStyle = "#2e7d32";
-ctx.fillRect(0,0,600,900);
-
-ctx.fillStyle = "white";
-ctx.font = "bold 24px Arial";
-ctx.textAlign = "center";
-ctx.fillText(data.home.name,300,40);
-
-ctx.font = "12px Arial";
-
-positions.forEach((pos,i)=>{
-  let x = pos[1]/100 * 600;
-  let y = pos[0]/100 * 900;
-
-  ctx.beginPath();
-  ctx.arc(x,y,20,0,Math.PI*2);
-  ctx.fillStyle = "white";
-  ctx.fill();
-
-  ctx.fillStyle = "black";
-  ctx.fillText(i+1,x,y-5);
-  ctx.fillText(data.home.players[i]||"",x,y+10);
-});
-
-canvas.toBlob(blob=>{
-  let file = new File([blob],"team.png",{type:"image/png"});
-  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-    navigator.share({files:[file],title:"Team Sheet"});
-  }else{
-    let a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="team.png";
-    a.click();
-  }
-});
+let text=data.home.name+" vs "+data.away.name;
+navigator.share ? navigator.share({text}) : alert(text);
 }
 
 /* STATS */
-let stats={home:{goals:0,points:0,wides:0,fouls:0,turnovers:0,tackles:0},away:{goals:0,points:0}};
+let stats={home:{goals:0,points:0},away:{goals:0,points:0}};
 
 function renderStats(){
-homeStats.innerHTML=`
-${row('home','goals','Goals')}
-${row('home','points','Points')}
-${row('home','wides','Wides')}
-${row('home','fouls','Fouls')}
-${row('home','turnovers','Turnovers')}
-${row('home','tackles','Tackles')}
-`;
-awayStats.innerHTML=`
-${row('away','goals','Goals')}
-${row('away','points','Points')}
-`;
+homeStats.innerHTML=row('home','goals','Goals')+row('home','points','Points');
+awayStats.innerHTML=row('away','goals','Goals')+row('away','points','Points');
 }
 
 function row(team,key,label){
@@ -312,10 +240,9 @@ return `<div class="stat-row">
 <div>${label}</div>
 <div>
 <button class="btn-minus" onclick="updateStat('${team}','${key}',-1)">-</button>
-<span style="margin:0 10px;font-weight:bold;" id="${team}_${key}">${stats[team][key]}</span>
+<span id="${team}_${key}">${stats[team][key]}</span>
 <button class="btn-plus" onclick="updateStat('${team}','${key}',1)">+</button>
-</div>
-</div>`;
+</div></div>`;
 }
 
 function updateStat(team,key,val){
@@ -324,7 +251,7 @@ document.getElementById(`${team}_${key}`).innerText=stats[team][key];
 updateScore();
 }
 
-/* ✅ UPDATED SCORE WITH LIVE COLOURS */
+/* SCOREBOARD */
 function updateScore(){
 let h=stats.home.goals*3+stats.home.points;
 let a=stats.away.goals*3+stats.away.points;
@@ -334,21 +261,20 @@ if(h>a){ homeClass="win"; awayClass="lose"; }
 else if(a>h){ homeClass="lose"; awayClass="win"; }
 else { homeClass="draw"; awayClass="draw"; }
 
-scoreboard.innerHTML = `
+scoreboard.innerHTML=`
 <div class="scoreboard">
   <div class="score-row ${homeClass}">
     <div>${data.home.name}</div>
-    <span>${stats.home.goals}-${stats.home.points} (${h})</span>
+    <div>${stats.home.goals}-${stats.home.points} (${h})</div>
   </div>
-
   <div class="score-row ${awayClass}">
     <div>${data.away.name}</div>
-    <span>${stats.away.goals}-${stats.away.points} (${a})</span>
+    <div>${stats.away.goals}-${stats.away.points} (${a})</div>
   </div>
-</div>
-`;
+</div>`;
 }
 
+/* CLOCK */
 let sec=0,timer=null;
 function startClock(){if(!timer)timer=setInterval(()=>{sec++;updateClock();},1000);}
 function pauseClock(){clearInterval(timer);timer=null;}
