@@ -56,6 +56,30 @@ body { font-family: Arial; margin: 0; text-align: center; }
 .clock { font-size:26px;font-weight:bold; }
 .history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
 .top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
+
+/* ✅ NEW CLEAN SCOREBOARD */
+.scoreboard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px auto;
+  max-width: 420px;
+}
+
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #222;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.score-row span {
+  font-size: 18px;
+}
 </style>
 </head>
 
@@ -215,25 +239,21 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* ✅ IMAGE SHARE */
+/* SHARE (unchanged image version) */
 function shareMatch(){
-
 let canvas = document.createElement("canvas");
 canvas.width = 600;
 canvas.height = 900;
 let ctx = canvas.getContext("2d");
 
-// background
 ctx.fillStyle = "#2e7d32";
 ctx.fillRect(0,0,600,900);
 
-// title
 ctx.fillStyle = "white";
 ctx.font = "bold 24px Arial";
 ctx.textAlign = "center";
 ctx.fillText(data.home.name,300,40);
 
-// players
 ctx.font = "12px Arial";
 
 positions.forEach((pos,i)=>{
@@ -250,15 +270,10 @@ positions.forEach((pos,i)=>{
   ctx.fillText(data.home.players[i]||"",x,y+10);
 });
 
-// export
 canvas.toBlob(blob=>{
   let file = new File([blob],"team.png",{type:"image/png"});
-
   if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-    navigator.share({
-      files:[file],
-      title:"Team Sheet"
-    });
+    navigator.share({files:[file],title:"Team Sheet"});
   }else{
     let a=document.createElement("a");
     a.href=URL.createObjectURL(blob);
@@ -266,7 +281,6 @@ canvas.toBlob(blob=>{
     a.click();
   }
 });
-
 }
 
 /* STATS */
@@ -304,10 +318,24 @@ document.getElementById(`${team}_${key}`).innerText=stats[team][key];
 updateScore();
 }
 
+/* ✅ CLEAN SCOREBOARD OUTPUT */
 function updateScore(){
 let h=stats.home.goals*3+stats.home.points;
 let a=stats.away.goals*3+stats.away.points;
-scoreboard.innerText=`${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) | ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})`;
+
+scoreboard.innerHTML = `
+<div class="scoreboard">
+  <div class="score-row">
+    <div>${data.home.name}</div>
+    <span>${stats.home.goals}-${stats.home.points} (${h})</span>
+  </div>
+
+  <div class="score-row">
+    <div>${data.away.name}</div>
+    <span>${stats.away.goals}-${stats.away.points} (${a})</span>
+  </div>
+</div>
+`;
 }
 
 let sec=0,timer=null;
