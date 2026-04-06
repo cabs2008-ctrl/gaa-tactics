@@ -57,7 +57,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 .history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
 .top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
 
-/* ✅ NEW CLEAN SCOREBOARD */
+/* SCOREBOARD */
 .scoreboard {
   display: flex;
   flex-direction: column;
@@ -80,6 +80,12 @@ body { font-family: Arial; margin: 0; text-align: center; }
 .score-row span {
   font-size: 18px;
 }
+
+/* ✅ NEW highlight styles */
+.score-row.win { background: #28a745; }
+.score-row.lose { background: #dc3545; }
+.score-row.draw { background: #555; }
+
 </style>
 </head>
 
@@ -318,19 +324,24 @@ document.getElementById(`${team}_${key}`).innerText=stats[team][key];
 updateScore();
 }
 
-/* ✅ CLEAN SCOREBOARD OUTPUT */
+/* ✅ UPDATED SCORE WITH LIVE COLOURS */
 function updateScore(){
 let h=stats.home.goals*3+stats.home.points;
 let a=stats.away.goals*3+stats.away.points;
 
+let homeClass="", awayClass="";
+if(h>a){ homeClass="win"; awayClass="lose"; }
+else if(a>h){ homeClass="lose"; awayClass="win"; }
+else { homeClass="draw"; awayClass="draw"; }
+
 scoreboard.innerHTML = `
 <div class="scoreboard">
-  <div class="score-row">
+  <div class="score-row ${homeClass}">
     <div>${data.home.name}</div>
     <span>${stats.home.goals}-${stats.home.points} (${h})</span>
   </div>
 
-  <div class="score-row">
+  <div class="score-row ${awayClass}">
     <div>${data.away.name}</div>
     <span>${stats.away.goals}-${stats.away.points} (${a})</span>
   </div>
