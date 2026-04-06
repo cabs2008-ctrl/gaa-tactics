@@ -126,7 +126,7 @@ function saveTeam(team){
 let list=getTeams();
 
 let teamData = JSON.parse(JSON.stringify(data[team]));
-teamData.savedAt = new Date().toISOString(); // ✅ added date
+teamData.savedAt = new Date().toISOString();
 
 list.unshift(teamData);
 
@@ -167,7 +167,7 @@ ${date ? `<small>Saved: ${date}</small><br>` : ""}
 }).join("");
 }
 
-/* REST OF APP UNCHANGED */
+/* REST */
 
 function showTab(id,el){
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
@@ -222,10 +222,33 @@ renderPitch(team);
 renderSubs(team);
 }
 
+/* ✅ FIXED SHARE FUNCTION */
 function shareMatch(){
-let text=data.home.name+" vs "+data.away.name;
-if(navigator.share){navigator.share({text});}
-else{prompt("Copy:",text);}
+
+let homeScore = stats.home.goals + "-" + stats.home.points;
+let awayScore = stats.away.goals + "-" + stats.away.points;
+
+let homeTotal = stats.home.goals*3 + stats.home.points;
+let awayTotal = stats.away.goals*3 + stats.away.points;
+
+let text =
+`${data.home.name} vs ${data.away.name}
+
+Score:
+${data.home.name} ${homeScore} (${homeTotal})
+${data.away.name} ${awayScore} (${awayTotal})
+
+Time: ${matchClock.innerText}`;
+
+if(navigator.share){
+  navigator.share({
+    title: "GAA Match",
+    text: text
+  });
+}else{
+  navigator.clipboard.writeText(text);
+  alert("Match details copied!");
+}
 }
 
 /* STATS */
