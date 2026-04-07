@@ -135,7 +135,7 @@ document.getElementById(id).classList.add('active');
 el.classList.add('active');
 }
 
-/* TEAM */
+/* TEAM + RENDER */
 const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
 
 let data={
@@ -182,16 +182,35 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* SHARE FIX */
+/* ✅ FIXED SHARE (with team details) */
 function shareMatch(){
+
 let h=stats.home.goals*3+stats.home.points;
 let a=stats.away.goals*3+stats.away.points;
+
+let homePlayers=data.home.players.map((p,i)=>`${i+1}. ${p||""}`).join("\n");
+let awayPlayers=data.away.players.map((p,i)=>`${i+1}. ${p||""}`).join("\n");
+
+let homeSubs=data.home.subs.map((p,i)=>`${i+16}. ${p||""}`).join("\n");
+let awaySubs=data.away.subs.map((p,i)=>`${i+16}. ${p||""}`).join("\n");
 
 let text=`${data.home.name} vs ${data.away.name}
 
 Score:
 ${data.home.name} ${stats.home.goals}-${stats.home.points} (${h})
 ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})
+
+--- ${data.home.name} ---
+${homePlayers}
+
+Subs:
+${homeSubs}
+
+--- ${data.away.name} ---
+${awayPlayers}
+
+Subs:
+${awaySubs}
 
 Stats:
 Wides ${stats.home.wides}-${stats.away.wides}
@@ -202,59 +221,21 @@ Turnovers ${stats.home.turnovers}-${stats.away.turnovers}
 Time: ${matchClock.innerText}`;
 
 if(navigator.share){
-navigator.share({title:"Match",text});
+navigator.share({title:"Match Report",text});
 }else{
 navigator.clipboard.writeText(text);
 alert("Copied");
 }
 }
 
-/* HISTORY */
-function getTeams(){ return JSON.parse(localStorage.getItem("gaaTeams")||"[]"); }
-
-function saveTeam(team){
-let list=getTeams();
-let teamData=JSON.parse(JSON.stringify(data[team]));
-teamData.savedAt=new Date().toISOString();
-list.unshift(teamData);
-localStorage.setItem("gaaTeams",JSON.stringify(list));
-renderTeams();
-}
-
-function loadTeam(team,i){
-let list=getTeams();
-data[team]=JSON.parse(JSON.stringify(list[i]));
-renderPitch(team);
-renderSubs(team);
-}
-
-function deleteSavedTeam(i){
-let list=getTeams();
-list.splice(i,1);
-localStorage.setItem("gaaTeams",JSON.stringify(list));
-renderTeams();
-}
-
-function renderTeams(){
-let list=getTeams();
-teamList.innerHTML=list.map((t,i)=>`
-<div class="history-item">
-<b>${t.name}</b><br>
-${new Date(t.savedAt).toLocaleString()}<br>
-<button onclick="loadTeam('home',${i})">Load Home</button>
-<button onclick="loadTeam('away',${i})">Load Away</button>
-<button onclick="deleteSavedTeam(${i})">Delete</button>
-</div>`).join("");
-}
-
-/* STATS */
+/* STATS FIX */
 let stats={
 home:{goals:0,points:0,wides:0,passes:0,tackles:0,turnovers:0},
 away:{goals:0,points:0,wides:0,passes:0,tackles:0,turnovers:0}
 };
 
 function renderStats(){
-homeStats.innerHTML=
+document.getElementById("homeStats").innerHTML=
 row('home','goals','Goals')+
 row('home','points','Points')+
 row('home','wides','Wides')+
@@ -262,7 +243,7 @@ row('home','passes','Passes')+
 row('home','tackles','Tackles')+
 row('home','turnovers','Turnovers');
 
-awayStats.innerHTML=
+document.getElementById("awayStats").innerHTML=
 row('away','goals','Goals')+
 row('away','points','Points')+
 row('away','wides','Wides')+
@@ -270,63 +251,3 @@ row('away','passes','Passes')+
 row('away','tackles','Tackles')+
 row('away','turnovers','Turnovers');
 }
-
-function row(team,key,label){
-return `<div class="stat-row">
-<div>${label}</div>
-<div>
-<button class="btn-minus" onclick="updateStat('${team}','${key}',-1)">-</button>
-<span id="${team}_${key}">${stats[team][key]}</span>
-<button class="btn-plus" onclick="updateStat('${team}','${key}',1)">+</button>
-</div></div>`;
-}
-
-function updateStat(team,key,val){
-stats[team][key]=Math.max(0,stats[team][key]+val);
-document.getElementById(`${team}_${key}`).innerText=stats[team][key];
-updateScore();
-}
-
-function updateScore(){
-let h=stats.home.goals*3+stats.home.points;
-let a=stats.away.goals*3+stats.away.points;
-
-let hc="",ac="";
-if(h>a){hc="win";ac="lose";}
-else if(a>h){hc="lose";ac="win";}
-else{hc="draw";ac="draw";}
-
-scoreboard.innerHTML=`
-<div class="scoreboard">
-<div class="score-row ${hc}">
-<div>${data.home.name}</div>
-<div>${stats.home.goals}-${stats.home.points} (${h})</div>
-</div>
-<div class="score-row ${ac}">
-<div>${data.away.name}</div>
-<div>${stats.away.goals}-${stats.away.points} (${a})</div>
-</div>
-</div>`;
-}
-
-/* CLOCK */
-let sec=0,timer=null;
-function startClock(){if(!timer)timer=setInterval(()=>{sec++;updateClock();},1000);}
-function pauseClock(){clearInterval(timer);timer=null;}
-function resetClock(){pauseClock();sec=0;updateClock();}
-function updateClock(){matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
-
-/* INIT */
-renderPitch("home");
-renderPitch("away");
-renderSubs("home");
-renderSubs("away");
-renderStats();
-updateScore();
-updateClock();
-renderTeams();
-
-</script>
-
-</body>
-</html>
