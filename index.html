@@ -125,11 +125,11 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-/* DOM refs */
-const homeStats = document.getElementById("homeStats");
-const awayStats = document.getElementById("awayStats");
-const scoreboard = document.getElementById("scoreboard");
-const matchClock = document.getElementById("matchClock");
+/* DOM */
+const homeStats=document.getElementById("homeStats");
+const awayStats=document.getElementById("awayStats");
+const scoreboard=document.getElementById("scoreboard");
+const matchClock=document.getElementById("matchClock");
 
 /* UI */
 function showTab(id,el){
@@ -186,10 +186,10 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* SHARE (UNCHANGED) */
+/* SHARE */
 function shareMatch(){
-let pitch = document.querySelector(".section.active .pitch").cloneNode(true);
-let container = document.createElement("div");
+let pitch=document.querySelector(".section.active .pitch").cloneNode(true);
+let container=document.createElement("div");
 container.style.width="600px";
 container.appendChild(pitch);
 
@@ -215,8 +215,21 @@ away:{goals:0,points:0,wides:0,passes:0,tackles:0,turnovers:0}
 };
 
 function renderStats(){
-homeStats.innerHTML=row('home','goals','Goals')+row('home','points','Points');
-awayStats.innerHTML=row('away','goals','Goals')+row('away','points','Points');
+
+/* ✅ HOME FULL */
+homeStats.innerHTML=
+row('home','goals','Goals')+
+row('home','points','Points')+
+row('home','wides','Wides')+
+row('home','passes','Passes')+
+row('home','tackles','Tackles')+
+row('home','turnovers','Turnovers');
+
+/* ✅ AWAY SCORE ONLY */
+awayStats.innerHTML=
+row('away','goals','Goals')+
+row('away','points','Points');
+
 }
 
 function row(team,key,label){
@@ -235,7 +248,7 @@ document.getElementById(`${team}_${key}`).innerText=stats[team][key];
 updateScore();
 }
 
-/* ✅ FIXED SCOREBOARD */
+/* SCOREBOARD */
 function updateScore(){
 let h=stats.home.goals*3+stats.home.points;
 let a=stats.away.goals*3+stats.away.points;
