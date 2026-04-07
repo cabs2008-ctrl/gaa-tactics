@@ -76,7 +76,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
   <div class="tab" onclick="showTab('history',this)">History</div>
 </div>
 
-<!-- HOME -->
 <div id="home" class="section active">
 <h2 onclick="editTeamName('home',this)">Home</h2>
 <button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
@@ -87,7 +86,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div class="subs" id="homeSubs"></div>
 </div>
 
-<!-- AWAY -->
 <div id="away" class="section">
 <h2 onclick="editTeamName('away',this)">Away</h2>
 <button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
@@ -98,7 +96,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div class="subs" id="awaySubs"></div>
 </div>
 
-<!-- STATS -->
 <div id="stats" class="section">
 <h2>Match Stats</h2>
 <button class="top-btn" onclick="shareMatch()">Share</button>
@@ -119,13 +116,11 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div id="awayStats"></div>
 </div>
 
-<!-- HISTORY -->
 <div id="history" class="section">
 <h2>Saved Teams</h2>
 <div id="teamList"></div>
 </div>
 
-<!-- html2canvas -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
@@ -192,36 +187,73 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* SHARE (ONLY CHANGE) */
+/* 🔥 SHARE IMAGE (ONLY CHANGE) */
 function shareMatch(){
-let pitch = document.querySelector(".section.active .pitch");
 
-let clone = pitch.cloneNode(true);
-clone.style.width = "600px";
-clone.style.height = "400px";
+let h = stats.home.goals*3 + stats.home.points;
+let a = stats.away.goals*3 + stats.away.points;
+
+let pitch = document.querySelector(".section.active .pitch").cloneNode(true);
+
+let container = document.createElement("div");
+container.style.width = "600px";
+container.style.background = "white";
+container.style.padding = "10px";
+container.style.fontFamily = "Arial";
+
+/* score */
+let score = document.createElement("div");
+score.style.textAlign = "center";
+score.style.fontWeight = "bold";
+score.style.marginBottom = "10px";
+score.innerHTML = `
+<div>${data.home.name} ${stats.home.goals}-${stats.home.points} (${h})</div>
+<div>${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})</div>
+`;
+
+/* stats */
+let statsBox = document.createElement("div");
+statsBox.style.display = "grid";
+statsBox.style.gridTemplateColumns = "1fr 1fr";
+statsBox.style.marginTop = "10px";
+
+statsBox.innerHTML = `
+<div>Wides: ${stats.home.wides} - ${stats.away.wides}</div>
+<div>Passes: ${stats.home.passes} - ${stats.away.passes}</div>
+<div>Tackles: ${stats.home.tackles} - ${stats.away.tackles}</div>
+<div>Turnovers: ${stats.home.turnovers} - ${stats.away.turnovers}</div>
+`;
+
+pitch.style.width = "100%";
+pitch.style.height = "350px";
+
+container.appendChild(score);
+container.appendChild(pitch);
+container.appendChild(statsBox);
 
 let wrapper = document.createElement("div");
 wrapper.style.position = "fixed";
 wrapper.style.left = "-9999px";
-wrapper.appendChild(clone);
+wrapper.appendChild(container);
 document.body.appendChild(wrapper);
 
-html2canvas(clone).then(canvas=>{
+html2canvas(container).then(canvas=>{
 canvas.toBlob(blob=>{
-let file=new File([blob],"team.png",{type:"image/png"});
+let file = new File([blob], "match.png", {type:"image/png"});
 
 if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
 navigator.share({files:[file]});
 }else{
 let link=document.createElement("a");
 link.href=URL.createObjectURL(blob);
-link.download="team.png";
+link.download="match.png";
 link.click();
 }
 
 document.body.removeChild(wrapper);
 });
 });
+
 }
 
 /* STATS */
