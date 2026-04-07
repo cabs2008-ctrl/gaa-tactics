@@ -123,43 +123,14 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-function getTeams(){ return JSON.parse(localStorage.getItem("gaaTeams")||"[]"); }
+/* FIX: DOM refs */
+const homeStats = document.getElementById("homeStats");
+const awayStats = document.getElementById("awayStats");
+const scoreboard = document.getElementById("scoreboard");
+const matchClock = document.getElementById("matchClock");
+const teamList = document.getElementById("teamList");
 
-function saveTeam(team){
-let list=getTeams();
-let teamData = JSON.parse(JSON.stringify(data[team]));
-teamData.savedAt = new Date().toISOString();
-list.unshift(teamData);
-localStorage.setItem("gaaTeams",JSON.stringify(list));
-renderTeams();
-}
-
-function loadTeam(team,i){
-let list=getTeams();
-data[team]=JSON.parse(JSON.stringify(list[i]));
-renderPitch(team);
-renderSubs(team);
-}
-
-function deleteSavedTeam(i){
-let list=getTeams();
-list.splice(i,1);
-localStorage.setItem("gaaTeams",JSON.stringify(list));
-renderTeams();
-}
-
-function renderTeams(){
-let list=getTeams();
-teamList.innerHTML=list.map((t,i)=>`
-<div class="history-item">
-<b>${t.name}</b><br>
-${new Date(t.savedAt).toLocaleString()}<br>
-<button onclick="loadTeam('home',${i})">Load Home</button>
-<button onclick="loadTeam('away',${i})">Load Away</button>
-<button onclick="deleteSavedTeam(${i})">Delete</button>
-</div>`).join("");
-}
-
+/* UI */
 function showTab(id,el){
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -167,6 +138,7 @@ document.getElementById(id).classList.add('active');
 el.classList.add('active');
 }
 
+/* TEAM */
 const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
 
 let data={
@@ -213,12 +185,43 @@ renderPitch(team);
 renderSubs(team);
 }
 
+/* SHARE FIX ONLY */
 function shareMatch(){
-let text=data.home.name+" vs "+data.away.name;
-navigator.share ? navigator.share({text}) : alert(text);
+let h=stats.home.goals*3+stats.home.points;
+let a=stats.away.goals*3+stats.away.points;
+
+let homeList=data.home.players.map((p,i)=>`${i+1}. ${p||""}`).join("\n");
+let awayList=data.away.players.map((p,i)=>`${i+1}. ${p||""}`).join("\n");
+
+let text=`${data.home.name} vs ${data.away.name}
+
+Score:
+${data.home.name} ${stats.home.goals}-${stats.home.points} (${h})
+${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})
+
+${data.home.name}:
+${homeList}
+
+${data.away.name}:
+${awayList}
+
+Stats:
+Wides ${stats.home.wides}-${stats.away.wides}
+Passes ${stats.home.passes}-${stats.away.passes}
+Tackles ${stats.home.tackles}-${stats.away.tackles}
+Turnovers ${stats.home.turnovers}-${stats.away.turnovers}
+
+Time: ${matchClock.innerText}`;
+
+if(navigator.share){
+navigator.share({title:"Match Report",text});
+}else{
+navigator.clipboard.writeText(text);
+alert("Copied");
+}
 }
 
-/* ✅ RESTORED FULL STATS */
+/* STATS */
 let stats={
 home:{goals:0,points:0,wides:0,passes:0,tackles:0,turnovers:0},
 away:{goals:0,points:0,wides:0,passes:0,tackles:0,turnovers:0}
@@ -262,30 +265,33 @@ function updateScore(){
 let h=stats.home.goals*3+stats.home.points;
 let a=stats.away.goals*3+stats.away.points;
 
-let homeClass="", awayClass="";
-if(h>a){ homeClass="win"; awayClass="lose"; }
-else if(a>h){ homeClass="lose"; awayClass="win"; }
-else { homeClass="draw"; awayClass="draw"; }
+let hc="",ac="";
+if(h>a){hc="win";ac="lose";}
+else if(a>h){hc="lose";ac="win";}
+else{hc="draw";ac="draw";}
 
 scoreboard.innerHTML=`
 <div class="scoreboard">
-  <div class="score-row ${homeClass}">
-    <div>${data.home.name}</div>
-    <div>${stats.home.goals}-${stats.home.points} (${h})</div>
-  </div>
-  <div class="score-row ${awayClass}">
-    <div>${data.away.name}</div>
-    <div>${stats.away.goals}-${stats.away.points} (${a})</div>
-  </div>
+<div class="score-row ${hc}">
+<div>${data.home.name}</div>
+<div>${stats.home.goals}-${stats.home.points} (${h})</div>
+</div>
+<div class="score-row ${ac}">
+<div>${data.away.name}</div>
+<div>${stats.away.goals}-${stats.away.points} (${a})</div>
+</div>
 </div>`;
 }
 
+/* CLOCK */
 let sec=0,timer=null;
 function startClock(){if(!timer)timer=setInterval(()=>{sec++;updateClock();},1000);}
 function pauseClock(){clearInterval(timer);timer=null;}
 function resetClock(){pauseClock();sec=0;updateClock();}
 function updateClock(){matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
 
+/* INIT */
+window.onload=function(){
 renderPitch("home");
 renderPitch("away");
 renderSubs("home");
@@ -293,7 +299,7 @@ renderSubs("away");
 renderStats();
 updateScore();
 updateClock();
-renderTeams();
+};
 
 </script>
 
