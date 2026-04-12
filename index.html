@@ -63,21 +63,16 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* ✅ FIX: SAVE TEAM (DEEP COPY SAFE) */
+/* ✅ ONLY FIX ADDED */
 function saveTeam(team){
 let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
 
-saved.push(JSON.parse(JSON.stringify({
-  name: data[team].name,
-  players: data[team].players,
-  subs: data[team].subs
-})));
+saved.push(JSON.parse(JSON.stringify(data[team])));
 
 localStorage.setItem("gaaTeams", JSON.stringify(saved));
 renderSavedTeams();
 }
 
-/* ✅ HISTORY */
 function renderSavedTeams(){
 let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
 const list = document.getElementById("teamList");
@@ -215,56 +210,7 @@ renderSubs("away");
 renderStats();
 updateScore();
 updateClock();
-renderSavedTeams(); // only addition
+renderSavedTeams(); // ✅ only addition
 };
 
 </script>
-function saveTeam(team){
-let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
-
-saved.push(JSON.parse(JSON.stringify(data[team])));
-
-localStorage.setItem("gaaTeams", JSON.stringify(saved));
-renderSavedTeams();
-}
-
-function renderSavedTeams(){
-let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
-const list = document.getElementById("teamList");
-
-if(!list) return;
-
-if(saved.length === 0){
-  list.innerHTML = "<p>No saved teams yet</p>";
-  return;
-}
-
-list.innerHTML = saved.map((t,i)=>`
-<div class="history-item">
-<strong>${t.name}</strong><br>
-<button onclick="loadTeam(${i})">Load</button>
-<button onclick="deleteTeam(${i})">Delete</button>
-</div>
-`).join("");
-}
-
-function loadTeam(i){
-let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
-let team = saved[i];
-if(!team) return;
-
-data.home = JSON.parse(JSON.stringify(team));
-
-document.querySelector("#home h2").innerText = team.name;
-
-renderPitch("home");
-renderSubs("home");
-updateScore();
-}
-
-function deleteTeam(i){
-let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
-saved.splice(i,1);
-localStorage.setItem("gaaTeams", JSON.stringify(saved));
-renderSavedTeams();
-}
