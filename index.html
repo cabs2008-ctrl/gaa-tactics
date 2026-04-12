@@ -1,3 +1,5 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script>
 
 /* DOM */
@@ -61,21 +63,21 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* ✅ FIX: SAVE TEAM (only addition) */
+/* 🔧 FIX: SAVE TEAM */
 function saveTeam(team){
 let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
 
 saved.push({
   name: data[team].name,
-  players: [...data[team].players],
-  subs: [...data[team].subs]
+  players: data[team].players,
+  subs: data[team].subs
 });
 
 localStorage.setItem("gaaTeams", JSON.stringify(saved));
 renderSavedTeams();
 }
 
-/* ✅ FIX: SHOW SAVED TEAMS */
+/* 🔧 FIX: RENDER SAVED TEAMS */
 function renderSavedTeams(){
 let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
 const list = document.getElementById("teamList");
@@ -87,14 +89,14 @@ if(saved.length === 0){
 
 list.innerHTML = saved.map((t,i)=>`
 <div class="history-item">
-  <strong>${t.name}</strong><br>
-  <button onclick="loadTeam(${i})">Load</button>
-  <button onclick="deleteTeam(${i})">Delete</button>
+<strong>${t.name}</strong><br>
+<button onclick="loadTeam(${i})">Load</button>
+<button onclick="deleteTeam(${i})">Delete</button>
 </div>
 `).join("");
 }
 
-/* ✅ FIX: LOAD TEAM */
+/* 🔧 FIX: LOAD TEAM */
 function loadTeam(i){
 let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
 let team = saved[i];
@@ -108,7 +110,7 @@ renderSubs("home");
 updateScore();
 }
 
-/* ✅ FIX: DELETE TEAM */
+/* 🔧 FIX: DELETE TEAM */
 function deleteTeam(i){
 let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
 saved.splice(i,1);
@@ -145,6 +147,7 @@ away:{goals:0,points:0,wides:0,passes:0,tackles:0,turnovers:0}
 };
 
 function renderStats(){
+
 homeStats.innerHTML=
 row('home','goals','Goals')+
 row('home','points','Points')+
@@ -156,6 +159,7 @@ row('home','turnovers','Turnovers');
 awayStats.innerHTML=
 row('away','goals','Goals')+
 row('away','points','Points');
+
 }
 
 function row(team,key,label){
@@ -202,11 +206,7 @@ let sec=0,timer=null;
 function startClock(){if(!timer)timer=setInterval(()=>{sec++;updateClock();},1000);}
 function pauseClock(){clearInterval(timer);timer=null;}
 function resetClock(){pauseClock();sec=0;updateClock();}
-function updateClock(){
-matchClock.innerText=
-String(Math.floor(sec/60)).padStart(2,"0")+":"+
-String(sec%60).padStart(2,"0");
-}
+function updateClock(){matchClock.innerText=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
 
 /* INIT */
 window.onload=function(){
@@ -217,7 +217,7 @@ renderSubs("away");
 renderStats();
 updateScore();
 updateClock();
-renderSavedTeams(); // only added line
+renderSavedTeams(); // ✅ only addition
 };
 
 </script>
