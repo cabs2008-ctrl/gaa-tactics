@@ -63,21 +63,21 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* 🔧 FIX: SAVE TEAM */
+/* ✅ FIX: SAVE TEAM (DEEP COPY SAFE) */
 function saveTeam(team){
 let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
 
-saved.push({
+saved.push(JSON.parse(JSON.stringify({
   name: data[team].name,
   players: data[team].players,
   subs: data[team].subs
-});
+})));
 
 localStorage.setItem("gaaTeams", JSON.stringify(saved));
 renderSavedTeams();
 }
 
-/* 🔧 FIX: RENDER SAVED TEAMS */
+/* ✅ HISTORY */
 function renderSavedTeams(){
 let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
 const list = document.getElementById("teamList");
@@ -96,7 +96,6 @@ list.innerHTML = saved.map((t,i)=>`
 `).join("");
 }
 
-/* 🔧 FIX: LOAD TEAM */
 function loadTeam(i){
 let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
 let team = saved[i];
@@ -110,7 +109,6 @@ renderSubs("home");
 updateScore();
 }
 
-/* 🔧 FIX: DELETE TEAM */
 function deleteTeam(i){
 let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
 saved.splice(i,1);
@@ -217,7 +215,7 @@ renderSubs("away");
 renderStats();
 updateScore();
 updateClock();
-renderSavedTeams(); // ✅ only addition
+renderSavedTeams(); // only addition
 };
 
 </script>
