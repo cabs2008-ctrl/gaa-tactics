@@ -186,7 +186,6 @@ renderPitch(team);
 renderSubs(team);
 }
 
-/* ✅ SAVE FIX ONLY */
 function saveTeam(team){
 let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
 saved.push(JSON.parse(JSON.stringify(data[team])));
@@ -232,7 +231,85 @@ localStorage.setItem("gaaTeams", JSON.stringify(saved));
 renderSavedTeams();
 }
 
-/* SHARE, STATS, SCOREBOARD, CLOCK unchanged */
+/* ✅ STATS RESTORED EXACTLY */
+
+let stats = {
+  home: {score:0, wides:0, passes:0, turnovers:0, tackles:0},
+  away: {score:0}
+};
+
+function statRow(team, stat, color){
+  return `
+  <div class="stat-row" style="border-left:6px solid ${color}">
+    <button class="btn-minus" onclick="updateStat('${team}','${stat}',-1)">-</button>
+    <span>${stat.toUpperCase()} : ${stats[team][stat]}</span>
+    <button class="btn-plus" onclick="updateStat('${team}','${stat}',1)">+</button>
+  </div>`;
+}
+
+function renderStats(){
+  homeStats.innerHTML =
+    statRow("home","score","#28a745") +
+    statRow("home","wides","#ff9800") +
+    statRow("home","passes","#007bff") +
+    statRow("home","turnovers","#dc3545") +
+    statRow("home","tackles","#6f42c1");
+
+  awayStats.innerHTML =
+    statRow("away","score","#28a745");
+}
+
+function updateStat(team,stat,val){
+  stats[team][stat] += val;
+  if(stats[team][stat] < 0) stats[team][stat] = 0;
+  renderStats();
+  updateScore();
+}
+
+function updateScore(){
+  let homeScore = stats.home.score;
+  let awayScore = stats.away.score;
+
+  let result = "draw";
+  if(homeScore > awayScore) result = "win";
+  else if(homeScore < awayScore) result = "lose";
+
+  scoreboard.innerHTML = `
+    <div class="score-row ${result}">
+      ${data.home.name} ${homeScore} - ${awayScore} ${data.away.name}
+    </div>
+  `;
+}
+
+/* CLOCK */
+
+let timer = null;
+let seconds = 0;
+
+function updateClock(){
+  let m = String(Math.floor(seconds/60)).padStart(2,'0');
+  let s = String(seconds%60).padStart(2,'0');
+  matchClock.innerText = `${m}:${s}`;
+}
+
+function startClock(){
+  if(timer) return;
+  timer = setInterval(()=>{
+    seconds++;
+    updateClock();
+  },1000);
+}
+
+function pauseClock(){
+  clearInterval(timer);
+  timer = null;
+}
+
+function resetClock(){
+  pauseClock();
+  seconds = 0;
+  updateClock();
+}
 
 /* INIT */
 window.onload=function(){
@@ -243,7 +320,7 @@ renderSubs("away");
 renderStats();
 updateScore();
 updateClock();
-renderSavedTeams(); // only addition
+renderSavedTeams();
 };
 
 </script>
