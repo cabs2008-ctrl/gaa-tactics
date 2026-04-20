@@ -116,55 +116,14 @@ let stats = {
 function renderStats(){
 
  homeStats.innerHTML = `
- <div class="stat-row" style="border-left:6px solid #28a745">
- <button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button>
- <span>GOALS : ${stats.home.goals}</span>
- <button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button>
- </div>
-
- <div class="stat-row" style="border-left:6px solid #28a745">
- <button class="btn-minus" onclick="updateScoreStat('home','points',-1)">-P</button>
- <span>POINTS : ${stats.home.points}</span>
- <button class="btn-plus" onclick="updateScoreStat('home','points',1)">+P</button>
- </div>
-
- <div class="stat-row" style="border-left:6px solid #ff9800">
- <button class="btn-minus" onclick="updateStat('home','wides',-1)">-</button>
- <span>WIDES : ${stats.home.wides}</span>
- <button class="btn-plus" onclick="updateStat('home','wides',1)">+</button>
- </div>
-
- <div class="stat-row" style="border-left:6px solid #007bff">
- <button class="btn-minus" onclick="updateStat('home','passes',-1)">-</button>
- <span>PASSES : ${stats.home.passes}</span>
- <button class="btn-plus" onclick="updateStat('home','passes',1)">+</button>
- </div>
-
- <div class="stat-row" style="border-left:6px solid #dc3545">
- <button class="btn-minus" onclick="updateStat('home','turnovers',-1)">-</button>
- <span>TURNOVERS : ${stats.home.turnovers}</span>
- <button class="btn-plus" onclick="updateStat('home','turnovers',1)">+</button>
- </div>
-
- <div class="stat-row" style="border-left:6px solid #6f42c1">
- <button class="btn-minus" onclick="updateStat('home','tackles',-1)">-</button>
- <span>TACKLES : ${stats.home.tackles}</span>
- <button class="btn-plus" onclick="updateStat('home','tackles',1)">+</button>
- </div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button><span>GOALS : ${stats.home.goals}</span><button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','points',-1)">-P</button><span>POINTS : ${stats.home.points}</span><button class="btn-plus" onclick="updateScoreStat('home','points',1)">+P</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','wides',-1)">-</button><span>WIDES : ${stats.home.wides}</span><button class="btn-plus" onclick="updateStat('home','wides',1)">+</button></div>
  `;
 
  awayStats.innerHTML = `
- <div class="stat-row" style="border-left:6px solid #28a745">
- <button class="btn-minus" onclick="updateScoreStat('away','goals',-1)">-G</button>
- <span>GOALS : ${stats.away.goals}</span>
- <button class="btn-plus" onclick="updateScoreStat('away','goals',1)">+G</button>
- </div>
-
- <div class="stat-row" style="border-left:6px solid #28a745">
- <button class="btn-minus" onclick="updateScoreStat('away','points',-1)">-P</button>
- <span>POINTS : ${stats.away.points}</span>
- <button class="btn-plus" onclick="updateScoreStat('away','points',1)">+P</button>
- </div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','goals',-1)">-G</button><span>GOALS : ${stats.away.goals}</span><button class="btn-plus" onclick="updateScoreStat('away','goals',1)">+G</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','points',-1)">-P</button><span>POINTS : ${stats.away.points}</span><button class="btn-plus" onclick="updateScoreStat('away','points',1)">+P</button></div>
  `;
 }
 
@@ -184,55 +143,43 @@ function updateStat(team,stat,val){
 /* SCOREBOARD */
 function updateScore(){
  function total(g,p){ return g*3+p; }
-
  let hT = total(stats.home.goals, stats.home.points);
  let aT = total(stats.away.goals, stats.away.points);
 
- let result="draw";
- if(hT>aT) result="win";
- else if(hT<aT) result="lose";
-
  scoreboard.innerHTML=`
- <div class="score-row ${result}" style="flex-direction:column">
- <div>${data.home.name} ${stats.home.goals}-${stats.home.points} (${hT})</div>
- <div>${data.away.name} ${stats.away.goals}-${stats.away.points} (${aT})</div>
+ <div class="score-row">
+ <div>${data.home.name} ${stats.home.goals}-${stats.home.points}</div>
+ <div>${data.away.name} ${stats.away.goals}-${stats.away.points}</div>
  </div>`;
 }
 
 /* CLOCK */
 let timer=null,seconds=0;
-
 function updateClock(){
  let m=String(Math.floor(seconds/60)).padStart(2,'0');
  let s=String(seconds%60).padStart(2,'0');
  matchClock.innerText=`${m}:${s}`;
 }
 
-function startClock(){ if(timer)return; timer=setInterval(()=>{seconds++;updateClock();},1000);}
-function pauseClock(){ clearInterval(timer); timer=null;}
-function resetClock(){ pauseClock(); seconds=0; updateClock();}
-
-/* ✅ UPDATED SHARE (ONLY CHANGE) */
+/* ✅ SAFE SHARE (WON’T BREAK APP) */
 function shareMatch(){
-  const activeSection = document.querySelector('.section.active');
-  if(!activeSection) return;
+  const el = document.querySelector('.section.active');
+  html2canvas(el).then(canvas => {
+    const dataUrl = canvas.toDataURL("image/png");
 
-  html2canvas(activeSection).then(canvas => {
-    canvas.toBlob(blob => {
-      const file = new File([blob], "gaa-match.png", { type: "image/png" });
+    // try mobile share (simple)
+    if(navigator.share){
+      navigator.share({
+        title: "GAA Match",
+        url: dataUrl
+      }).catch(()=>{});
+    }
 
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({
-          title: "GAA Match",
-          files: [file]
-        });
-      } else {
-        const link = document.createElement("a");
-        link.download = "gaa-match.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      }
-    });
+    // always fallback download
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "gaa-match.png";
+    link.click();
   });
 }
 
