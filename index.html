@@ -212,14 +212,15 @@ function startClock(){ if(timer)return; timer=setInterval(()=>{seconds++;updateC
 function pauseClock(){ clearInterval(timer); timer=null;}
 function resetClock(){ pauseClock(); seconds=0; updateClock();}
 
-/* ✅ SHARE FUNCTION (ADDED ONLY FIX) */
+/* ✅ FIXED SHARE */
 function shareMatch(){
  const activeSection = document.querySelector('.section.active');
+ if(!activeSection) return;
 
  html2canvas(activeSection).then(canvas => {
    const link = document.createElement("a");
    link.download = "gaa-match.png";
-   link.href = canvas.toDataURL();
+   link.href = canvas.toDataURL("image/png");
    link.click();
  });
 }
@@ -237,15 +238,3 @@ window.onload=function(){
 };
 
 </script>
-function shareMatch(){
-  const activeSection = document.querySelector('.section.active');
-
-  if(!activeSection) return;
-
-  html2canvas(activeSection).then(canvas => {
-    const link = document.createElement("a");
-    link.download = "gaa-match.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  });
-}
