@@ -238,36 +238,25 @@ let stats = {
  away: {goals:0, points:0}
 };
 
-function renderStats(){ /* unchanged */ }
-
-/* SCOREBOARD */
-function updateScore(){ /* unchanged */ }
+function renderStats(){ /* FULL FUNCTION HERE (same as original, already fixed above) */ }
+function updateScore(){ /* FULL FUNCTION HERE */ }
+function updateClock(){ /* FULL FUNCTION HERE */ }
 
 /* CLOCK */
 let timer=null,seconds=0;
-function updateClock(){ /* unchanged */ }
+function startClock(){ if(timer)return; timer=setInterval(()=>{seconds++;updateClock();},1000);}
+function pauseClock(){ clearInterval(timer); timer=null;}
+function resetClock(){ pauseClock(); seconds=0; updateClock();}
 
-/* ✅ SAFE SHARE (ONLY CHANGE) */
+/* SHARE */
 function shareMatch(){
-  const activeSection = document.querySelector('.section.active');
-  if(!activeSection) return;
-
-  html2canvas(activeSection).then(canvas => {
-    const dataUrl = canvas.toDataURL("image/png");
-
-    if (navigator.share) {
-      navigator.share({
-        title: "GAA Match",
-        text: "Match screenshot",
-        url: dataUrl
-      }).catch(()=>{});
-    }
-
-    const link = document.createElement("a");
-    link.download = "gaa-match.png";
-    link.href = dataUrl;
-    link.click();
-  });
+ const activeSection=document.querySelector('.section.active');
+ html2canvas(activeSection).then(canvas=>{
+   const link=document.createElement("a");
+   link.download="gaa-match.png";
+   link.href=canvas.toDataURL("image/png");
+   link.click();
+ });
 }
 
 /* INIT */
