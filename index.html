@@ -39,7 +39,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 }
 
 .history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
-.top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
 
 .stat-row {
  display:flex; justify-content:space-between; align-items:center;
@@ -48,9 +47,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
  background:#f4f4f4; border-radius:14px;
 }
 
-.btn-minus,.btn-plus {
- width:35px;height:35px;border:none;border-radius:10px;font-size:18px;
-}
 .btn-minus{background:#ff4d4d;color:white;}
 .btn-plus{background:#28a745;color:white;}
 
@@ -78,14 +74,14 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div id="home" class="section active">
 <button onclick="saveTeam('home')">Save Team</button>
 <div class="pitch green" id="homePitch"></div>
-<div id="homeSubs"></div>
+<div class="subs" id="homeSubs"></div>
 </div>
 
 <!-- AWAY -->
 <div id="away" class="section">
 <button onclick="saveTeam('away')">Save Team</button>
 <div class="pitch blue" id="awayPitch"></div>
-<div id="awaySubs"></div>
+<div class="subs" id="awaySubs"></div>
 </div>
 
 <!-- STATS -->
@@ -123,32 +119,64 @@ let stats={
  away:{goals:0,points:0}
 };
 
-/* RENDER */
+/* TEAM */
 function renderPitch(team){
  document.getElementById(team+"Pitch").innerHTML=
  positions.map((p,i)=>`
- <div class="player" style="top:${p[0]}%;left:${p[1]}%">
+ <div class="player" style="top:${p[0]}%;left:${p[1]}%" onclick="editPlayer('${team}',${i})">
  ${i+1}<br>${data[team].players[i]||""}
  </div>`).join("");
 }
 
-/* ===== STATS FIX ===== */
+function renderSubs(team){
+ document.getElementById(team+"Subs").innerHTML=
+ data[team].subs.map((s,i)=>`
+ <div class="sub" onclick="editSub('${team}',${i})">
+ ${i+16}<br>${s||""}
+ </div>`).join("");
+}
+
+function editPlayer(team,i){
+ let n=prompt("Player Name:",data[team].players[i]);
+ if(n!==null){data[team].players[i]=n;renderPitch(team);}
+}
+
+function editSub(team,i){
+ let n=prompt("Sub Name:",data[team].subs[i]);
+ if(n!==null){data[team].subs[i]=n;renderSubs(team);}
+}
+
+/* STATS (RESTORED FULL) */
 function renderStats(){
  homeStats.innerHTML=`
- <div class="stat-row">GOALS ${stats.home.goals}</div>
- <div class="stat-row">POINTS ${stats.home.points}</div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button> GOALS ${stats.home.goals} <button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','points',-1)">-P</button> POINTS ${stats.home.points} <button class="btn-plus" onclick="updateScoreStat('home','points',1)">+P</button></div>
  <div class="stat-row">WIDES ${stats.home.wides}</div>
  <div class="stat-row">PASSES ${stats.home.passes}</div>
  <div class="stat-row">TURNOVERS ${stats.home.turnovers}</div>
  <div class="stat-row">TACKLES ${stats.home.tackles}</div>
  `;
  awayStats.innerHTML=`
- <div class="stat-row">GOALS ${stats.away.goals}</div>
- <div class="stat-row">POINTS ${stats.away.points}</div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','goals',-1)">-G</button> GOALS ${stats.away.goals} <button class="btn-plus" onclick="updateScoreStat('away','goals',1)">+G</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','points',-1)">-P</button> POINTS ${stats.away.points} <button class="btn-plus" onclick="updateScoreStat('away','points',1)">+P</button></div>
  `;
 }
 
-/* ===== SAVE + LOAD TEAM FIX ===== */
+function updateScoreStat(team,type,val){
+ stats[team][type]+=val;
+ if(stats[team][type]<0) stats[team][type]=0;
+ renderStats();
+ updateScore();
+}
+
+/* SCORE */
+function updateScore(){
+ let h=stats.home.goals*3+stats.home.points;
+ let a=stats.away.goals*3+stats.away.points;
+ scoreboard.innerHTML=`<div class="score-row">${h} - ${a}</div>`;
+}
+
+/* SAVE TEAM */
 function saveTeam(team){
  let teams=JSON.parse(localStorage.getItem("teams")||"[]");
  teams.push(JSON.parse(JSON.stringify(data[team])));
@@ -156,20 +184,7 @@ function saveTeam(team){
  renderHistory();
 }
 
-function loadTeam(i){
- let teams=JSON.parse(localStorage.getItem("teams")||"[]");
- data.home=JSON.parse(JSON.stringify(teams[i]));
- renderPitch("home");
-}
-
-function deleteTeam(i){
- let teams=JSON.parse(localStorage.getItem("teams")||"[]");
- teams.splice(i,1);
- localStorage.setItem("teams",JSON.stringify(teams));
- renderHistory();
-}
-
-/* ===== HISTORY ===== */
+/* HISTORY (FULLY RESTORED) */
 function renderHistory(){
  let teams=JSON.parse(localStorage.getItem("teams")||"[]");
 
@@ -181,10 +196,26 @@ function renderHistory(){
  </div>`).join("");
 }
 
+function loadTeam(i){
+ let teams=JSON.parse(localStorage.getItem("teams")||"[]");
+ data.home=JSON.parse(JSON.stringify(teams[i]));
+ renderPitch("home");
+ renderSubs("home");
+}
+
+function deleteTeam(i){
+ let teams=JSON.parse(localStorage.getItem("teams")||"[]");
+ teams.splice(i,1);
+ localStorage.setItem("teams",JSON.stringify(teams));
+ renderHistory();
+}
+
 /* INIT */
 window.onload=function(){
  renderPitch("home"); renderPitch("away");
+ renderSubs("home"); renderSubs("away");
  renderStats();
+ updateScore();
  renderHistory();
 };
 
