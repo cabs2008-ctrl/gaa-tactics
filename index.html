@@ -28,7 +28,18 @@ body { font-family: Arial; margin: 0; text-align: center; }
  cursor:pointer;
 }
 
-.subs { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
+.subs { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin:12px auto; }
+
+.sub {
+ width:55px;height:55px;border-radius:50%;
+ background:rgba(255,255,255,0.7);
+ font-size:11px;
+ display:flex;flex-direction:column;justify-content:center;align-items:center;
+ cursor:pointer;
+}
+
+.history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
+.top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
 
 .stat-row {
  display:flex; justify-content:space-between; align-items:center;
@@ -37,10 +48,16 @@ body { font-family: Arial; margin: 0; text-align: center; }
  background:#f4f4f4; border-radius:14px;
 }
 
+.btn-minus,.btn-plus {
+ width:35px;height:35px;border:none;border-radius:10px;font-size:18px;
+}
 .btn-minus{background:#ff4d4d;color:white;}
 .btn-plus{background:#28a745;color:white;}
 
-.score-row {padding:10px;margin:10px;border-radius:10px;color:white;}
+.score-row {
+ padding:10px; margin:10px auto; max-width:420px;
+ border-radius:10px; color:white; font-weight:bold;
+}
 .win{background:#28a745;} .lose{background:#dc3545;} .draw{background:#555;}
 </style>
 </head>
@@ -55,44 +72,46 @@ body { font-family: Arial; margin: 0; text-align: center; }
 </div>
 
 <div id="home" class="section active">
-<button onclick="saveTeam('home')">Save Team</button>
-<button onclick="shareMatch()">Share</button>
+<h2 onclick="editTeamName('home',this)">Home</h2>
+<button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
+<button class="top-btn" onclick="saveTeam('home')">Save Team</button>
+<button class="top-btn" onclick="shareMatch()">Share</button>
 <div class="pitch green" id="homePitch"></div>
+<h4>Subs</h4>
 <div class="subs" id="homeSubs"></div>
 </div>
 
 <div id="away" class="section">
-<button onclick="saveTeam('away')">Save Team</button>
-<button onclick="shareMatch()">Share</button>
+<h2 onclick="editTeamName('away',this)">Away</h2>
+<button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
+<button class="top-btn" onclick="saveTeam('away')">Save Team</button>
+<button class="top-btn" onclick="shareMatch()">Share</button>
 <div class="pitch blue" id="awayPitch"></div>
+<h4>Subs</h4>
 <div class="subs" id="awaySubs"></div>
 </div>
 
 <div id="stats" class="section">
+<h2>Match Stats</h2>
 <div id="scoreboard"></div>
+
+<h3>Home</h3>
 <div id="homeStats"></div>
+
+<hr>
+
+<h3>Away</h3>
 <div id="awayStats"></div>
 </div>
 
 <div id="history" class="section">
+<h2>Matches</h2>
 <div id="teamList"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
-
-const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
-
-let data={
- home:{players:Array(15).fill(""),subs:Array(5).fill("")},
- away:{players:Array(15).fill(""),subs:Array(5).fill("")}
-};
-
-let stats={
- home:{goals:0,points:0,wides:0,passes:0,turnovers:0,tackles:0},
- away:{goals:0,points:0}
-};
 
 /* UI */
 function showTab(id,el){
@@ -102,7 +121,20 @@ function showTab(id,el){
  el.classList.add('active');
 }
 
-/* PLAYERS */
+/* DATA */
+const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
+
+let data={
+ home:{name:"Home",players:Array(15).fill(""),subs:Array(5).fill("")},
+ away:{name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")}
+};
+
+let stats={
+ home:{goals:0,points:0,wides:0,passes:0,turnovers:0,tackles:0},
+ away:{goals:0,points:0}
+};
+
+/* TEAM */
 function renderPitch(team){
  document.getElementById(team+"Pitch").innerHTML=
  positions.map((p,i)=>`
@@ -111,25 +143,49 @@ function renderPitch(team){
  </div>`).join("");
 }
 
+function renderSubs(team){
+ document.getElementById(team+"Subs").innerHTML=
+ data[team].subs.map((s,i)=>`
+ <div class="sub" onclick="editSub('${team}',${i})">
+ ${i+16}<br>${s||""}
+ </div>`).join("");
+}
+
 function editPlayer(team,i){
- let n=prompt("Player",data[team].players[i]);
+ let n=prompt("Player Name:",data[team].players[i]);
  if(n!==null){data[team].players[i]=n;renderPitch(team);}
+}
+
+function editSub(team,i){
+ let n=prompt("Sub Name:",data[team].subs[i]);
+ if(n!==null){data[team].subs[i]=n;renderSubs(team);}
+}
+
+function editTeamName(team,el){
+ let n=prompt("Team Name:",data[team].name);
+ if(n){data[team].name=n;el.innerText=n;}
+}
+
+function resetTeam(team){
+ data[team].players=Array(15).fill("");
+ data[team].subs=Array(5).fill("");
+ renderPitch(team); renderSubs(team);
 }
 
 /* SAVE TEAM */
 function saveTeam(team){
- let t=JSON.parse(localStorage.getItem("gaaTeams")||"[]");
- t.push(data[team]);
- localStorage.setItem("gaaTeams",JSON.stringify(t));
+ let saved=JSON.parse(localStorage.getItem("gaaTeams")||"[]");
+ saved.push(JSON.parse(JSON.stringify(data[team])));
+ localStorage.setItem("gaaTeams",JSON.stringify(saved));
  alert("Team saved");
 }
 
-/* SHARE FIX */
+/* SHARE (FIXED) */
 function shareMatch(){
 
  // SAVE MATCH TO HISTORY
  let matches=JSON.parse(localStorage.getItem("gaaMatches")||"[]");
- matches.push({data,stats});
+ matches.push({data:JSON.parse(JSON.stringify(data)),stats:JSON.parse(JSON.stringify(stats))});
  localStorage.setItem("gaaMatches",JSON.stringify(matches));
  renderHistory();
 
@@ -155,12 +211,12 @@ function shareMatch(){
 /* STATS */
 function renderStats(){
  homeStats.innerHTML=`
- <div class="stat-row">GOALS ${stats.home.goals}</div>
- <div class="stat-row">POINTS ${stats.home.points}</div>
- <div class="stat-row">WIDES ${stats.home.wides}</div>
- <div class="stat-row">PASSES ${stats.home.passes}</div>
- <div class="stat-row">TURNOVERS ${stats.home.turnovers}</div>
- <div class="stat-row">TACKLES ${stats.home.tackles}</div>
+ <div class="stat-row" style="border-left:6px solid #28a745">GOALS ${stats.home.goals}</div>
+ <div class="stat-row" style="border-left:6px solid #28a745">POINTS ${stats.home.points}</div>
+ <div class="stat-row" style="border-left:6px solid #ff9800">WIDES ${stats.home.wides}</div>
+ <div class="stat-row" style="border-left:6px solid #007bff">PASSES ${stats.home.passes}</div>
+ <div class="stat-row" style="border-left:6px solid #dc3545">TURNOVERS ${stats.home.turnovers}</div>
+ <div class="stat-row" style="border-left:6px solid #6f42c1">TACKLES ${stats.home.tackles}</div>
  `;
 }
 
@@ -173,6 +229,7 @@ function renderHistory(){
 /* INIT */
 window.onload=function(){
  renderPitch("home"); renderPitch("away");
+ renderSubs("home"); renderSubs("away");
  renderStats();
  renderHistory();
 };
