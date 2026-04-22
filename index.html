@@ -73,7 +73,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div class="tab" onclick="showTab('history',this)">History</div>
 </div>
 
-<!-- HOME -->
 <div id="home" class="section active">
 <button onclick="resetTeam('home')">Reset</button>
 <button onclick="saveTeam('home')">Save Team</button>
@@ -82,7 +81,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div class="subs" id="homeSubs"></div>
 </div>
 
-<!-- AWAY -->
 <div id="away" class="section">
 <button onclick="resetTeam('away')">Reset</button>
 <button onclick="saveTeam('away')">Save Team</button>
@@ -91,14 +89,12 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div class="subs" id="awaySubs"></div>
 </div>
 
-<!-- STATS -->
 <div id="stats" class="section">
 <div id="scoreboard"></div>
 <div id="homeStats"></div>
 <div id="awayStats"></div>
 </div>
 
-<!-- HISTORY -->
 <div id="history" class="section">
 <div id="teamList"></div>
 </div>
@@ -107,7 +103,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-/* UI */
 function showTab(id,el){
  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -115,7 +110,6 @@ function showTab(id,el){
  el.classList.add('active');
 }
 
-/* DATA */
 const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
 
 let data={
@@ -128,7 +122,6 @@ let stats={
  away:{goals:0,points:0}
 };
 
-/* TEAM */
 function renderPitch(team){
  document.getElementById(team+"Pitch").innerHTML=
  positions.map((p,i)=>`
@@ -162,7 +155,8 @@ function resetTeam(team){
  renderSubs(team);
 }
 
-/* STATS FULL FIX */
+/* ===== ONLY CHANGE: AWAY SCORE HANDLING ===== */
+
 function renderStats(){
  homeStats.innerHTML=`
  ${statRow('home','goals','GOALS')}
@@ -172,9 +166,10 @@ function renderStats(){
  ${statRow('home','turnovers','TURNOVERS')}
  ${statRow('home','tackles','TACKLES')}
  `;
+
  awayStats.innerHTML=`
- ${statRow('away','goals','GOALS')}
- ${statRow('away','points','POINTS')}
+ ${statRowAway('goals','GOALS')}
+ ${statRowAway('points','POINTS')}
  `;
 }
 
@@ -186,6 +181,15 @@ function statRow(team,type,label){
  </div>`;
 }
 
+/* FIXED FUNCTION */
+function statRowAway(type,label){
+ return `<div class="stat-row">
+ <button class="btn-minus" onclick="updateStat('away','${type}',-1)">-</button>
+ ${label} ${stats.away[type]}
+ <button class="btn-plus" onclick="updateStat('away','${type}',1)">+</button>
+ </div>`;
+}
+
 function updateStat(team,type,val){
  stats[team][type]+=val;
  if(stats[team][type]<0) stats[team][type]=0;
@@ -193,14 +197,12 @@ function updateStat(team,type,val){
  updateScore();
 }
 
-/* SCORE */
 function updateScore(){
  let h=stats.home.goals*3+stats.home.points;
  let a=stats.away.goals*3+stats.away.points;
  scoreboard.innerHTML=`<div class="score-row">${h} - ${a}</div>`;
 }
 
-/* SHARE */
 function shareWhatsApp(){
  html2canvas(document.querySelector('.section.active')).then(canvas=>{
   canvas.toBlob(async blob=>{
@@ -211,7 +213,6 @@ function shareWhatsApp(){
  });
 }
 
-/* SAVE */
 function saveTeam(team){
  let teams=JSON.parse(localStorage.getItem("teams")||"[]");
  teams.push(JSON.parse(JSON.stringify(data[team])));
@@ -219,7 +220,6 @@ function saveTeam(team){
  renderHistory();
 }
 
-/* HISTORY */
 function renderHistory(){
  let teams=JSON.parse(localStorage.getItem("teams")||"[]");
 
@@ -245,7 +245,6 @@ function deleteTeam(i){
  renderHistory();
 }
 
-/* INIT */
 window.onload=function(){
  renderPitch("home"); renderPitch("away");
  renderSubs("home"); renderSubs("away");
