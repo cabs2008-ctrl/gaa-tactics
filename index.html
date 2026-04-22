@@ -47,6 +47,9 @@ body { font-family: Arial; margin: 0; text-align: center; }
  background:#f4f4f4; border-radius:14px;
 }
 
+.btn-minus,.btn-plus {
+ width:35px;height:35px;border:none;border-radius:10px;font-size:18px;
+}
 .btn-minus{background:#ff4d4d;color:white;}
 .btn-plus{background:#28a745;color:white;}
 
@@ -73,6 +76,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <!-- HOME -->
 <div id="home" class="section active">
 <button onclick="saveTeam('home')">Save Team</button>
+<button onclick="shareWhatsApp()">WhatsApp</button>
 <div class="pitch green" id="homePitch"></div>
 <div class="subs" id="homeSubs"></div>
 </div>
@@ -80,6 +84,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <!-- AWAY -->
 <div id="away" class="section">
 <button onclick="saveTeam('away')">Save Team</button>
+<button onclick="shareWhatsApp()">WhatsApp</button>
 <div class="pitch blue" id="awayPitch"></div>
 <div class="subs" id="awaySubs"></div>
 </div>
@@ -95,6 +100,8 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div id="history" class="section">
 <div id="teamList"></div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
 
@@ -146,7 +153,7 @@ function editSub(team,i){
  if(n!==null){data[team].subs[i]=n;renderSubs(team);}
 }
 
-/* STATS (RESTORED FULL) */
+/* STATS FULL */
 function renderStats(){
  homeStats.innerHTML=`
  <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button> GOALS ${stats.home.goals} <button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button></div>
@@ -165,8 +172,7 @@ function renderStats(){
 function updateScoreStat(team,type,val){
  stats[team][type]+=val;
  if(stats[team][type]<0) stats[team][type]=0;
- renderStats();
- updateScore();
+ renderStats(); updateScore();
 }
 
 /* SCORE */
@@ -176,7 +182,20 @@ function updateScore(){
  scoreboard.innerHTML=`<div class="score-row">${h} - ${a}</div>`;
 }
 
-/* SAVE TEAM */
+/* SHARE */
+function shareWhatsApp(){
+ html2canvas(document.querySelector('.section.active')).then(canvas=>{
+  canvas.toBlob(async blob=>{
+    if(navigator.share){
+      await navigator.share({
+        files:[new File([blob],"match.png",{type:"image/png"})]
+      });
+    }
+  });
+ });
+}
+
+/* SAVE */
 function saveTeam(team){
  let teams=JSON.parse(localStorage.getItem("teams")||"[]");
  teams.push(JSON.parse(JSON.stringify(data[team])));
@@ -184,7 +203,7 @@ function saveTeam(team){
  renderHistory();
 }
 
-/* HISTORY (FULLY RESTORED) */
+/* HISTORY */
 function renderHistory(){
  let teams=JSON.parse(localStorage.getItem("teams")||"[]");
 
