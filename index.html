@@ -70,9 +70,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
   display:flex; justify-content:space-between; align-items:center;
   padding:10px 14px; border-radius:10px; font-weight:bold; color:white;
 }
-.score-row.win { background:#28a745; }
-.score-row.lose { background:#dc3545; }
-.score-row.draw { background:#555; }
 </style>
 </head>
 
@@ -107,13 +104,14 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <div id="stats" class="section">
 <h2>Match Stats</h2>
-<button class="top-btn" onclick="shareMatch()">Share</button>
 
 <div id="scoreboard"></div>
 
 <div class="clock" id="matchClock">00:00</div>
+<button onclick="startClock()">Start</button>
+<button onclick="pauseClock()">Pause</button>
+<button onclick="resetClock()">Reset</button>
 
-<!-- SUMMARY -->
 <div id="summary"></div>
 
 <h3>Home</h3>
@@ -159,7 +157,7 @@ let data={
 
 function editTeamName(team,el){
  let n=prompt("Team Name:",data[team].name);
- if(n){data[team].name=n;el.innerText=n;updateScore();}
+ if(n){data[team].name=n;el.innerText=n;}
 }
 
 function renderPitch(team){
@@ -188,61 +186,77 @@ function editSub(team,i){
  if(n!==null){data[team].subs[i]=n;renderSubs(team);}
 }
 
-/* STATS */
-let stats = {
- home: {goals:0, points:0, wides:0, passes:0, turnovers:0, tackles:0},
- away: {goals:0, points:0}
-};
-
-function renderStats(){
- homeStats.innerHTML = `
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button><span>GOALS : ${stats.home.goals}</span><button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','points',-1)">-P</button><span>POINTS : ${stats.home.points}</span><button class="btn-plus" onclick="updateScoreStat('home','points',1)">+P</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','wides',-1)">-</button><span>WIDES : ${stats.home.wides}</span><button class="btn-plus" onclick="updateStat('home','wides',1)">+</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','passes',-1)">-</button><span>PASSES : ${stats.home.passes}</span><button class="btn-plus" onclick="updateStat('home','passes',1)">+</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','turnovers',-1)">-</button><span>TURNOVERS : ${stats.home.turnovers}</span><button class="btn-plus" onclick="updateStat('home','turnovers',1)">+</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','tackles',-1)">-</button><span>TACKLES : ${stats.home.tackles}</span><button class="btn-plus" onclick="updateStat('home','tackles',1)">+</button></div>
- `;
-
- awayStats.innerHTML = `
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','goals',-1)">-G</button><span>GOALS : ${stats.away.goals}</span><button class="btn-plus" onclick="updateScoreStat('away','goals',1)">+G</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','points',-1)">-P</button><span>POINTS : ${stats.away.points}</span><button class="btn-plus" onclick="updateScoreStat('away','points',1)">+P</button></div>
- `;
+function resetTeam(team){
+ data[team].players=Array(15).fill("");
+ data[team].subs=Array(5).fill("");
+ renderPitch(team);
+ renderSubs(team);
 }
 
-function updateScoreStat(team,type,val){
- stats[team][type]+=val;
- if(stats[team][type]<0) stats[team][type]=0;
- renderStats(); updateScore(); updateSummary();
+/* SAVE */
+function saveTeam(team){
+ let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
+ saved.push(JSON.parse(JSON.stringify(data[team])));
+ localStorage.setItem("gaaTeams", JSON.stringify(saved));
+ renderSavedTeams();
 }
 
-function updateStat(team,stat,val){
- stats[team][stat]+=val;
- if(stats[team][stat]<0) stats[team][stat]=0;
- renderStats(); updateSummary();
+function renderSavedTeams(){
+ let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
+ const list = document.getElementById("teamList");
+
+ list.innerHTML = saved.map((t,i)=>`
+ <div class="history-item">
+ <strong>${t.name}</strong>
+ <button onclick="loadTeam(${i})">Load</button>
+ <button onclick="deleteTeam(${i})">Delete</button>
+ </div>`).join("");
 }
 
-/* SUMMARY */
-function updateSummary(){
- let shots=stats.home.goals+stats.home.points+stats.home.wides;
- let scored=stats.home.goals+stats.home.points;
- let eff=shots?Math.round((scored/shots)*100):0;
- summaryDiv.innerHTML=`<div class="summary-box">Home Efficiency: ${eff}% (${scored}/${shots})</div>`;
+function loadTeam(i){
+ let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
+ data.home = saved[i];
+ renderPitch("home");
+ renderSubs("home");
 }
 
-/* SCORE */
-function updateScore(){
- function total(g,p){ return g*3+p; }
- let hT=total(stats.home.goals,stats.home.points);
- let aT=total(stats.away.goals,stats.away.points);
- scoreboard.innerHTML=`<div class="score-row"><div>${data.home.name} ${stats.home.goals}-${stats.home.points}</div><div>${data.away.name} ${stats.away.goals}-${stats.away.points}</div></div>`;
+function deleteTeam(i){
+ let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
+ saved.splice(i,1);
+ localStorage.setItem("gaaTeams", JSON.stringify(saved));
+ renderSavedTeams();
+}
+
+/* CLOCK */
+let timer=null,seconds=0;
+function updateClock(){
+ let m=String(Math.floor(seconds/60)).padStart(2,'0');
+ let s=String(seconds%60).padStart(2,'0');
+ matchClock.innerText=`${m}:${s}`;
+}
+function startClock(){ if(timer)return; timer=setInterval(()=>{seconds++;updateClock();},1000);}
+function pauseClock(){ clearInterval(timer); timer=null;}
+function resetClock(){ pauseClock(); seconds=0; updateClock();}
+
+/* SHARE */
+function shareMatch(){
+ const el=document.querySelector('.section.active');
+ html2canvas(el).then(c=>{
+  const link=document.createElement("a");
+  link.download="gaa-match.png";
+  link.href=c.toDataURL();
+  link.click();
+ });
 }
 
 /* INIT */
 window.onload=function(){
- renderPitch("home"); renderPitch("away");
- renderSubs("home"); renderSubs("away");
- renderStats(); updateScore(); updateSummary();
+ renderPitch("home");
+ renderPitch("away");
+ renderSubs("home");
+ renderSubs("away");
+ renderSavedTeams();
+ updateClock();
 };
 
 </script>
