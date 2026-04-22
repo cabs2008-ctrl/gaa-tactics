@@ -89,7 +89,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <h2 onclick="editTeamName('home',this)">Home</h2>
 <button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('home')">Save Team</button>
-<button class="top-btn" onclick="shareMatch()">Share</button>
+<button class="top-btn" onclick="saveMatch()">Save Match</button>
 <div class="pitch green" id="homePitch"></div>
 <h4>Subs</h4>
 <div class="subs" id="homeSubs"></div>
@@ -99,7 +99,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <h2 onclick="editTeamName('away',this)">Away</h2>
 <button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('away')">Save Team</button>
-<button class="top-btn" onclick="shareMatch()">Share</button>
+<button class="top-btn" onclick="saveMatch()">Save Match</button>
 <div class="pitch blue" id="awayPitch"></div>
 <h4>Subs</h4>
 <div class="subs" id="awaySubs"></div>
@@ -127,7 +127,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 </div>
 
 <div id="history" class="section">
-<h2>Saved Teams</h2>
+<h2>Saved Matches</h2>
 <div id="teamList"></div>
 </div>
 
@@ -189,48 +189,6 @@ function editSub(team,i){
  if(n!==null){data[team].subs[i]=n;renderSubs(team);}
 }
 
-function resetTeam(team){
- data[team].players=Array(15).fill("");
- data[team].subs=Array(5).fill("");
- renderPitch(team);
- renderSubs(team);
-}
-
-/* SAVE */
-function saveTeam(team){
- let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
- saved.push(JSON.parse(JSON.stringify(data[team])));
- localStorage.setItem("gaaTeams", JSON.stringify(saved));
- renderSavedTeams();
-}
-
-function renderSavedTeams(){
- let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
- const list = document.getElementById("teamList");
-
- list.innerHTML = saved.map((t,i)=>`
- <div class="history-item">
- <strong>${t.name}</strong>
- <button onclick="loadTeam(${i})">Load</button>
- <button onclick="deleteTeam(${i})">Delete</button>
- </div>`).join("");
-}
-
-function loadTeam(i){
- let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
- data.home = JSON.parse(JSON.stringify(saved[i]));
- renderPitch("home");
- renderSubs("home");
- updateScore();
-}
-
-function deleteTeam(i){
- let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
- saved.splice(i,1);
- localStorage.setItem("gaaTeams", JSON.stringify(saved));
- renderSavedTeams();
-}
-
 /* STATS */
 let stats = {
  home: {goals:0, points:0, wides:0, passes:0, turnovers:0, tackles:0},
@@ -239,17 +197,15 @@ let stats = {
 
 function renderStats(){
  homeStats.innerHTML = `
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button><span>GOALS : ${stats.home.goals}</span><button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','points',-1)">-P</button><span>POINTS : ${stats.home.points}</span><button class="btn-plus" onclick="updateScoreStat('home','points',1)">+P</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','wides',-1)">-</button><span>WIDES : ${stats.home.wides}</span><button class="btn-plus" onclick="updateStat('home','wides',1)">+</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','passes',-1)">-</button><span>PASSES : ${stats.home.passes}</span><button class="btn-plus" onclick="updateStat('home','passes',1)">+</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','turnovers',-1)">-</button><span>TURNOVERS : ${stats.home.turnovers}</span><button class="btn-plus" onclick="updateStat('home','turnovers',1)">+</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','tackles',-1)">-</button><span>TACKLES : ${stats.home.tackles}</span><button class="btn-plus" onclick="updateStat('home','tackles',1)">+</button></div>
+ <div class="stat-row"><button onclick="updateScoreStat('home','goals',-1)">-G</button><span>GOALS ${stats.home.goals}</span><button onclick="updateScoreStat('home','goals',1)">+G</button></div>
+ <div class="stat-row"><button onclick="updateScoreStat('home','points',-1)">-P</button><span>POINTS ${stats.home.points}</span><button onclick="updateScoreStat('home','points',1)">+P</button></div>
+ <div class="stat-row"><button onclick="updateStat('home','wides',-1)">-</button><span>WIDES ${stats.home.wides}</span><button onclick="updateStat('home','wides',1)">+</button></div>
+ <div class="stat-row"><button onclick="updateStat('home','passes',-1)">-</button><span>PASSES ${stats.home.passes}</span><button onclick="updateStat('home','passes',1)">+</button></div>
  `;
 
  awayStats.innerHTML = `
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','goals',-1)">-G</button><span>GOALS : ${stats.away.goals}</span><button class="btn-plus" onclick="updateScoreStat('away','goals',1)">+G</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','points',-1)">-P</button><span>POINTS : ${stats.away.points}</span><button class="btn-plus" onclick="updateScoreStat('away','points',1)">+P</button></div>
+ <div class="stat-row"><button onclick="updateScoreStat('away','goals',-1)">-G</button><span>GOALS ${stats.away.goals}</span><button onclick="updateScoreStat('away','goals',1)">+G</button></div>
+ <div class="stat-row"><button onclick="updateScoreStat('away','points',-1)">-P</button><span>POINTS ${stats.away.points}</span><button onclick="updateScoreStat('away','points',1)">+P</button></div>
  `;
 }
 
@@ -265,17 +221,6 @@ function updateStat(team,stat,val){
  renderStats(); updateSummary();
 }
 
-/* SUMMARY */
-function updateSummary(){
- let shots=stats.home.goals+stats.home.points+stats.home.wides;
- let scored=stats.home.goals+stats.home.points;
- let eff=shots?Math.round((scored/shots)*100):0;
-
- summaryDiv.innerHTML=`<div class="summary-box">
- ${data.home.name}: ${eff}% (${scored}/${shots})
- </div>`;
-}
-
 /* SCORE */
 function updateScore(){
  function total(g,p){ return g*3+p; }
@@ -283,8 +228,8 @@ function updateScore(){
  let aT=total(stats.away.goals,stats.away.points);
 
  scoreboard.innerHTML=`<div class="score-row">
- <div>${data.home.name} ${stats.home.goals}-${stats.home.points} (${hT})</div>
- <div>${data.away.name} ${stats.away.goals}-${stats.away.points} (${aT})</div>
+ ${data.home.name} ${stats.home.goals}-${stats.home.points} (${hT}) |
+ ${data.away.name} ${stats.away.goals}-${stats.away.points} (${aT})
  </div>`;
 }
 
@@ -299,15 +244,63 @@ function startClock(){ if(timer)return; timer=setInterval(()=>{seconds++;updateC
 function pauseClock(){ clearInterval(timer); timer=null;}
 function resetClock(){ pauseClock(); seconds=0; updateClock();}
 
-/* SHARE */
-function shareMatch(){
- const el=document.querySelector('.section.active');
- html2canvas(el).then(c=>{
-  const link=document.createElement("a");
-  link.download="gaa-match.png";
-  link.href=c.toDataURL();
-  link.click();
+/* SAVE FULL MATCH */
+function saveMatch(){
+ let matches = JSON.parse(localStorage.getItem("gaaMatches") || "[]");
+
+ matches.push({
+  data: JSON.parse(JSON.stringify(data)),
+  stats: JSON.parse(JSON.stringify(stats)),
+  time: seconds
  });
+
+ localStorage.setItem("gaaMatches", JSON.stringify(matches));
+ renderMatches();
+}
+
+function renderMatches(){
+ let matches = JSON.parse(localStorage.getItem("gaaMatches") || "[]");
+ const list=document.getElementById("teamList");
+
+ list.innerHTML = matches.map((m,i)=>`
+ <div class="history-item">
+ Match ${i+1}
+ <button onclick="loadMatch(${i})">Load</button>
+ <button onclick="deleteMatch(${i})">Delete</button>
+ </div>`).join("");
+}
+
+function loadMatch(i){
+ let matches = JSON.parse(localStorage.getItem("gaaMatches") || "[]");
+ let m = matches[i];
+
+ data = m.data;
+ stats = m.stats;
+ seconds = m.time;
+
+ renderPitch("home");
+ renderPitch("away");
+ renderSubs("home");
+ renderSubs("away");
+ renderStats();
+ updateScore();
+ updateClock();
+ updateSummary();
+}
+
+function deleteMatch(i){
+ let matches = JSON.parse(localStorage.getItem("gaaMatches") || "[]");
+ matches.splice(i,1);
+ localStorage.setItem("gaaMatches", JSON.stringify(matches));
+ renderMatches();
+}
+
+/* SUMMARY */
+function updateSummary(){
+ let shots=stats.home.goals+stats.home.points+stats.home.wides;
+ let scored=stats.home.goals+stats.home.points;
+ let eff=shots?Math.round((scored/shots)*100):0;
+ summaryDiv.innerHTML=`<div class="summary-box">Efficiency ${eff}%</div>`;
 }
 
 /* INIT */
@@ -318,9 +311,8 @@ window.onload=function(){
  renderSubs("away");
  renderStats();
  updateScore();
- updateSummary();
  updateClock();
- renderSavedTeams();
+ renderMatches();
 };
 
 </script>
