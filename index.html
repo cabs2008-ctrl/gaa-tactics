@@ -1,1 +1,56 @@
 
+<!-- ONLY CHANGES ARE IN SHARE FUNCTIONS BELOW -->
+<script>
+
+/* SHARE FIXED */
+function shareMatch(){
+
+ // ✅ SAVE MATCH TO HISTORY (FIX)
+ let m=JSON.parse(localStorage.getItem("matches")||"[]");
+ m.push({
+  data:JSON.parse(JSON.stringify(data)),
+  stats:JSON.parse(JSON.stringify(stats)),
+  time:seconds
+ });
+ localStorage.setItem("matches",JSON.stringify(m));
+ renderHistory();
+
+ // ✅ THEN SHARE IMAGE
+ html2canvas(document.querySelector('.section.active')).then(canvas=>{
+  canvas.toBlob(async blob=>{
+    if(navigator.share){
+      try{
+        await navigator.share({
+          files:[new File([blob],"match.png",{type:"image/png"})]
+        });
+        return;
+      }catch(e){}
+    }
+
+    // fallback download
+    let link=document.createElement("a");
+    link.download="match.png";
+    link.href=canvas.toDataURL();
+    link.click();
+  });
+ });
+}
+
+/* WHATSAPP FIXED */
+function shareWhatsApp(){
+ html2canvas(document.querySelector('.section.active')).then(canvas=>{
+  canvas.toBlob(async blob=>{
+    if(navigator.share){
+      try{
+        await navigator.share({
+          files:[new File([blob],"match.png",{type:"image/png"})]
+        });
+      }catch(e){}
+    } else {
+      alert("WhatsApp sharing only works on mobile devices.");
+    }
+  });
+ });
+}
+
+</script>
