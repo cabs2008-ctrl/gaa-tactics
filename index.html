@@ -82,6 +82,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('home')">Save Team</button>
 <button class="top-btn" onclick="saveMatch()">Save Match</button>
+<button class="top-btn" onclick="shareWhatsApp()">WhatsApp</button>
 <div class="pitch green" id="homePitch"></div>
 <h4>Subs</h4>
 <div class="subs" id="homeSubs"></div>
@@ -93,6 +94,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('away')">Save Team</button>
 <button class="top-btn" onclick="saveMatch()">Save Match</button>
+<button class="top-btn" onclick="shareWhatsApp()">WhatsApp</button>
 <div class="pitch blue" id="awayPitch"></div>
 <h4>Subs</h4>
 <div class="subs" id="awaySubs"></div>
@@ -124,6 +126,8 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <div id="teamList"></div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script>
 
 /* UI */
@@ -147,7 +151,7 @@ let stats={
  away:{goals:0,points:0}
 };
 
-/* RENDER TEAM */
+/* TEAM */
 function renderPitch(team){
  document.getElementById(team+"Pitch").innerHTML=
  positions.map((p,i)=>`
@@ -164,7 +168,6 @@ function renderSubs(team){
  </div>`).join("");
 }
 
-/* EDIT */
 function editPlayer(team,i){
  let n=prompt("Player Name:",data[team].players[i]);
  if(n!==null){data[team].players[i]=n;renderPitch(team);}
@@ -175,20 +178,20 @@ function editSub(team,i){
  if(n!==null){data[team].subs[i]=n;renderSubs(team);}
 }
 
-function editTeamName(team,el){
- let n=prompt("Team Name:",data[team].name);
- if(n){data[team].name=n;el.innerText=n;updateScore();}
-}
-
-/* STATS (FIXED) */
+/* STATS (FULL RESTORE) */
 function renderStats(){
  homeStats.innerHTML=`
- <div class="stat-row"><button onclick="updateScoreStat('home','goals',-1)">-G</button> GOALS ${stats.home.goals} <button onclick="updateScoreStat('home','goals',1)">+G</button></div>
- <div class="stat-row"><button onclick="updateScoreStat('home','points',-1)">-P</button> POINTS ${stats.home.points} <button onclick="updateScoreStat('home','points',1)">+P</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button> GOALS ${stats.home.goals} <button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','points',-1)">-P</button> POINTS ${stats.home.points} <button class="btn-plus" onclick="updateScoreStat('home','points',1)">+P</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','wides',-1)">-</button> WIDES ${stats.home.wides} <button class="btn-plus" onclick="updateStat('home','wides',1)">+</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','passes',-1)">-</button> PASSES ${stats.home.passes} <button class="btn-plus" onclick="updateStat('home','passes',1)">+</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','turnovers',-1)">-</button> TURNOVERS ${stats.home.turnovers} <button class="btn-plus" onclick="updateStat('home','turnovers',1)">+</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','tackles',-1)">-</button> TACKLES ${stats.home.tackles} <button class="btn-plus" onclick="updateStat('home','tackles',1)">+</button></div>
  `;
+
  awayStats.innerHTML=`
- <div class="stat-row"><button onclick="updateScoreStat('away','goals',-1)">-G</button> GOALS ${stats.away.goals} <button onclick="updateScoreStat('away','goals',1)">+G</button></div>
- <div class="stat-row"><button onclick="updateScoreStat('away','points',-1)">-P</button> POINTS ${stats.away.points} <button onclick="updateScoreStat('away','points',1)">+P</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','goals',-1)">-G</button> GOALS ${stats.away.goals} <button class="btn-plus" onclick="updateScoreStat('away','goals',1)">+G</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','points',-1)">-P</button> POINTS ${stats.away.points} <button class="btn-plus" onclick="updateScoreStat('away','points',1)">+P</button></div>
  `;
 }
 
@@ -198,6 +201,12 @@ function updateScoreStat(team,type,val){
  renderStats(); updateScore();
 }
 
+function updateStat(team,type,val){
+ stats[team][type]+=val;
+ if(stats[team][type]<0) stats[team][type]=0;
+ renderStats();
+}
+
 /* SCORE */
 function updateScore(){
  let h=stats.home.goals*3+stats.home.points;
@@ -205,54 +214,26 @@ function updateScore(){
  scoreboard.innerHTML=`<div class="score-row">${data.home.name} ${h} - ${a} ${data.away.name}</div>`;
 }
 
-/* CLOCK */
-let timer=null,seconds=0;
-function startClock(){ if(timer)return; timer=setInterval(()=>{seconds++;updateClock();},1000); }
-function pauseClock(){ clearInterval(timer); timer=null; }
-function resetClock(){ pauseClock(); seconds=0; updateClock(); }
-function updateClock(){
- matchClock.innerText=String(Math.floor(seconds/60)).padStart(2,'0')+":"+String(seconds%60).padStart(2,'0');
-}
-
-/* SAVE + HISTORY (FIXED) */
-function saveMatch(){
- let m=JSON.parse(localStorage.getItem("matches")||"[]");
- m.push({data,stats,time:seconds});
- localStorage.setItem("matches",JSON.stringify(m));
- renderHistory();
-}
-
-function renderHistory(){
- let m=JSON.parse(localStorage.getItem("matches")||"[]");
- teamList.innerHTML=m.map((_,i)=>`
- <div class="history-item">
- Match ${i+1}
- <button onclick="loadMatch(${i})">Load</button>
- <button onclick="deleteMatch(${i})">Delete</button>
- </div>`).join("");
-}
-
-function loadMatch(i){
- let m=JSON.parse(localStorage.getItem("matches")||"[]")[i];
- data=m.data; stats=m.stats; seconds=m.time;
- renderPitch("home"); renderPitch("away");
- renderSubs("home"); renderSubs("away");
- renderStats(); updateScore(); updateClock();
-}
-
-function deleteMatch(i){
- let m=JSON.parse(localStorage.getItem("matches")||"[]");
- m.splice(i,1);
- localStorage.setItem("matches",JSON.stringify(m));
- renderHistory();
+/* WHATSAPP SHARE */
+function shareWhatsApp(){
+ html2canvas(document.querySelector('.section.active')).then(canvas=>{
+  canvas.toBlob(async blob=>{
+    if(navigator.share){
+      await navigator.share({
+        files:[new File([blob],"match.png",{type:"image/png"})]
+      });
+    } else {
+      alert("Use mobile to share to WhatsApp");
+    }
+  });
+ });
 }
 
 /* INIT */
 window.onload=function(){
  renderPitch("home"); renderPitch("away");
  renderSubs("home"); renderSubs("away");
- renderStats(); updateScore(); updateClock();
- renderHistory();
+ renderStats(); updateScore();
 };
 
 </script>
