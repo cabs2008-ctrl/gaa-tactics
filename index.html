@@ -75,6 +75,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <!-- HOME -->
 <div id="home" class="section active">
+<button onclick="resetTeam('home')">Reset</button>
 <button onclick="saveTeam('home')">Save Team</button>
 <button onclick="shareWhatsApp()">WhatsApp</button>
 <div class="pitch green" id="homePitch"></div>
@@ -83,6 +84,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <!-- AWAY -->
 <div id="away" class="section">
+<button onclick="resetTeam('away')">Reset</button>
 <button onclick="saveTeam('away')">Save Team</button>
 <button onclick="shareWhatsApp()">WhatsApp</button>
 <div class="pitch blue" id="awayPitch"></div>
@@ -153,26 +155,42 @@ function editSub(team,i){
  if(n!==null){data[team].subs[i]=n;renderSubs(team);}
 }
 
-/* STATS FULL */
+function resetTeam(team){
+ data[team].players=Array(15).fill("");
+ data[team].subs=Array(5).fill("");
+ renderPitch(team);
+ renderSubs(team);
+}
+
+/* STATS FULL FIX */
 function renderStats(){
  homeStats.innerHTML=`
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button> GOALS ${stats.home.goals} <button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','points',-1)">-P</button> POINTS ${stats.home.points} <button class="btn-plus" onclick="updateScoreStat('home','points',1)">+P</button></div>
- <div class="stat-row">WIDES ${stats.home.wides}</div>
- <div class="stat-row">PASSES ${stats.home.passes}</div>
- <div class="stat-row">TURNOVERS ${stats.home.turnovers}</div>
- <div class="stat-row">TACKLES ${stats.home.tackles}</div>
+ ${statRow('home','goals','GOALS')}
+ ${statRow('home','points','POINTS')}
+ ${statRow('home','wides','WIDES')}
+ ${statRow('home','passes','PASSES')}
+ ${statRow('home','turnovers','TURNOVERS')}
+ ${statRow('home','tackles','TACKLES')}
  `;
  awayStats.innerHTML=`
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','goals',-1)">-G</button> GOALS ${stats.away.goals} <button class="btn-plus" onclick="updateScoreStat('away','goals',1)">+G</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','points',-1)">-P</button> POINTS ${stats.away.points} <button class="btn-plus" onclick="updateScoreStat('away','points',1)">+P</button></div>
+ ${statRow('away','goals','GOALS')}
+ ${statRow('away','points','POINTS')}
  `;
 }
 
-function updateScoreStat(team,type,val){
+function statRow(team,type,label){
+ return `<div class="stat-row">
+ <button class="btn-minus" onclick="updateStat('${team}','${type}',-1)">-</button>
+ ${label} ${stats[team][type]}
+ <button class="btn-plus" onclick="updateStat('${team}','${type}',1)">+</button>
+ </div>`;
+}
+
+function updateStat(team,type,val){
  stats[team][type]+=val;
  if(stats[team][type]<0) stats[team][type]=0;
- renderStats(); updateScore();
+ renderStats();
+ updateScore();
 }
 
 /* SCORE */
@@ -187,9 +205,7 @@ function shareWhatsApp(){
  html2canvas(document.querySelector('.section.active')).then(canvas=>{
   canvas.toBlob(async blob=>{
     if(navigator.share){
-      await navigator.share({
-        files:[new File([blob],"match.png",{type:"image/png"})]
-      });
+      await navigator.share({files:[new File([blob],"match.png",{type:"image/png"})]});
     }
   });
  });
