@@ -70,10 +70,10 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <body>
 
 <div class="tabs">
-<div class="tab active" onclick="showTab('home',this)">Home</div>
-<div class="tab" onclick="showTab('away',this)">Away</div>
-<div class="tab" onclick="showTab('stats',this)">Stats</div>
-<div class="tab" onclick="showTab('history',this)">History</div>
+  <div class="tab active" onclick="showTab('home',this)">Home</div>
+  <div class="tab" onclick="showTab('away',this)">Away</div>
+  <div class="tab" onclick="showTab('stats',this)">Stats</div>
+  <div class="tab" onclick="showTab('history',this)">History</div>
 </div>
 
 <div id="home" class="section active">
@@ -169,19 +169,27 @@ function editSub(team,i){
  if(n!==null){data[team].subs[i]=n;renderSubs(team);}
 }
 
-/* SAVE TEAM FIX */
+/* SAVE TEAM FIXED */
 function saveTeam(team){
- let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
+ let saved=JSON.parse(localStorage.getItem("gaaTeams")||"[]");
  saved.push(JSON.parse(JSON.stringify(data[team])));
- localStorage.setItem("gaaTeams", JSON.stringify(saved));
+ localStorage.setItem("gaaTeams",JSON.stringify(saved));
  alert("Team saved");
 }
 
-/* STATS FIX */
+/* STATS */
 function renderStats(){
  homeStats.innerHTML=`
- <div class="stat-row" style="border-left:6px solid #28a745">GOALS ${stats.home.goals}</div>
- <div class="stat-row" style="border-left:6px solid #28a745">POINTS ${stats.home.points}</div>
+ <div class="stat-row" style="border-left:6px solid #28a745">
+ <button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button>
+ GOALS ${stats.home.goals}
+ <button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button>
+ </div>
+ <div class="stat-row" style="border-left:6px solid #28a745">
+ <button class="btn-minus" onclick="updateScoreStat('home','points',-1)">-P</button>
+ POINTS ${stats.home.points}
+ <button class="btn-plus" onclick="updateScoreStat('home','points',1)">+P</button>
+ </div>
  <div class="stat-row" style="border-left:6px solid #ff9800">WIDES ${stats.home.wides}</div>
  <div class="stat-row" style="border-left:6px solid #007bff">PASSES ${stats.home.passes}</div>
  <div class="stat-row" style="border-left:6px solid #dc3545">TURNOVERS ${stats.home.turnovers}</div>
@@ -189,11 +197,23 @@ function renderStats(){
  `;
 }
 
-/* SHARE FIX */
+/* SCORE */
+function updateScore(){
+ let h=stats.home.goals*3+stats.home.points;
+ let a=stats.away.goals*3+stats.away.points;
+
+ scoreboard.innerHTML=`
+ <div class="score-row draw">
+ ${data.home.name} ${stats.home.goals}-${stats.home.points} (${h})
+ ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})
+ </div>`;
+}
+
+/* SHARE FIXED */
 function shareMatch(){
  html2canvas(document.querySelector('.section.active')).then(canvas=>{
   let link=document.createElement("a");
-  link.download="gaa.png";
+  link.download="match.png";
   link.href=canvas.toDataURL();
   link.click();
  });
@@ -203,7 +223,7 @@ function shareMatch(){
 window.onload=function(){
  renderPitch("home"); renderPitch("away");
  renderSubs("home"); renderSubs("away");
- renderStats();
+ renderStats(); updateScore();
 };
 
 </script>
