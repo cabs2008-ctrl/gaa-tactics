@@ -136,33 +136,26 @@ function showTab(id,el){
 const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
 
 let data={home:{name:"Home",players:Array(15).fill(""),subs:Array(5).fill("")},away:{name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")}};
-let stats={home:{goals:0,points:0,wides:0,passes:0,turnovers:0,tackles:0},away:{goals:0,points:0}};
 
-/* RENDER */
-function renderPitch(team){
- document.getElementById(team+"Pitch").innerHTML=
- positions.map((p,i)=>`<div class="player" style="top:${p[0]}%;left:${p[1]}%" onclick="editPlayer('${team}',${i})">${i+1}<br>${data[team].players[i]}</div>`).join("");
-}
-function renderSubs(team){
- document.getElementById(team+"Subs").innerHTML=
- data[team].subs.map((s,i)=>`<div class="sub" onclick="editSub('${team}',${i})">${i+16}<br>${s}</div>`).join("");
-}
+let stats={
+ home:{goals:0,points:0,wides:0,passes:0,turnovers:0,tackles:0},
+ away:{goals:0,points:0}
+};
 
-/* EDIT */
-function editPlayer(team,i){ let n=prompt("Player:",data[team].players[i]); if(n!==null){data[team].players[i]=n;renderPitch(team);} }
-function editSub(team,i){ let n=prompt("Sub:",data[team].subs[i]); if(n!==null){data[team].subs[i]=n;renderSubs(team);} }
-function editTeamName(team,el){ let n=prompt("Team:",data[team].name); if(n){data[team].name=n;el.innerText=n;updateScore();} }
-
-/* STATS */
+/* STATS RENDER (FULL RESTORE) */
 function renderStats(){
  homeStats.innerHTML=`
  <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button><span>GOALS ${stats.home.goals}</span><button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button></div>
  <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','points',-1)">-P</button><span>POINTS ${stats.home.points}</span><button class="btn-plus" onclick="updateScoreStat('home','points',1)">+P</button></div>
  <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','wides',-1)">-</button><span>WIDES ${stats.home.wides}</span><button class="btn-plus" onclick="updateStat('home','wides',1)">+</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','passes',-1)">-</button><span>PASSES ${stats.home.passes}</span><button class="btn-plus" onclick="updateStat('home','passes',1)">+</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','turnovers',-1)">-</button><span>TURNOVERS ${stats.home.turnovers}</span><button class="btn-plus" onclick="updateStat('home','turnovers',1)">+</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','tackles',-1)">-</button><span>TACKLES ${stats.home.tackles}</span><button class="btn-plus" onclick="updateStat('home','tackles',1)">+</button></div>
  `;
 
  awayStats.innerHTML=`
  <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','goals',-1)">-G</button><span>GOALS ${stats.away.goals}</span><button class="btn-plus" onclick="updateScoreStat('away','goals',1)">+G</button></div>
+ <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','points',-1)">-P</button><span>POINTS ${stats.away.points}</span><button class="btn-plus" onclick="updateScoreStat('away','points',1)">+P</button></div>
  `;
 }
 
@@ -171,106 +164,24 @@ function updateScoreStat(team,type,val){
  if(stats[team][type]<0) stats[team][type]=0;
  renderStats(); updateScore();
 }
+
 function updateStat(team,type,val){
  stats[team][type]+=val;
  if(stats[team][type]<0) stats[team][type]=0;
  renderStats();
 }
 
-/* SCORE */
+/* SCORE FIX */
 function updateScore(){
  function total(g,p){return g*3+p;}
  let h=total(stats.home.goals,stats.home.points);
  let a=total(stats.away.goals,stats.away.points);
- scoreboard.innerHTML=`<div class="score-row">${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) | ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})</div>`;
-}
 
-/* CLOCK */
-let timer=null,seconds=0;
-function updateClock(){ let m=String(Math.floor(seconds/60)).padStart(2,'0'); let s=String(seconds%60).padStart(2,'0'); matchClock.innerText=`${m}:${s}`;}
-function startClock(){if(timer)return;timer=setInterval(()=>{seconds++;updateClock();},1000);}
-function pauseClock(){clearInterval(timer);timer=null;}
-function resetClock(){pauseClock();seconds=0;updateClock();}
-
-/* SAVE TEAM */
-function saveTeam(team){
- let t=JSON.parse(localStorage.getItem("teams")||"[]");
- t.push(data[team]);
- localStorage.setItem("teams",JSON.stringify(t));
- renderHistory();
-}
-
-/* SAVE MATCH */
-function saveMatch(){
- let m=JSON.parse(localStorage.getItem("matches")||"[]");
- m.push({data,stats,time:seconds});
- localStorage.setItem("matches",JSON.stringify(m));
- renderHistory();
-}
-
-/* HISTORY */
-function renderHistory(){
- let teams=JSON.parse(localStorage.getItem("teams")||"[]");
- let matches=JSON.parse(localStorage.getItem("matches")||"[]");
-
- teamList.innerHTML=`
- ${teams.map((t,i)=>`<div class="history-item">Team: ${t.name}
- <button onclick="loadTeam(${i})">Load</button>
- <button onclick="deleteTeam(${i})">Delete</button></div>`).join("")}
-
- ${matches.map((m,i)=>`<div class="history-item">Match ${i+1}
- <button onclick="loadMatch(${i})">Load</button>
- <button onclick="deleteMatch(${i})">Delete</button></div>`).join("")}
- `;
-}
-
-function loadTeam(i){
- let t=JSON.parse(localStorage.getItem("teams")||"[]");
- data.home=t[i];
- renderPitch("home"); renderSubs("home");
-}
-
-function deleteTeam(i){
- let t=JSON.parse(localStorage.getItem("teams")||"[]");
- t.splice(i,1);
- localStorage.setItem("teams",JSON.stringify(t));
- renderHistory();
-}
-
-function loadMatch(i){
- let m=JSON.parse(localStorage.getItem("matches")||"[]");
- let d=m[i];
- data=d.data; stats=d.stats; seconds=d.time;
- renderPitch("home"); renderPitch("away");
- renderSubs("home"); renderSubs("away");
- renderStats(); updateScore(); updateClock();
-}
-
-function deleteMatch(i){
- let m=JSON.parse(localStorage.getItem("matches")||"[]");
- m.splice(i,1);
- localStorage.setItem("matches",JSON.stringify(m));
- renderHistory();
-}
-
-/* SHARE */
-function shareMatch(){
- html2canvas(document.querySelector('.section.active')).then(c=>{
-  let link=document.createElement("a");
-  link.download="match.png";
-  link.href=c.toDataURL();
-  link.click();
- });
-}
-
-function shareWhatsApp(){
- html2canvas(document.querySelector('.section.active')).then(canvas=>{
-  canvas.toBlob(async blob=>{
-    if(navigator.share){
-      await navigator.share({files:[new File([blob],"match.png",{type:"image/png"})]});
-    }
-  });
- });
+ scoreboard.innerHTML=`
+ <div class="score-row">
+ ${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) |
+ ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})
+ </div>`;
 }
 
 /* INIT */
@@ -280,7 +191,6 @@ window.onload=function(){
  renderStats(); updateScore(); updateClock();
  renderHistory();
 };
-
 </script>
 
 </body>
