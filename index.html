@@ -136,13 +136,9 @@ function showTab(id,el){
 const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
 
 let data={home:{name:"Home",players:Array(15).fill(""),subs:Array(5).fill("")},away:{name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")}};
+let stats={home:{goals:0,points:0,wides:0,passes:0,turnovers:0,tackles:0},away:{goals:0,points:0}};
 
-let stats={
- home:{goals:0,points:0,wides:0,passes:0,turnovers:0,tackles:0},
- away:{goals:0,points:0}
-};
-
-/* STATS RENDER (FULL RESTORE) */
+/* STATS (FIXED ONLY) */
 function renderStats(){
  homeStats.innerHTML=`
  <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button><span>GOALS ${stats.home.goals}</span><button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button></div>
@@ -171,26 +167,22 @@ function updateStat(team,type,val){
  renderStats();
 }
 
-/* SCORE FIX */
+/* SCORE (FIXED) */
 function updateScore(){
  function total(g,p){return g*3+p;}
  let h=total(stats.home.goals,stats.home.points);
  let a=total(stats.away.goals,stats.away.points);
-
- scoreboard.innerHTML=`
- <div class="score-row">
- ${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) |
- ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})
- </div>`;
+ scoreboard.innerHTML=`<div class="score-row">${data.home.name} ${stats.home.goals}-${stats.home.points} (${h}) | ${data.away.name} ${stats.away.goals}-${stats.away.points} (${a})</div>`;
 }
 
-/* INIT */
+/* KEEP EVERYTHING ELSE SAME */
 window.onload=function(){
  renderPitch("home"); renderPitch("away");
  renderSubs("home"); renderSubs("away");
  renderStats(); updateScore(); updateClock();
  renderHistory();
 };
+
 </script>
 
 </body>
