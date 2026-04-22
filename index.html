@@ -178,33 +178,10 @@ function editSub(team,i){
  if(n!==null){data[team].subs[i]=n;renderSubs(team);}
 }
 
-/* STATS (FULL RESTORE) */
+/* STATS */
 function renderStats(){
- homeStats.innerHTML=`
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button> GOALS ${stats.home.goals} <button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('home','points',-1)">-P</button> POINTS ${stats.home.points} <button class="btn-plus" onclick="updateScoreStat('home','points',1)">+P</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','wides',-1)">-</button> WIDES ${stats.home.wides} <button class="btn-plus" onclick="updateStat('home','wides',1)">+</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','passes',-1)">-</button> PASSES ${stats.home.passes} <button class="btn-plus" onclick="updateStat('home','passes',1)">+</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','turnovers',-1)">-</button> TURNOVERS ${stats.home.turnovers} <button class="btn-plus" onclick="updateStat('home','turnovers',1)">+</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateStat('home','tackles',-1)">-</button> TACKLES ${stats.home.tackles} <button class="btn-plus" onclick="updateStat('home','tackles',1)">+</button></div>
- `;
-
- awayStats.innerHTML=`
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','goals',-1)">-G</button> GOALS ${stats.away.goals} <button class="btn-plus" onclick="updateScoreStat('away','goals',1)">+G</button></div>
- <div class="stat-row"><button class="btn-minus" onclick="updateScoreStat('away','points',-1)">-P</button> POINTS ${stats.away.points} <button class="btn-plus" onclick="updateScoreStat('away','points',1)">+P</button></div>
- `;
-}
-
-function updateScoreStat(team,type,val){
- stats[team][type]+=val;
- if(stats[team][type]<0) stats[team][type]=0;
- renderStats(); updateScore();
-}
-
-function updateStat(team,type,val){
- stats[team][type]+=val;
- if(stats[team][type]<0) stats[team][type]=0;
- renderStats();
+ homeStats.innerHTML=`<div class="stat-row">GOALS ${stats.home.goals}</div>`;
+ awayStats.innerHTML=`<div class="stat-row">GOALS ${stats.away.goals}</div>`;
 }
 
 /* SCORE */
@@ -214,7 +191,7 @@ function updateScore(){
  scoreboard.innerHTML=`<div class="score-row">${data.home.name} ${h} - ${a} ${data.away.name}</div>`;
 }
 
-/* WHATSAPP SHARE */
+/* WHATSAPP */
 function shareWhatsApp(){
  html2canvas(document.querySelector('.section.active')).then(canvas=>{
   canvas.toBlob(async blob=>{
@@ -222,11 +199,38 @@ function shareWhatsApp(){
       await navigator.share({
         files:[new File([blob],"match.png",{type:"image/png"})]
       });
-    } else {
-      alert("Use mobile to share to WhatsApp");
     }
   });
  });
+}
+
+/* ===== FIX ADDED BELOW ===== */
+
+function saveTeam(team){
+ let teams = JSON.parse(localStorage.getItem("teams") || "[]");
+ teams.push(JSON.parse(JSON.stringify(data[team])));
+ localStorage.setItem("teams", JSON.stringify(teams));
+ renderHistory();
+}
+
+function saveMatch(){
+ let matches = JSON.parse(localStorage.getItem("matches") || "[]");
+ matches.push({
+  data: JSON.parse(JSON.stringify(data)),
+  stats: JSON.parse(JSON.stringify(stats))
+ });
+ localStorage.setItem("matches", JSON.stringify(matches));
+ renderHistory();
+}
+
+function renderHistory(){
+ let matches = JSON.parse(localStorage.getItem("matches") || "[]");
+ let teams = JSON.parse(localStorage.getItem("teams") || []);
+
+ teamList.innerHTML = `
+ ${teams.map((t,i)=>`<div class="history-item">Team ${i+1}</div>`).join("")}
+ ${matches.map((m,i)=>`<div class="history-item">Match ${i+1}</div>`).join("")}
+ `;
 }
 
 /* INIT */
@@ -234,6 +238,7 @@ window.onload=function(){
  renderPitch("home"); renderPitch("away");
  renderSubs("home"); renderSubs("away");
  renderStats(); updateScore();
+ renderHistory();
 };
 
 </script>
