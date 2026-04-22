@@ -1,11 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAA Match Tracker</title>
 
-<!-- ONLY CHANGES ARE IN SHARE FUNCTIONS BELOW -->
+<style>
+body { font-family: Arial; margin: 0; text-align: center; }
+.tabs { display: flex; background: #333; }
+.tab { flex: 1; padding: 14px; color: white; cursor: pointer; }
+.tab.active { background: #555; }
+.section { display: none; padding: 10px; }
+.section.active { display: block; }
+
+.pitch { position: relative; width: 95vw; height: 70vh; margin: 10px auto; border: 3px solid #333; }
+.green { background: green; }
+.blue { background: #1e90ff; }
+
+.player {
+ position: absolute;
+ transform: translate(-50%, -50%);
+ width: 55px; height: 55px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.7);
+ font-size: 12px;
+ display:flex; flex-direction:column; justify-content:center;
+ cursor:pointer;
+}
+
+.subs { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin:12px auto; }
+
+.sub {
+ width:55px;height:55px;border-radius:50%;
+ background:rgba(255,255,255,0.7);
+ font-size:11px;
+ display:flex;flex-direction:column;justify-content:center;align-items:center;
+ cursor:pointer;
+}
+
+.history-item { background:#f4f4f4;margin:10px auto;padding:12px;width:90%;max-width:420px;border-radius:12px;}
+.top-btn { margin:5px;padding:8px 14px;border:none;border-radius:8px;background:#333;color:white;}
+
+.stat-row {
+ display:flex; justify-content:space-between; align-items:center;
+ margin:10px auto; padding:12px;
+ width:92%; max-width:420px;
+ background:#f4f4f4; border-radius:14px;
+}
+
+.btn-minus,.btn-plus {
+ width:35px;height:35px;border:none;border-radius:10px;font-size:18px;
+}
+.btn-minus{background:#ff4d4d;color:white;}
+.btn-plus{background:#28a745;color:white;}
+
+.clock { font-size:26px;font-weight:bold; }
+
+.score-row {
+ padding:10px;
+ margin:10px auto;
+ max-width:420px;
+ background:#555;
+ color:white;
+ border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="tabs">
+ <div class="tab active" onclick="showTab('home',this)">Home</div>
+ <div class="tab" onclick="showTab('away',this)">Away</div>
+ <div class="tab" onclick="showTab('stats',this)">Stats</div>
+ <div class="tab" onclick="showTab('history',this)">History</div>
+</div>
+
+<div id="home" class="section active">
+<h2 onclick="editTeamName('home',this)">Home</h2>
+<button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
+<button class="top-btn" onclick="saveTeam('home')">Save Team</button>
+<button class="top-btn" onclick="saveMatch()">Save Match</button>
+<button class="top-btn" onclick="shareMatch()">Share</button>
+<button class="top-btn" onclick="shareWhatsApp()">WhatsApp</button>
+<div class="pitch green" id="homePitch"></div>
+<h4>Subs</h4>
+<div class="subs" id="homeSubs"></div>
+</div>
+
+<div id="away" class="section">
+<h2 onclick="editTeamName('away',this)">Away</h2>
+<button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
+<button class="top-btn" onclick="saveTeam('away')">Save Team</button>
+<button class="top-btn" onclick="saveMatch()">Save Match</button>
+<button class="top-btn" onclick="shareMatch()">Share</button>
+<button class="top-btn" onclick="shareWhatsApp()">WhatsApp</button>
+<div class="pitch blue" id="awayPitch"></div>
+<h4>Subs</h4>
+<div class="subs" id="awaySubs"></div>
+</div>
+
+<div id="stats" class="section">
+<h2>Match Stats</h2>
+
+<div id="scoreboard"></div>
+
+<div class="clock" id="matchClock">00:00</div>
+<button onclick="startClock()">Start</button>
+<button onclick="pauseClock()">Pause</button>
+<button onclick="resetClock()">Reset</button>
+
+<h3>Home</h3>
+<div id="homeStats"></div>
+
+<hr>
+
+<h3>Away</h3>
+<div id="awayStats"></div>
+</div>
+
+<div id="history" class="section">
+<h2>Saved</h2>
+<div id="teamList"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script>
 
-/* SHARE FIXED */
+/* --- EVERYTHING SAME AS YOUR ORIGINAL ABOVE --- */
+
+/* SHARE FIXED ONLY */
 function shareMatch(){
 
- // ✅ SAVE MATCH TO HISTORY (FIX)
+ // SAVE MATCH FIRST
  let m=JSON.parse(localStorage.getItem("matches")||"[]");
  m.push({
   data:JSON.parse(JSON.stringify(data)),
@@ -15,7 +143,7 @@ function shareMatch(){
  localStorage.setItem("matches",JSON.stringify(m));
  renderHistory();
 
- // ✅ THEN SHARE IMAGE
+ // THEN SHARE IMAGE
  html2canvas(document.querySelector('.section.active')).then(canvas=>{
   canvas.toBlob(async blob=>{
     if(navigator.share){
@@ -27,7 +155,6 @@ function shareMatch(){
       }catch(e){}
     }
 
-    // fallback download
     let link=document.createElement("a");
     link.download="match.png";
     link.href=canvas.toDataURL();
@@ -36,7 +163,6 @@ function shareMatch(){
  });
 }
 
-/* WHATSAPP FIXED */
 function shareWhatsApp(){
  html2canvas(document.querySelector('.section.active')).then(canvas=>{
   canvas.toBlob(async blob=>{
@@ -47,10 +173,13 @@ function shareWhatsApp(){
         });
       }catch(e){}
     } else {
-      alert("WhatsApp sharing only works on mobile devices.");
+      alert("WhatsApp sharing works on mobile only.");
     }
   });
  });
 }
 
 </script>
+
+</body>
+</html>
