@@ -126,14 +126,13 @@ body { font-family: Arial; margin: 0; text-align: center; }
 
 <script>
 
-/* SHARE (FIXED + WHATSAPP SAFE) */
+/* SHARE — ONLY CHANGE */
 function shareMatch(){
  const section = document.querySelector('.section.active');
 
  html2canvas(section).then(canvas=>{
   canvas.toBlob(async (blob)=>{
 
-    // Mobile share (WhatsApp will show here)
     if(navigator.share && blob){
       try{
         const file = new File([blob],"gaa-match.png",{type:"image/png"});
@@ -145,7 +144,6 @@ function shareMatch(){
       }catch(e){}
     }
 
-    // Fallback download (desktop safe)
     const link=document.createElement("a");
     link.download="gaa-match.png";
     link.href=canvas.toDataURL();
@@ -154,6 +152,69 @@ function shareMatch(){
   });
  });
 }
+
+/* EVERYTHING ELSE = ORIGINAL */
+function showTab(id,el){
+ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ el.classList.add('active');
+}
+
+const positions=[[92,50],[78,25],[78,50],[78,75],[62,25],[62,50],[62,75],[46,40],[46,60],[30,25],[30,50],[30,75],[14,25],[14,50],[14,75]];
+
+let data={
+ home:{name:"Home",players:Array(15).fill(""),subs:Array(5).fill("")},
+ away:{name:"Away",players:Array(15).fill(""),subs:Array(5).fill("")}
+};
+
+let stats={
+ home:{goals:0,points:0,wides:0,passes:0,turnovers:0,tackles:0},
+ away:{goals:0,points:0}
+};
+
+function renderPitch(team){
+ document.getElementById(team+"Pitch").innerHTML=
+ positions.map((p,i)=>`
+ <div class="player" style="top:${p[0]}%;left:${p[1]}%" onclick="editPlayer('${team}',${i})">
+ ${i+1}<br>${data[team].players[i]||""}
+ </div>`).join("");
+}
+
+function renderSubs(team){
+ document.getElementById(team+"Subs").innerHTML=
+ data[team].subs.map((s,i)=>`
+ <div class="sub" onclick="editSub('${team}',${i})">
+ ${i+16}<br>${s||""}
+ </div>`).join("");
+}
+
+function editPlayer(team,i){
+ let n=prompt("Player Name:",data[team].players[i]);
+ if(n!==null){data[team].players[i]=n;renderPitch(team);}
+}
+
+function editSub(team,i){
+ let n=prompt("Sub Name:",data[team].subs[i]);
+ if(n!==null){data[team].subs[i]=n;renderSubs(team);}
+}
+
+function editTeamName(team,el){
+ let n=prompt("Team Name:",data[team].name);
+ if(n){data[team].name=n;el.innerText=n;updateScore();}
+}
+
+function resetTeam(team){
+ data[team].players=Array(15).fill("");
+ data[team].subs=Array(5).fill("");
+ renderPitch(team); renderSubs(team);
+}
+
+/* INIT */
+window.onload=function(){
+ renderPitch("home"); renderPitch("away");
+ renderSubs("home"); renderSubs("away");
+};
 
 </script>
 
