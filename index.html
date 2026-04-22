@@ -80,8 +80,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <h2 onclick="editTeamName('home',this)">Home</h2>
 <button class="top-btn" onclick="resetTeam('home')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('home')">Save Team</button>
-<button class="top-btn" onclick="saveMatch()">Save Match</button>
-<button class="top-btn" onclick="shareMatch()">Share</button>
 <div class="pitch green" id="homePitch"></div>
 <h4>Subs</h4>
 <div class="subs" id="homeSubs"></div>
@@ -91,8 +89,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <h2 onclick="editTeamName('away',this)">Away</h2>
 <button class="top-btn" onclick="resetTeam('away')">Reset Team</button>
 <button class="top-btn" onclick="saveTeam('away')">Save Team</button>
-<button class="top-btn" onclick="saveMatch()">Save Match</button>
-<button class="top-btn" onclick="shareMatch()">Share</button>
 <div class="pitch blue" id="awayPitch"></div>
 <h4>Subs</h4>
 <div class="subs" id="awaySubs"></div>
@@ -102,11 +98,6 @@ body { font-family: Arial; margin: 0; text-align: center; }
 <h2>Match Stats</h2>
 
 <div id="scoreboard"></div>
-
-<div class="clock" id="matchClock">00:00</div>
-<button onclick="startClock()">Start</button>
-<button onclick="pauseClock()">Pause</button>
-<button onclick="resetClock()">Reset</button>
 
 <h3>Home</h3>
 <div id="homeStats"></div>
@@ -118,11 +109,9 @@ body { font-family: Arial; margin: 0; text-align: center; }
 </div>
 
 <div id="history" class="section">
-<h2>Saved</h2>
+<h2>Saved Teams</h2>
 <div id="teamList"></div>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
 
@@ -156,17 +145,17 @@ function renderPitch(team){
  </div>`).join("");
 }
 
-function editPlayer(team,i){
- let n=prompt("Player Name:",data[team].players[i]);
- if(n!==null){data[team].players[i]=n;renderPitch(team);}
-}
-
 function renderSubs(team){
  document.getElementById(team+"Subs").innerHTML=
  data[team].subs.map((s,i)=>`
  <div class="sub" onclick="editSub('${team}',${i})">
  ${i+16}<br>${s||""}
  </div>`).join("");
+}
+
+function editPlayer(team,i){
+ let n=prompt("Player Name:",data[team].players[i]);
+ if(n!==null){data[team].players[i]=n;renderPitch(team);}
 }
 
 function editSub(team,i){
@@ -176,13 +165,112 @@ function editSub(team,i){
 
 function editTeamName(team,el){
  let n=prompt("Team Name:",data[team].name);
- if(n){data[team].name=n;el.innerText=n;updateScore();}
+ if(n){data[team].name=n;el.innerText=n;}
+}
+
+function resetTeam(team){
+ data[team].players=Array(15).fill("");
+ data[team].subs=Array(5).fill("");
+ renderPitch(team); renderSubs(team);
+}
+
+/* SAVE TEAM (FIXED) */
+function saveTeam(team){
+ let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
+ saved.push(JSON.parse(JSON.stringify(data[team])));
+ localStorage.setItem("gaaTeams", JSON.stringify(saved));
+ renderSavedTeams();
+}
+
+/* HISTORY */
+function renderSavedTeams(){
+ let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
+ teamList.innerHTML = saved.map((t,i)=>`
+ <div class="history-item">${t.name}
+ <button onclick="deleteTeam(${i})">Delete</button>
+ </div>`).join("");
+}
+
+function deleteTeam(i){
+ let saved = JSON.parse(localStorage.getItem("gaaTeams") || "[]");
+ saved.splice(i,1);
+ localStorage.setItem("gaaTeams", JSON.stringify(saved));
+ renderSavedTeams();
+}
+
+/* STATS (RESTORED) */
+function renderStats(){
+ homeStats.innerHTML=`
+ <div class="stat-row" style="border-left:6px solid #28a745">
+ <button class="btn-minus" onclick="updateScoreStat('home','goals',-1)">-G</button>
+ <span>GOALS : ${stats.home.goals}</span>
+ <button class="btn-plus" onclick="updateScoreStat('home','goals',1)">+G</button>
+ </div>
+
+ <div class="stat-row" style="border-left:6px solid #28a745">
+ <button class="btn-minus" onclick="updateScoreStat('home','points',-1)">-P</button>
+ <span>POINTS : ${stats.home.points}</span>
+ <button class="btn-plus" onclick="updateScoreStat('home','points',1)">+P</button>
+ </div>
+
+ <div class="stat-row" style="border-left:6px solid #ff9800">
+ <button class="btn-minus" onclick="updateStat('home','wides',-1)">-</button>
+ <span>WIDES : ${stats.home.wides}</span>
+ <button class="btn-plus" onclick="updateStat('home','wides',1)">+</button>
+ </div>
+
+ <div class="stat-row" style="border-left:6px solid #007bff">
+ <button class="btn-minus" onclick="updateStat('home','passes',-1)">-</button>
+ <span>PASSES : ${stats.home.passes}</span>
+ <button class="btn-plus" onclick="updateStat('home','passes',1)">+</button>
+ </div>
+
+ <div class="stat-row" style="border-left:6px solid #dc3545">
+ <button class="btn-minus" onclick="updateStat('home','turnovers',-1)">-</button>
+ <span>TURNOVERS : ${stats.home.turnovers}</span>
+ <button class="btn-plus" onclick="updateStat('home','turnovers',1)">+</button>
+ </div>
+
+ <div class="stat-row" style="border-left:6px solid #6f42c1">
+ <button class="btn-minus" onclick="updateStat('home','tackles',-1)">-</button>
+ <span>TACKLES : ${stats.home.tackles}</span>
+ <button class="btn-plus" onclick="updateStat('home','tackles',1)">+</button>
+ </div>
+ `;
+
+ awayStats.innerHTML=`
+ <div class="stat-row" style="border-left:6px solid #28a745">
+ <button class="btn-minus" onclick="updateScoreStat('away','goals',-1)">-G</button>
+ <span>GOALS : ${stats.away.goals}</span>
+ <button class="btn-plus" onclick="updateScoreStat('away','goals',1)">+G</button>
+ </div>
+
+ <div class="stat-row" style="border-left:6px solid #28a745">
+ <button class="btn-minus" onclick="updateScoreStat('away','points',-1)">-P</button>
+ <span>POINTS : ${stats.away.points}</span>
+ <button class="btn-plus" onclick="updateScoreStat('away','points',1)">+P</button>
+ </div>
+ `;
+}
+
+function updateScoreStat(team,type,val){
+ stats[team][type]+=val;
+ if(stats[team][type]<0) stats[team][type]=0;
+ renderStats();
+}
+
+function updateStat(team,type,val){
+ stats[team][type]+=val;
+ if(stats[team][type]<0) stats[team][type]=0;
+ renderStats();
 }
 
 /* INIT */
 window.onload=function(){
  renderPitch("home"); renderPitch("away");
  renderSubs("home"); renderSubs("away");
+ renderStats();
+ renderSavedTeams();
 };
 
 </script>
