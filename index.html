@@ -105,7 +105,7 @@ body { font-family: Arial; margin: 0; text-align: center; }
 </div>
 
 <div id="history" class="section">
-<h2>Matches</h2>
+<h2>Saved</h2>
 <div id="teamList"></div>
 </div>
 
@@ -161,49 +161,41 @@ function editSub(team,i){
  if(n!==null){data[team].subs[i]=n;renderSubs(team);}
 }
 
-function editTeamName(team,el){
- let n=prompt("Team Name:",data[team].name);
- if(n){data[team].name=n;el.innerText=n;}
-}
-
-function resetTeam(team){
- data[team].players=Array(15).fill("");
- data[team].subs=Array(5).fill("");
- renderPitch(team); renderSubs(team);
-}
-
 /* SAVE TEAM */
 function saveTeam(team){
  let saved=JSON.parse(localStorage.getItem("gaaTeams")||"[]");
  saved.push(JSON.parse(JSON.stringify(data[team])));
  localStorage.setItem("gaaTeams",JSON.stringify(saved));
- alert("Team saved");
+ renderHistory();
 }
 
-/* SHARE (FIXED) */
+/* SHARE (FIXED CORRECTLY) */
 function shareMatch(){
 
- // SAVE MATCH TO HISTORY
+ // SAVE MATCH
  let matches=JSON.parse(localStorage.getItem("gaaMatches")||"[]");
- matches.push({data:JSON.parse(JSON.stringify(data)),stats:JSON.parse(JSON.stringify(stats))});
+ matches.push({
+  data:JSON.parse(JSON.stringify(data)),
+  stats:JSON.parse(JSON.stringify(stats))
+ });
  localStorage.setItem("gaaMatches",JSON.stringify(matches));
  renderHistory();
 
- // SHARE IMAGE
+ // SHARE
  html2canvas(document.querySelector('.section.active')).then(canvas=>{
   canvas.toBlob(async blob=>{
-    if(navigator.share){
-      try{
-        await navigator.share({
-          files:[new File([blob],"match.png",{type:"image/png"})]
-        });
-        return;
-      }catch{}
-    }
-    let link=document.createElement("a");
-    link.href=canvas.toDataURL();
-    link.download="match.png";
-    link.click();
+   if(navigator.share){
+    try{
+     await navigator.share({
+      files:[new File([blob],"match.png",{type:"image/png"})]
+     });
+     return;
+    }catch{}
+   }
+   let link=document.createElement("a");
+   link.href=canvas.toDataURL();
+   link.download="match.png";
+   link.click();
   });
  });
 }
